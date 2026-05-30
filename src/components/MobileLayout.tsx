@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import PrayerWidget from './PrayerWidget';
 import DailyVerse from './DailyVerse';
@@ -13,7 +13,14 @@ import { usePeriodMode } from '../contexts/PeriodModeContext';
 
 export default function MobileLayout() {
   const [activeTab, setActiveTab] = useState('home');
+  const [isQuranReading, setIsQuranReading] = useState(false);
   const { isPeriodMode } = usePeriodMode();
+
+  useEffect(() => {
+    if (activeTab !== 'quran') {
+      setIsQuranReading(false);
+    }
+  }, [activeTab]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-gray-200">
@@ -31,13 +38,21 @@ export default function MobileLayout() {
               <QuickActions onNavigate={setActiveTab} />
             </div>
           )}
-          {activeTab === 'quran' && <QuranLayout />}
+          {activeTab === 'quran' && (
+            <QuranLayout onReadingModeChange={setIsQuranReading} />
+          )}
           {activeTab === 'duas' && <DuasLayout />}
           {activeTab === 'nisa' && <NisaLayout />}
           {activeTab === 'profile' && <ProfileLayout />}
           {/* Placeholders for other tabs to prevent crashing or empty states */}
         </div>
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <div
+          id="floating-audio-root"
+          className="absolute left-0 right-0 bottom-4 z-40 px-6 pb-4 pointer-events-none"
+        />
+        {!isQuranReading && (
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        )}
       </div>
     </div>
   );

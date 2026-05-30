@@ -12,6 +12,7 @@ interface VerseCardProps {
   onShare?: () => void;
   onSelect?: () => void;
   id?: string;
+  key?: string | number;
 }
 
 export default function VerseCard({

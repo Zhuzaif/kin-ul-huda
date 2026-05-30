@@ -4,10 +4,12 @@ import ResumeReading from './ResumeReading';
 import QuranFilters, { QuranFilterId } from './QuranFilters';
 import SurahList from './SurahList';
 import QuranReadingScreen from './QuranReadingScreen';
+import MushafLayout from './mushaf/MushafLayout';
 import VerseCard from './VerseCard';
 import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
+import juzData from '../data/juz.json';
 
 type Chapter = {
   id: number;
@@ -26,6 +28,25 @@ type Verse = {
 
 type QuranMap = Record<string, Verse[]>;
 
+type JuzEntry = {
+  index: string;
+  start: { index: string; verse: string; name: string };
+  end: { index: string; verse: string; name: string };
+};
+
+type JuzMapped = {
+  index: string;
+  title: string;
+  startChapterId: number;
+  startVerse: number;
+  endChapterId: number;
+  endVerse: number;
+  startName: string;
+  endName: string;
+  startArabic: string;
+  arabicTitle: string;
+};
+
 type SavedVerse = {
   chapterId: number;
   verse: number;
@@ -37,24 +58,95 @@ type LastRead = {
   updatedAt: number;
 };
 
+interface QuranLayoutProps {
+  onReadingModeChange?: (isReading: boolean) => void;
+}
+
 const chapterList = chapters as Chapter[];
 const quranByChapter = quran as QuranMap;
 const translationByChapter = translationEn as QuranMap;
+const juzRaw = juzData as JuzEntry[];
 
 const LAST_READ_KEY = 'nisa.quran.lastRead';
 const SAVED_VERSES_KEY = 'nisa.quran.savedVerses';
 
-export default function QuranLayout() {
+const juzNames = [
+  'Alif Lam Meem',
+  'Sayaqool',
+  'Tilkal Rusul',
+  'Lan Tana Loo',
+  'Wal Mohsanat',
+  'La Yuhibbullah',
+  'Wa Iza Samiu',
+  'Wa Lau Annana',
+  'Qalal Malao',
+  "Wa A'lamu",
+  'Yatazeroon',
+  "Wa Mamin Da'abatin",
+  'Wa Ma Ubrioo',
+  'Rubama',
+  'Subhanallazi',
+  'Qal Alam',
+  'Iqtaraba Lin-Nasi',
+  'Qadd Aflaha',
+  'Wa Qalallazina',
+  "A'man Khalaqa",
+  'Utlu Ma Oohiya',
+  'Wa Man Yaqnut',
+  'Wa Mali',
+  'Faman Azlamu',
+  'Ilayhi Yuruddu',
+  "Ha'a Meem",
+  'Qala Fama Khatbukum',
+  'Qadd Sami Allah',
+  'Tabarakallazi',
+  "Amma Yatasa'aloon",
+];
+
+const juzArabicNames = [
+  'آلم',
+  'سَيَقُولُ',
+  'تِلْكَ ٱلْرُّسُلُ',
+  'لَنْ تَنَالُوا',
+  'وَٱلْمُحْصَنَاتُ',
+  'لَا يُحِبُّ ٱللهُ',
+  'وَإِذَا سَمِعُوا',
+  'وَلَوْ أَنَّنَا',
+  'قَالَ ٱلْمَلَأُ',
+  'وَٱعْلَمُواْ',
+  'يَعْتَذِرُونَ',
+  'وَمَا مِنْ دَآبَّةٍ',
+  'وَمَا أُبَرِّئُ',
+  'رُبَمَا',
+  'سُبْحَانَ ٱلَّذِى',
+  'قَالَ أَلَمْ',
+  'ٱقْتَرَبَ لِلْنَّاسِ',
+  'قَدْ أَفْلَحَ',
+  'وَقَالَ ٱلَّذِينَ',
+  'أَمَّنْ خَلَقَ',
+  'أُتْلُ مَاأُوْحِیَ',
+  'وَمَنْ يَّقْنُتْ',
+  'وَمَآ لي',
+  'فَمَنْ أَظْلَمُ',
+  'إِلَيْهِ يُرَدُّ',
+  'حم',
+  'قَالَ فَمَا خَطْبُكُمْ',
+  'قَدْ سَمِعَ ٱللَّهُ',
+  'تَبَارَكَ ٱلَّذِى',
+  'عَمَّ يَتَسَاءَلُونَ',
+];
+
+const parseChapterId = (value: string) => Number(value);
+const parseVerseNumber = (value: string) => Number(value.replace('verse_', ''));
+
+export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
   const [selectedVerseNumber, setSelectedVerseNumber] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<QuranFilterId>('surahs');
   const [searchQuery, setSearchQuery] = useState('');
-  const [lastRead, setLastRead] = useState<LastRead | null>(null);
-  const [savedVerses, setSavedVerses] = useState<SavedVerse[]>([]);
-
-  useEffect(() => {
+  const [lastRead, setLastRead] = useState<LastRead | null>(() => {
     if (typeof window === 'undefined') {
-      return;
+      return null;
     }
 
     try {
@@ -65,11 +157,19 @@ export default function QuranLayout() {
           typeof parsed?.chapterId === 'number' &&
           typeof parsed?.verse === 'number'
         ) {
-          setLastRead(parsed);
+          return parsed;
         }
       }
     } catch (error) {
       console.error(error);
+    }
+
+    return null;
+  });
+
+  const [savedVerses, setSavedVerses] = useState<SavedVerse[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
     }
 
     try {
@@ -77,17 +177,22 @@ export default function QuranLayout() {
       if (savedRaw) {
         const parsed = JSON.parse(savedRaw) as SavedVerse[];
         if (Array.isArray(parsed)) {
-          const cleaned = parsed.filter(
+          return parsed.filter(
             (item) =>
               typeof item?.chapterId === 'number' && typeof item?.verse === 'number'
           );
-          setSavedVerses(cleaned);
         }
       }
     } catch (error) {
       console.error(error);
     }
-  }, []);
+
+    return [];
+  });
+
+  useEffect(() => {
+    onReadingModeChange?.(selectedChapterId !== null);
+  }, [onReadingModeChange, selectedChapterId]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !lastRead) {
@@ -111,6 +216,75 @@ export default function QuranLayout() {
   const resumePercent = lastRead && resumeChapter
     ? Math.round((resumeVerseNumber / resumeChapter.total_verses) * 100)
     : 0;
+
+  const juzList = useMemo<JuzMapped[]>(() => {
+    return juzRaw.map((entry, position) => {
+      const startChapterId = parseChapterId(entry.start.index);
+      const endChapterId = parseChapterId(entry.end.index);
+      const startVerse = parseVerseNumber(entry.start.verse);
+      const endVerse = parseVerseNumber(entry.end.verse);
+      const startChapter = chapterList.find((item) => item.id === startChapterId);
+      const endChapter = chapterList.find((item) => item.id === endChapterId);
+
+      return {
+        index: entry.index,
+        title: juzNames[position] ?? `Juz ${entry.index}`,
+        arabicTitle: juzArabicNames[position] ?? '',
+        startChapterId,
+        startVerse,
+        endChapterId,
+        endVerse,
+        startName: startChapter?.transliteration ?? entry.start.name,
+        endName: endChapter?.transliteration ?? entry.end.name,
+        startArabic: startChapter?.name ?? '',
+      };
+    });
+  }, []);
+
+  const isVerseInJuz = (chapterId: number, verse: number, item: JuzMapped) => {
+    if (chapterId < item.startChapterId || chapterId > item.endChapterId) {
+      return false;
+    }
+    if (item.startChapterId === item.endChapterId) {
+      return verse >= item.startVerse && verse <= item.endVerse;
+    }
+    if (chapterId === item.startChapterId) {
+      return verse >= item.startVerse;
+    }
+    if (chapterId === item.endChapterId) {
+      return verse <= item.endVerse;
+    }
+    return true;
+  };
+
+  const currentJuz = useMemo(() => {
+    if (!lastRead) {
+      return null;
+    }
+    return (
+      juzList.find((item) => isVerseInJuz(lastRead.chapterId, lastRead.verse, item)) ??
+      null
+    );
+  }, [juzList, lastRead]);
+
+  const filteredJuz = useMemo(() => {
+    if (!normalizedQuery) {
+      return juzList;
+    }
+    return juzList.filter((item) => {
+      const terms = [
+        item.index,
+        item.title,
+        item.startName,
+        item.endName,
+        item.startArabic,
+        item.arabicTitle,
+        String(item.startVerse),
+        String(item.endVerse),
+      ];
+      return terms.some((term) => term.toLowerCase().includes(normalizedQuery));
+    });
+  }, [juzList, normalizedQuery]);
 
   const filteredSurahs = useMemo(() => {
     const baseList =
@@ -178,6 +352,11 @@ export default function QuranLayout() {
     setSelectedVerseNumber(1);
   };
 
+  const handleOpenJuz = (item: JuzMapped) => {
+    setSelectedChapterId(item.startChapterId);
+    setSelectedVerseNumber(item.startVerse);
+  };
+
   const handleLastReadChange = (data: { chapterId: number; verse: number }) => {
     setLastRead({ ...data, updatedAt: Date.now() });
   };
@@ -219,12 +398,20 @@ export default function QuranLayout() {
     if (typeof window === 'undefined') {
       return;
     }
-    const payload = activeFilter === 'saved' ? savedVerses : chapterList;
+    const payload = activeFilter === 'saved'
+      ? savedVerses
+      : activeFilter === 'juz'
+        ? juzList
+        : chapterList;
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = activeFilter === 'saved' ? 'saved-verses.json' : 'surahs.json';
+    link.download = activeFilter === 'saved'
+      ? 'saved-verses.json'
+      : activeFilter === 'juz'
+        ? 'juz.json'
+        : 'surahs.json';
     link.click();
     window.URL.revokeObjectURL(url);
   };
@@ -263,7 +450,20 @@ export default function QuranLayout() {
         <div className="px-6 pb-28 flex flex-col gap-5">
           {savedVerseCards.length === 0 ? (
             <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center">
-              No saved verses yet.
+              {savedVerses.length === 0 ? (
+                'No saved verses yet.'
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <span>No saved verses match your search.</span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="text-[11px] font-semibold uppercase tracking-widest text-white bg-[#2B604A] px-4 py-2 rounded-full shadow-sm"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             savedVerseCards.map((item) => (
@@ -294,11 +494,72 @@ export default function QuranLayout() {
           )}
         </div>
       ) : activeFilter === 'juz' ? (
-        <div className="px-6 pb-28">
-          <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center">
-            Juz navigation needs a juz mapping dataset. Share that file and I will wire it.
+        <div className="px-6 pb-28 flex flex-col gap-4">
+          {currentJuz && lastRead ? (
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="w-full bg-white/70 border border-white/70 rounded-[24px] px-4 py-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex items-center justify-between"
+            >
+              <div className="text-left">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-gold font-semibold">
+                  Continue Reading
+                </p>
+                <p className="text-[14px] font-semibold text-gray-800 mt-1">
+                  Juz {currentJuz.index} • {currentJuz.title}
+                </p>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  {resumeChapter?.transliteration ?? 'Surah'} • {resumeChapterId}:{resumeVerseNumber}
+                </p>
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-white bg-[#2B604A] px-3 py-2 rounded-full shadow-sm">
+                Resume
+              </span>
+            </button>
+          ) : null}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filteredJuz.length === 0 ? (
+              <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center sm:col-span-2">
+                No juz match your search.
+              </div>
+            ) : (
+              filteredJuz.map((item) => (
+                <button
+                  key={item.index}
+                  onClick={() => handleOpenJuz(item)}
+                  className="bg-white/60 hover:bg-white/85 transition-colors rounded-[26px] p-4 flex items-center justify-between shadow-[0_6px_18px_rgba(0,0,0,0.04)] border border-white/70 text-left relative overflow-hidden group"
+                  aria-label={`Open Juz ${item.index}`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-soft-mint/25 via-transparent to-soft-mint/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  <div className="flex items-center gap-3 z-10">
+                    <div className="w-11 h-11 rounded-full bg-soft-mint flex items-center justify-center text-[#2B604A] font-bold text-[12px] shadow-inner">
+                      {item.index}
+                    </div>
+                    <div>
+                      <h4 className="text-[15px] font-bold text-gray-800 tracking-tight">
+                          {item.title}
+                      </h4>
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Starts at {item.startName}
+                        </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end z-10">
+                    <span className="text-[22px] font-arabic text-muted-gold">
+                      {item.arabicTitle || item.startArabic || item.startName}
+                    </span>
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-muted-gold bg-muted-gold-light/60 px-2 py-1 rounded-full mt-2">
+                      Start
+                    </span>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
+      ) : activeFilter === 'mushaf' ? (
+        <MushafLayout />
       ) : (
         <SurahList
           items={filteredSurahs}

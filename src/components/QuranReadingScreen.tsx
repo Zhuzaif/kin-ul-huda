@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, Type } from 'lucide-react';
 import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
@@ -36,6 +37,14 @@ interface QuranReadingScreenProps {
 const chapterList = chapters as Chapter[];
 const quranByChapter = quran as QuranMap;
 const translationByChapter = translationEn as QuranMap;
+const RECITER_STORAGE_KEY = 'nisa.quran.reciter';
+const RECITER_OPTIONS = [
+  { id: 'mishary', label: 'Mishary' },
+  { id: 'abdul-basit', label: 'Abdul Basit' },
+  { id: 'maher', label: 'Maher' },
+  { id: 'yasser', label: 'Yasser' },
+  { id: 'shuraim', label: 'Shuraim' },
+];
 
 export default function QuranReadingScreen({
   chapterId,
@@ -56,16 +65,116 @@ export default function QuranReadingScreen({
   const [activeVerseIndex, setActiveVerseIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [selectedReciterId, setSelectedReciterId] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'mishary';
+    }
+    const stored = window.localStorage.getItem(RECITER_STORAGE_KEY);
+    if (stored && RECITER_OPTIONS.some((item) => item.id === stored)) {
+      return stored;
+    }
+    return 'mishary';
+  });
+  const [isRecitationLoading, setIsRecitationLoading] = useState(false);
+  const initialScrollDone = useRef(false);
+  const lastReportedVerse = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const activeVerseIndexRef = useRef(activeVerseIndex);
+  const isPlayingRef = useRef(isPlaying);
+  const [floatingRoot, setFloatingRoot] = useState<HTMLElement | null>(null);
+  const [recitationData, setRecitationData] = useState<{ surahUrl: string; segments: Record<string, any> } | null>(null);
+
   const savedSet = useMemo(
     () => new Set(savedVerses.map((item) => `${item.chapterId}:${item.verse}`)),
     [savedVerses]
   );
 
   useEffect(() => {
+    activeVerseIndexRef.current = activeVerseIndex;
+  }, [activeVerseIndex]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.localStorage.setItem(RECITER_STORAGE_KEY, selectedReciterId);
+  }, [selectedReciterId]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    setFloatingRoot(document.getElementById('floating-audio-root'));
+  }, []);
+
+  useEffect(() => {
+    let isActive = true;
+    const fetchRecitation = async () => {
+      setIsRecitationLoading(true);
+      setRecitationData(null);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      try {
+        const [surahRes, segmentsRes] = await Promise.all([
+          fetch(`/recitations/${selectedReciterId}/surah.json`),
+          fetch(`/recitations/${selectedReciterId}/segments.json`),
+        ]);
+
+        if (!surahRes.ok || !segmentsRes.ok) {
+          throw new Error('Recitation response not ok');
+        }
+
+        const surahData = await surahRes.json();
+        const segmentsData = await segmentsRes.json();
+
+        if (!isActive) {
+          return;
+        }
+
+        const surahInfo = surahData[String(chapterId)];
+        if (surahInfo?.audio_url) {
+          setRecitationData({
+            surahUrl: surahInfo.audio_url,
+            segments: segmentsData,
+          });
+        } else {
+          setRecitationData(null);
+        }
+      } catch (err) {
+        console.error('Failed to load recitation data', err);
+        if (isActive) {
+          setRecitationData(null);
+        }
+      } finally {
+        if (isActive) {
+          setIsRecitationLoading(false);
+        }
+      }
+    };
+
+    fetchRecitation();
+    return () => {
+      isActive = false;
+    };
+  }, [chapterId, selectedReciterId]);
+
+  useEffect(() => {
     setActiveVerseIndex(0);
     setIsPlaying(false);
     setProgress(0);
+    initialScrollDone.current = false;
   }, [chapterId]);
+
+  useEffect(() => {
+    setProgress(0);
+  }, [selectedReciterId]);
 
   useEffect(() => {
     if (!initialVerseNumber || verses.length === 0) {
@@ -78,67 +187,146 @@ export default function QuranReadingScreen({
   }, [initialVerseNumber, verses]);
 
   useEffect(() => {
-    if (!isPlaying || verses.length === 0) {
+    if (!initialVerseNumber || verses.length === 0) {
       return;
     }
+    if (initialScrollDone.current) {
+      return;
+    }
+    const targetId = `verse-${chapterId}-${initialVerseNumber}`;
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      initialScrollDone.current = true;
+    }
+  }, [chapterId, initialVerseNumber, verses.length]);
 
-    const intervalId = window.setInterval(() => {
-      setProgress((current) => {
-        const next = current + 0.03;
-        if (next >= 1) {
-          setActiveVerseIndex((index) => {
-            const isLast = index >= verses.length - 1;
-            if (isLast) {
-              setIsPlaying(false);
-              return index;
-            }
-            return index + 1;
-          });
-          return 0;
+  useEffect(() => {
+    if (!recitationData?.surahUrl) return;
+
+    const audio = new Audio(recitationData.surahUrl);
+    audioRef.current = audio;
+
+    const seekToActiveVerse = () => {
+      const verse = verses[activeVerseIndexRef.current];
+      if (!verse) return;
+      const key = `${chapterId}:${verse.verse}`;
+      const segment = recitationData.segments[key];
+      if (segment) {
+        audio.currentTime = segment.timestamp_from / 1000;
+        setProgress(0);
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      const currentTimeMs = audio.currentTime * 1000;
+      const currentSegments = recitationData.segments;
+      let newActiveIndex = -1;
+      let activeSegment: any | null = null;
+
+      for (let i = 0; i < verses.length; i++) {
+        const verse = verses[i];
+        const key = `${chapterId}:${verse.verse}`;
+        const segment = currentSegments[key];
+        if (segment && currentTimeMs >= segment.timestamp_from && currentTimeMs <= segment.timestamp_to) {
+          newActiveIndex = i;
+          activeSegment = segment;
+          break;
         }
-        return next;
-      });
-    }, 220);
+      }
 
-    return () => window.clearInterval(intervalId);
-  }, [isPlaying, verses.length]);
+      if (newActiveIndex !== -1 && newActiveIndex !== activeVerseIndexRef.current) {
+        setActiveVerseIndex(newActiveIndex);
+      }
+
+      if (activeSegment) {
+        const segmentDuration = activeSegment.timestamp_to - activeSegment.timestamp_from;
+        const segmentProgress = segmentDuration > 0
+          ? (currentTimeMs - activeSegment.timestamp_from) / segmentDuration
+          : 0;
+        setProgress(Math.max(0, Math.min(segmentProgress, 1)));
+      } else if (audio.duration) {
+        setProgress(Math.max(0, Math.min(audio.currentTime / audio.duration, 1)));
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      seekToActiveVerse();
+      if (isPlayingRef.current) {
+        audio.play().catch(console.error);
+      }
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.pause();
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      if (audioRef.current === audio) audioRef.current = null;
+    };
+  }, [recitationData, chapterId, verses]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.play().catch(console.error);
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying]);
 
   const activeVerseNumber = verses[activeVerseIndex]?.verse ?? null;
   const canGoPrevious = activeVerseIndex > 0;
   const canGoNext = activeVerseIndex < verses.length - 1;
 
   const handlePlayPause = () => {
-    if (verses.length === 0) {
+    if (verses.length === 0 || !recitationData || isRecitationLoading) {
       return;
     }
     setIsPlaying((prev) => !prev);
   };
 
-  const handleNext = () => {
-    if (!canGoNext) {
-      return;
-    }
-    setActiveVerseIndex((prev) => Math.min(prev + 1, verses.length - 1));
+  const seekToVerse = (index: number) => {
+    setActiveVerseIndex(index);
     setProgress(0);
+    
+    if (audioRef.current && recitationData) {
+      const verse = verses[index];
+      const key = `${chapterId}:${verse.verse}`;
+      const segment = recitationData.segments[key];
+      if (segment) {
+        audioRef.current.currentTime = segment.timestamp_from / 1000;
+      } else {
+        audioRef.current.currentTime = 0;
+      }
+      if (isPlayingRef.current) {
+        audioRef.current.play().catch(console.error);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (!canGoNext) return;
+    seekToVerse(Math.min(activeVerseIndex + 1, verses.length - 1));
   };
 
   const handlePrevious = () => {
-    if (!canGoPrevious) {
-      return;
-    }
-    setActiveVerseIndex((prev) => Math.max(prev - 1, 0));
-    setProgress(0);
-  };
-
-  const handleSelectVerse = (index: number) => {
-    setActiveVerseIndex(index);
-    setProgress(0);
+    if (!canGoPrevious) return;
+    seekToVerse(Math.max(activeVerseIndex - 1, 0));
   };
 
   const handlePlayVerse = (index: number) => {
-    setActiveVerseIndex(index);
-    setProgress(0);
     setIsPlaying(true);
+    seekToVerse(index);
   };
 
   const handleShareVerse = async (verse: Verse) => {
@@ -163,18 +351,88 @@ export default function QuranReadingScreen({
   };
 
   useEffect(() => {
-    const verse = verses[activeVerseIndex];
-    if (!verse) {
+    if (!onLastReadChange || verses.length === 0) {
       return;
     }
-    onLastReadChange?.({ chapterId, verse: verse.verse });
-    const element = document.getElementById(`verse-${chapterId}-${verse.verse}`);
-    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [activeVerseIndex, chapterId, verses, onLastReadChange]);
+
+    const elements = Array.from(
+      document.querySelectorAll(`[id^="verse-${chapterId}-"]`)
+    ) as HTMLElement[];
+
+    if (elements.length === 0) {
+      return;
+    }
+
+    const visibilityMap = new Map<Element, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibilityMap.set(entry.target, entry.intersectionRatio);
+        });
+
+        let bestEntry: { element: HTMLElement; ratio: number } | null = null;
+        visibilityMap.forEach((ratio, element) => {
+          if (!bestEntry || ratio > bestEntry.ratio) {
+            bestEntry = { element: element as HTMLElement, ratio };
+          }
+        });
+
+        if (!bestEntry || bestEntry.ratio < 0.35) {
+          return;
+        }
+
+        const id = bestEntry.element.id;
+        const parts = id.split('-');
+        const verseNumber = Number(parts[2]);
+        if (!Number.isFinite(verseNumber)) {
+          return;
+        }
+        const key = `${chapterId}:${verseNumber}`;
+        if (lastReportedVerse.current === key) {
+          return;
+        }
+        lastReportedVerse.current = key;
+        onLastReadChange({ chapterId, verse: verseNumber });
+      },
+      { threshold: [0.35, 0.55, 0.75] }
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => observer.disconnect();
+  }, [chapterId, verses.length, onLastReadChange]);
 
   const title = chapter?.transliteration ?? 'Quran';
   const subtitle = chapter?.translation ?? '';
   const currentLabel = activeVerseNumber ? `Verse ${activeVerseNumber}` : 'Verse';
+  const isRecitationReady = Boolean(recitationData?.surahUrl);
+
+  const audioBar = (
+    <div className="pointer-events-auto">
+      <FloatingAudioPlayer
+        isPlaying={isPlaying}
+        progress={progress}
+        reciterOptions={RECITER_OPTIONS}
+        selectedReciterId={selectedReciterId}
+        onReciterChange={setSelectedReciterId}
+        isLoading={isRecitationLoading}
+        isReady={isRecitationReady}
+        currentLabel={currentLabel}
+        onPlayPause={handlePlayPause}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        isNextDisabled={!canGoNext}
+        isPreviousDisabled={!canGoPrevious}
+        className="w-full"
+      />
+    </div>
+  );
+
+  const audioBarElement = floatingRoot ? (
+    createPortal(audioBar, floatingRoot)
+  ) : (
+    <div className="px-6 pb-4 mt-6">{audioBar}</div>
+  );
 
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
@@ -230,29 +488,16 @@ export default function QuranReadingScreen({
             verseNumber={verse.verse}
             arabicText={verse.text}
             translationText={translationMap.get(verse.verse) ?? 'Translation coming soon.'}
-            isActive={index === activeVerseIndex}
+            isActive={isPlaying && index === activeVerseIndex}
             isSaved={savedSet.has(`${verse.chapter}:${verse.verse}`)}
             onSaveToggle={(isSaved) => handleSaveToggle(verse.verse, isSaved)}
-            onSelect={() => handleSelectVerse(index)}
             onPlay={() => handlePlayVerse(index)}
-            onShare={() => handleShareVerse(verse)}
+            onShare={() => { handleShareVerse(verse).catch(console.error); }}
           />
         ))}
       </div>
 
-      <div className="absolute bottom-24 left-0 right-0 px-6 pb-4 z-20">
-        <FloatingAudioPlayer
-          isPlaying={isPlaying}
-          progress={progress}
-          reciterName="Mishary"
-          currentLabel={currentLabel}
-          onPlayPause={handlePlayPause}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          isNextDisabled={!canGoNext}
-          isPreviousDisabled={!canGoPrevious}
-        />
-      </div>
+      {audioBarElement}
     </div>
   );
 }
