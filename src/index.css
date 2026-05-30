@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-warm-beige: #FAF8F5;
+  --color-warm-beige-dark: #F0EAE1;
+  --color-soft-mint: #E2F0EA;
+  --color-soft-mint-dark: #B9DBCB;
+  --color-light-peach: #FFF0E6;
+  --color-light-peach-dark: #FFDCC3;
+  --color-soft-pink: #F9E5E6;
+  --color-soft-pink-dark: #EBB6BA;
+  --color-muted-gold: #C9A66B;
+  --color-muted-gold-light: #F8F1E3;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-arabic: 'Amiri', serif;
+}
+
+body {
+  background-color: #E5E7EB; /* Gray background outside the mobile preview */
+}
+
+/* Hide scrollbar for a cleaner mobile feel */
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes verse-save-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.save-pop {
+  animation: verse-save-pop 260ms ease-out;
+  transform-origin: center;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Nisa - Islamic Companion",
+  "description": "Minimalist Islamic companion app for women, featuring prayer times, daily verses, and specialized tracking modes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
