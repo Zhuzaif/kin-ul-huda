@@ -82,7 +82,11 @@ export default function QuranReadingScreen({
   const activeVerseIndexRef = useRef(activeVerseIndex);
   const isPlayingRef = useRef(isPlaying);
   const [floatingRoot, setFloatingRoot] = useState<HTMLElement | null>(null);
-  const [recitationData, setRecitationData] = useState<{ surahUrl: string; segments: Record<string, any> } | null>(null);
+  const [recitationData, setRecitationData] = useState<{
+    surahUrl: string;
+    segments: Record<string, any>;
+    isAyahLevel?: boolean;
+  } | null>(null);
 
   const savedSet = useMemo(
     () => new Set(savedVerses.map((item) => `${item.chapterId}:${item.verse}`)),
@@ -143,7 +147,19 @@ export default function QuranReadingScreen({
           setRecitationData({
             surahUrl: surahInfo.audio_url,
             segments: segmentsData,
+            isAyahLevel: false,
           });
+        } else if (segmentsData && Object.keys(segmentsData).length > 0) {
+          const hasChapterSegments = Object.keys(segmentsData).some((key) => key.startsWith(`${chapterId}:`));
+          if (hasChapterSegments) {
+            setRecitationData({
+              surahUrl: '',
+              segments: segmentsData,
+              isAyahLevel: true,
+            });
+          } else {
+            setRecitationData(null);
+          }
         } else {
           setRecitationData(null);
         }
@@ -202,12 +218,28 @@ export default function QuranReadingScreen({
   }, [chapterId, initialVerseNumber, verses.length]);
 
   useEffect(() => {
-    if (!recitationData?.surahUrl) return;
+    if (!recitationData) return;
+    if (!recitationData.surahUrl && !recitationData.isAyahLevel) return;
 
-    const audio = new Audio(recitationData.surahUrl);
+    let initialUrl = recitationData.surahUrl;
+    if (recitationData.isAyahLevel) {
+      const verse = verses[activeVerseIndexRef.current];
+      if (verse) {
+        const key = `${chapterId}:${verse.verse}`;
+        initialUrl = recitationData.segments[key]?.audio_url ?? '';
+      }
+    }
+
+    if (!initialUrl) return;
+
+    const audio = new Audio(initialUrl);
     audioRef.current = audio;
 
     const seekToActiveVerse = () => {
+      if (recitationData.isAyahLevel) {
+        setProgress(0);
+        return;
+      }
       const verse = verses[activeVerseIndexRef.current];
       if (!verse) return;
       const key = `${chapterId}:${verse.verse}`;
@@ -220,6 +252,14 @@ export default function QuranReadingScreen({
 
     const handleTimeUpdate = () => {
       const currentTimeMs = audio.currentTime * 1000;
+      
+      if (recitationData.isAyahLevel) {
+        if (audio.duration) {
+          setProgress(Math.max(0, Math.min(audio.currentTime / audio.duration, 1)));
+        }
+        return;
+      }
+
       const currentSegments = recitationData.segments;
       let newActiveIndex = -1;
       let activeSegment: any | null = null;
@@ -258,8 +298,31 @@ export default function QuranReadingScreen({
     };
 
     const handleEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
+      if (recitationData.isAyahLevel) {
+        const nextIndex = activeVerseIndexRef.current + 1;
+        if (nextIndex < verses.length) {
+          setActiveVerseIndex(nextIndex);
+          setProgress(0);
+          const nextVerse = verses[nextIndex];
+          if (nextVerse && audioRef.current) {
+            const key = `${chapterId}:${nextVerse.verse}`;
+            const targetSrc = recitationData.segments[key]?.audio_url;
+            if (targetSrc) {
+              audioRef.current.src = targetSrc;
+              audioRef.current.load();
+              if (isPlayingRef.current) {
+                audioRef.current.play().catch(console.error);
+              }
+            }
+          }
+        } else {
+          setIsPlaying(false);
+          setProgress(0);
+        }
+      } else {
+        setIsPlaying(false);
+        setProgress(0);
+      }
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -325,8 +388,12 @@ export default function QuranReadingScreen({
   };
 
   const handlePlayVerse = (index: number) => {
-    setIsPlaying(true);
-    seekToVerse(index);
+    if (index === activeVerseIndex) {
+      setIsPlaying((prev) => !prev);
+    } else {
+      setIsPlaying(true);
+      seekToVerse(index);
+    }
   };
 
   const handleShareVerse = async (verse: Verse) => {
@@ -405,7 +472,7 @@ export default function QuranReadingScreen({
   const title = chapter?.transliteration ?? 'Quran';
   const subtitle = chapter?.translation ?? '';
   const currentLabel = activeVerseNumber ? `Verse ${activeVerseNumber}` : 'Verse';
-  const isRecitationReady = Boolean(recitationData?.surahUrl);
+  const isRecitationReady = Boolean(recitationData?.surahUrl || recitationData?.isAyahLevel);
 
   const audioBar = (
     <div className="pointer-events-auto">

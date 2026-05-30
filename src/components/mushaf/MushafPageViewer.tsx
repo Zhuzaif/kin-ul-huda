@@ -1,29 +1,15 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import chapters from '../../data/chapters-en.json';
-import quran from '../../data/quran.json';
-import mushafPages from '../../data/mushaf-pages.json';
+import mushaf16Lines from '../../data/mushaf-16-lines.json';
 
-type Chapter = {
-  id: number;
-  name: string;
-  transliteration: string;
-  translation: string;
-  type: 'meccan' | 'medinan';
-  total_verses: number;
+type LineData = {
+  line: number;
+  type: 'surah_name' | 'basmallah' | 'ayah';
+  centered: boolean;
+  surah?: number;
+  text?: string;
 };
-
-type Verse = { chapter: number; verse: number; text: string };
-type QuranMap = Record<string, Verse[]>;
-type MushafPagesData = {
-  totalPages: number;
-  surahStartPages: Record<string, number>;
-  surahPageRanges: Record<string, { start: number; end: number; count: number }>;
-};
-
-const chapterList = chapters as Chapter[];
-const quranByChapter = quran as QuranMap;
-const pagesData = mushafPages as MushafPagesData;
 
 const FONT_URL =
   'https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2';
@@ -33,50 +19,30 @@ interface MushafPageViewerProps {
   onBack?: () => void;
 }
 
-/**
- * Build a mapping of page number -> verses that belong on that page.
- * We distribute verses across pages proportionally based on text length.
- */
-function buildPageVerses(): Record<number, { surahId: number; verse: number; text: string }[]> {
-  const result: Record<number, { surahId: number; verse: number; text: string }[]> = {};
-
-  for (let surahId = 1; surahId <= 114; surahId++) {
-    const range = pagesData.surahPageRanges[String(surahId)];
-    if (!range) continue;
-
-    const verses = quranByChapter[String(surahId)] ?? [];
-    if (verses.length === 0) continue;
-
-    const totalPageCount = range.count;
-    const versesPerPage = Math.ceil(verses.length / totalPageCount);
-
-    for (let i = 0; i < verses.length; i++) {
-      const pageOffset = Math.floor(i / versesPerPage);
-      const pageNum = Math.min(range.start + pageOffset, range.end);
-
-      if (!result[pageNum]) result[pageNum] = [];
-      result[pageNum].push({
-        surahId,
-        verse: verses[i].verse,
-        text: verses[i].text,
-      });
-    }
-  }
-
-  return result;
-}
-
-// Pre-compute once
-const allPageVerses = buildPageVerses();
-
 export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPageViewerProps) {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [fontLoaded, setFontLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const totalPages = pagesData.totalPages;
+  const totalPages = 548;
 
-  // Load indopak font
+  useEffect(() => {
+    const savedPage = localStorage.getItem('lastMushafPage');
+    if (savedPage) {
+      setCurrentPage(parseInt(savedPage, 10));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialPage > 1) {
+      setCurrentPage(initialPage);
+    }
+  }, [initialPage]);
+
+  useEffect(() => {
+    localStorage.setItem('lastMushafPage', String(currentPage));
+  }, [currentPage]);
+
   useEffect(() => {
     const fontFace = new FontFace('IndopakNastaleeq', `url(${FONT_URL})`, {
       display: 'swap',
@@ -90,24 +56,33 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
       .catch((err) => console.error('Font load failed:', err));
   }, []);
 
-  // Verses on current page
-  const pageVerses = useMemo(() => {
-    return allPageVerses[currentPage] ?? [];
+  const pageLines = useMemo(() => {
+    return (mushaf16Lines as Record<string, LineData[]>)[String(currentPage)] || [];
   }, [currentPage]);
 
-  // Which surahs appear on this page
-  const pageSurahIds = useMemo(() => {
-    const ids = new Set<number>();
-    pageVerses.forEach((v) => ids.add(v.surahId));
-    return Array.from(ids).sort((a, b) => a - b);
-  }, [pageVerses]);
-
-  // Title
   const pageTitle = useMemo(() => {
-    return pageSurahIds
-      .map((id) => chapterList.find((c) => c.id === id)?.transliteration ?? `Surah ${id}`)
-      .join(' / ');
-  }, [pageSurahIds]);
+    const surahsOnPage = new Set<number>();
+    pageLines.forEach(l => {
+      if (l.type === 'surah_name' && l.surah) surahsOnPage.add(l.surah);
+    });
+    
+    if (surahsOnPage.size === 0) {
+      for (let p = currentPage - 1; p >= 1; p--) {
+        const lines = (mushaf16Lines as Record<string, LineData[]>)[String(p)] || [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          if (lines[i].type === 'surah_name' && lines[i].surah) {
+            surahsOnPage.add(lines[i].surah as number);
+            break;
+          }
+        }
+        if (surahsOnPage.size > 0) break;
+      }
+    }
+
+    const ids = Array.from(surahsOnPage);
+    if (ids.length === 0) return 'Quran';
+    return ids.map(id => (chapters as any)[id - 1]?.transliteration || `Surah ${id}`).join(' / ');
+  }, [pageLines, currentPage]);
 
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
@@ -121,34 +96,8 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
     [totalPages]
   );
 
-  // Group verses by surah for rendering with headers
-  const surahGroups = useMemo(() => {
-    const groups: { surahId: number; chapter: Chapter | undefined; verses: typeof pageVerses }[] = [];
-    let currentSurahId = -1;
-
-    for (const v of pageVerses) {
-      if (v.surahId !== currentSurahId) {
-        currentSurahId = v.surahId;
-        groups.push({
-          surahId: v.surahId,
-          chapter: chapterList.find((c) => c.id === v.surahId),
-          verses: [],
-        });
-      }
-      groups[groups.length - 1].verses.push(v);
-    }
-    return groups;
-  }, [pageVerses]);
-
-  // Check if this page is the start of a surah
-  const isSurahStart = (surahId: number) => {
-    const startPage = pagesData.surahStartPages[String(surahId)];
-    return startPage === currentPage;
-  };
-
   return (
-    <div ref={containerRef} className="flex w-full flex-col h-full animate-in fade-in duration-300">
-      {/* Header */}
+    <div ref={containerRef} className="flex w-full flex-col h-full bg-warm-beige animate-in fade-in duration-300">
       <div className="px-4 pt-6 pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <button
@@ -160,7 +109,6 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-
           <div className="text-center flex-1 mx-2">
             <p className="text-[10px] font-semibold tracking-[0.2em] text-muted-gold uppercase">
               Mushaf • Page {currentPage}
@@ -169,13 +117,11 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
               {pageTitle}
             </h1>
           </div>
-
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={!canPrev}
-              aria-label="Previous page"
               className="w-9 h-9 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-40"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -187,7 +133,6 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={!canNext}
-              aria-label="Next page"
               className="w-9 h-9 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-40"
             >
               <ChevronRight className="w-4 h-4" />
@@ -196,79 +141,96 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
         </div>
       </div>
 
-      {/* Mushaf Page */}
-      <div className="flex-1 overflow-y-auto px-3 pb-28">
+      <div className="flex-1 overflow-y-auto px-3 pb-28 flex flex-col">
         <div
-          className="bg-[#FFFDF8] border border-amber-100/60 rounded-[20px] shadow-[0_8px_28px_rgba(0,0,0,0.06)] px-5 py-6 min-h-[460px]"
+          className="bg-[#FFFDF8] border border-amber-100/60 rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.06)] px-2 py-4 flex-1 flex flex-col justify-between"
           dir="rtl"
         >
           {!fontLoaded ? (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 border-2 border-amber-300 border-t-transparent rounded-full animate-spin" />
                 <p className="text-xs text-gray-400">Loading Mushaf font…</p>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-1">
-              {surahGroups.map((group) => (
-                <div key={`${currentPage}-${group.surahId}`}>
-                  {/* Surah header if this page starts the surah */}
-                  {isSurahStart(group.surahId) && (
-                    <>
-                      <div className="flex items-center justify-center py-3 mb-1">
-                        <div className="bg-gradient-to-r from-[#2B604A]/10 via-[#2B604A]/20 to-[#2B604A]/10 rounded-full px-8 py-2.5 border border-[#2B604A]/15">
-                          <span className="font-arabic text-[20px] text-[#2B604A] font-bold">
-                            {group.chapter?.name ?? `سورة`}
+            <div className="flex flex-col flex-1">
+              {pageLines.map((line, index) => {
+                if (line.type === 'surah_name') {
+                const surahNameStr = line.text?.replace('سورة', '').trim() || `سورة ${line.surah}`;
+                return (
+                  <div key={`line-${index}`} className="w-full flex justify-center my-5 px-2">
+                    <div className="relative w-[95%] max-w-[480px] overflow-hidden rounded-[16px] bg-gradient-to-r from-[#112E20] via-[#1C4433] to-[#112E20] shadow-[0_10px_25px_rgba(28,68,51,0.3)] border border-[#D4AF37]/50 flex items-center justify-between py-4 px-6 group transition-all hover:shadow-[0_12px_30px_rgba(212,175,55,0.2)]">
+                      
+                      {/* Left Ornate Element */}
+                      <div className="hidden sm:flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full border-[1.5px] border-[#D4AF37]/70 flex items-center justify-center bg-[#D4AF37]/10 relative before:absolute before:inset-1 before:border before:border-[#D4AF37]/40 before:rounded-full">
+                          <div className="w-2.5 h-2.5 rotate-45 bg-[#D4AF37]"></div>
+                        </div>
+                        <div className="w-8 h-[1.5px] bg-gradient-to-r from-[#D4AF37]/70 to-transparent ml-3"></div>
+                      </div>
+                      
+                      {/* Center Text */}
+                      <div className="text-center z-10 flex-1 flex flex-col items-center">
+                        <div className="flex items-center justify-center gap-3" dir="rtl">
+                          <span className="font-arabic text-[26px] sm:text-[30px] text-[#D4AF37] font-bold leading-none drop-shadow-md">
+                            سورة
+                          </span>
+                          <span className="font-arabic text-[36px] sm:text-[42px] font-bold text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.6)] leading-none" style={{ fontFamily: 'IndopakNastaleeq, serif' }}>
+                            {surahNameStr}
                           </span>
                         </div>
                       </div>
-                      {/* Bismillah (except for Surah At-Tawbah #9 and Al-Fatihah #1) */}
-                      {group.surahId !== 9 && group.surahId !== 1 && (
-                        <div className="text-center py-2 mb-1">
-                          <span
-                            className="text-[20px] text-[#2B604A]/70 leading-[2.4]"
-                            style={{ fontFamily: 'IndopakNastaleeq, serif' }}
-                          >
-                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                          </span>
-                        </div>
-                      )}
-                    </>
-                  )}
 
-                  {/* Verses */}
+                      {/* Right Ornate Element */}
+                      <div className="hidden sm:flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div className="w-8 h-[1.5px] bg-gradient-to-l from-[#D4AF37]/70 to-transparent mr-3"></div>
+                        <div className="w-10 h-10 rounded-full border-[1.5px] border-[#D4AF37]/70 flex items-center justify-center bg-[#D4AF37]/10 relative before:absolute before:inset-1 before:border before:border-[#D4AF37]/40 before:rounded-full">
+                          <div className="w-2.5 h-2.5 rotate-45 bg-[#D4AF37]"></div>
+                        </div>
+                      </div>
+
+                      {/* Subtle Overlay Pattern */}
+                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.15] pointer-events-none mix-blend-overlay"></div>
+                      {/* Top/Bottom Golden Glow */}
+                      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent"></div>
+                      <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent"></div>
+                    </div>
+                  </div>
+                );
+              }
+                if (line.type === 'basmallah') {
+                  return (
+                    <div key={`line-${index}`} className="text-center py-1 flex-1 flex items-center justify-center">
+                      <span
+                        className="text-[22px] text-[#2B604A]/90"
+                        style={{ fontFamily: 'IndopakNastaleeq, serif' }}
+                      >
+                        {line.text}
+                      </span>
+                    </div>
+                  );
+                }
+                return (
                   <div
-                    className="text-justify leading-[2.8]"
+                    key={`line-${index}`}
+                    className="w-full"
                     style={{
                       fontFamily: 'IndopakNastaleeq, serif',
-                      fontSize: '22px',
+                      fontSize: 'clamp(14px, 4.8vw, 26px)',
+                      lineHeight: '1.8',
                       color: '#1a1a1a',
-                      textAlignLast: 'center',
+                      textAlign: line.centered ? 'center' : 'justify',
+                      textAlignLast: line.centered ? 'center' : 'justify',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      direction: 'rtl'
                     }}
                   >
-                    {group.verses.map((v, i) => (
-                      <span key={`${v.surahId}-${v.verse}`}>
-                        {v.text}
-                        {' '}
-                        <span
-                          className="text-[#2B604A]/60 text-[16px]"
-                          style={{ fontFamily: "'Scheherazade New', serif" }}
-                        >
-                          ﴿{v.verse.toLocaleString('ar-EG')}﴾
-                        </span>
-                        {' '}
-                      </span>
-                    ))}
+                    {line.text}
                   </div>
-                </div>
-              ))}
-
-              {pageVerses.length === 0 && (
-                <div className="flex items-center justify-center min-h-[300px]">
-                  <p className="text-sm text-gray-400">No content on this page</p>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
         </div>

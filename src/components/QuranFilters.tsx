@@ -1,10 +1,9 @@
 import React from 'react';
 
-export type QuranFilterId = 'surahs' | 'juz' | 'friday' | 'saved' | 'mushaf';
+export type QuranFilterId = 'quran' | 'mushaf' | 'friday' | 'saved';
 
 const filters: { id: QuranFilterId; label: string }[] = [
-  { id: 'surahs', label: 'Surahs' },
-  { id: 'juz', label: 'Juz' },
+  { id: 'quran', label: 'Quran' },
   { id: 'mushaf', label: 'Mushaf' },
   { id: 'friday', label: 'Friday Surahs (Al-Kahf)' },
   { id: 'saved', label: 'Saved Verses' },

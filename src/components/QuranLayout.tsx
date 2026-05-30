@@ -5,6 +5,7 @@ import QuranFilters, { QuranFilterId } from './QuranFilters';
 import SurahList from './SurahList';
 import QuranReadingScreen from './QuranReadingScreen';
 import MushafLayout from './mushaf/MushafLayout';
+import MushafPageViewer from './mushaf/MushafPageViewer';
 import VerseCard from './VerseCard';
 import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
@@ -142,7 +143,9 @@ const parseVerseNumber = (value: string) => Number(value.replace('verse_', ''));
 export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
   const [selectedVerseNumber, setSelectedVerseNumber] = useState<number | null>(null);
-  const [activeFilter, setActiveFilter] = useState<QuranFilterId>('surahs');
+  const [activeFilter, setActiveFilter] = useState<QuranFilterId>('quran');
+  const [quranSubTab, setQuranSubTab] = useState<'surahs' | 'juz'>('surahs');
+  const [openMushafPage, setOpenMushafPage] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [lastRead, setLastRead] = useState<LastRead | null>(() => {
     if (typeof window === 'undefined') {
@@ -191,8 +194,8 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   });
 
   useEffect(() => {
-    onReadingModeChange?.(selectedChapterId !== null);
-  }, [onReadingModeChange, selectedChapterId]);
+    onReadingModeChange?.(selectedChapterId !== null || openMushafPage !== null);
+  }, [onReadingModeChange, selectedChapterId, openMushafPage]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !lastRead) {
@@ -400,7 +403,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     }
     const payload = activeFilter === 'saved'
       ? savedVerses
-      : activeFilter === 'juz'
+      : (activeFilter === 'quran' && quranSubTab === 'juz')
         ? juzList
         : chapterList;
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -409,7 +412,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     link.href = url;
     link.download = activeFilter === 'saved'
       ? 'saved-verses.json'
-      : activeFilter === 'juz'
+      : (activeFilter === 'quran' && quranSubTab === 'juz')
         ? 'juz.json'
         : 'surahs.json';
     link.click();
@@ -425,6 +428,15 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         onLastReadChange={handleLastReadChange}
         savedVerses={savedVerses}
         onSaveToggle={handleSaveToggle}
+      />
+    );
+  }
+
+  if (openMushafPage !== null) {
+    return (
+      <MushafPageViewer
+        initialPage={openMushafPage}
+        onBack={() => setOpenMushafPage(null)}
       />
     );
   }
@@ -445,6 +457,26 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         isAvailable={Boolean(lastRead)}
       />
       <QuranFilters activeFilter={activeFilter} onChange={setActiveFilter} />
+
+      {activeFilter === 'quran' && (
+        <div className="px-6 mb-6">
+          <div className="flex gap-2">
+            {(['surahs', 'juz'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setQuranSubTab(tab)}
+                className={`px-5 py-2.5 rounded-[20px] text-xs font-semibold transition-all shadow-sm border border-white/40 ${
+                  quranSubTab === tab
+                    ? 'bg-[#2B604A] text-white'
+                    : 'bg-white/80 text-gray-600 hover:bg-white'
+                }`}
+              >
+                {tab === 'surahs' ? 'Surahs' : 'Juz'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {activeFilter === 'saved' ? (
         <div className="px-6 pb-28 flex flex-col gap-5">
@@ -493,7 +525,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
             ))
           )}
         </div>
-      ) : activeFilter === 'juz' ? (
+      ) : (activeFilter === 'quran' && quranSubTab === 'juz') ? (
         <div className="px-6 pb-28 flex flex-col gap-4">
           {currentJuz && lastRead ? (
             <button
@@ -559,7 +591,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
           </div>
         </div>
       ) : activeFilter === 'mushaf' ? (
-        <MushafLayout />
+        <MushafLayout searchQuery={searchQuery} onOpenPage={setOpenMushafPage} />
       ) : (
         <SurahList
           items={filteredSurahs}

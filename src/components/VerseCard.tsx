@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Share2, Heart } from 'lucide-react';
+import { Play, Pause, Share2, Heart } from 'lucide-react';
 
 interface VerseCardProps {
   verseNumber: number;
@@ -96,9 +96,9 @@ export default function VerseCard({
             onPlay?.();
           }}
           className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
-          aria-label="Play verse audio"
+          aria-label={isActive ? "Pause verse audio" : "Play verse audio"}
         >
-          <Play className="w-4 h-4" />
+          {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
         <button
           type="button"

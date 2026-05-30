@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { BookOpen, Search } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { BookOpen, Search, Clock } from 'lucide-react';
 import chapters from '../../data/chapters-en.json';
 import juzData from '../../data/juz.json';
-import mushafPages from '../../data/mushaf-pages.json';
-import MushafPageViewer from './MushafPageViewer';
+import mushaf16Metadata from '../../data/mushaf-16-metadata.json';
 
 type Chapter = {
   id: number;
@@ -21,39 +20,64 @@ type JuzEntry = {
 };
 
 type MushafPagesData = {
-  totalPages: number;
   surahStartPages: Record<string, number>;
-  surahPageRanges: Record<string, { start: number; end: number; count: number }>;
+  juzStartPages?: Record<string, number>;
 };
 
 type MushafTab = 'surahs' | 'juz';
 
 const chapterList = chapters as Chapter[];
 const juzRaw = juzData as JuzEntry[];
-const pagesData = mushafPages as MushafPagesData;
+const pagesData = mushaf16Metadata as MushafPagesData;
 
 const juzNames = [
-  'Alif Lam Meem', 'Sayaqool', 'Tilkal Rusul', 'Lan Tana Loo',
-  'Wal Mohsanat', 'La Yuhibbullah', 'Wa Iza Samiu', 'Wa Lau Annana',
-  'Qalal Malao', "Wa A'lamu", 'Yatazeroon', "Wa Mamin Da'abatin",
-  'Wa Ma Ubrioo', 'Rubama', 'Subhanallazi', 'Qal Alam',
-  'Iqtaraba Lin-Nasi', 'Qadd Aflaha', 'Wa Qalallazina', "A'man Khalaqa",
-  'Utlu Ma Oohiya', 'Wa Man Yaqnut', 'Wa Mali', 'Faman Azlamu',
-  'Ilayhi Yuruddu', "Ha'a Meem", 'Qala Fama Khatbukum', 'Qadd Sami Allah',
-  'Tabarakallazi', "Amma Yatasa'aloon",
+  { en: 'Alif Lam Meem', ar: 'الم' },
+  { en: 'Sayaqool', ar: 'سَيَقُولُ' },
+  { en: 'Tilkal Rusul', ar: 'تلك الرسل' },
+  { en: 'Lan Tana Loo', ar: 'لن تنالوا' },
+  { en: 'Wal Mohsanat', ar: 'والمحصنات' },
+  { en: 'La Yuhibbullah', ar: 'لا يحب الله' },
+  { en: 'Wa Iza Samiu', ar: 'واذا سمعوا' },
+  { en: 'Wa Lau Annana', ar: 'ولو اننا' },
+  { en: 'Qalal Malao', ar: 'قال الملأ' },
+  { en: "Wa A'lamu", ar: 'واعلموا' },
+  { en: 'Yatazeroon', ar: 'يعتذرون' },
+  { en: "Wa Mamin Da'abatin", ar: 'وما من دابة' },
+  { en: 'Wa Ma Ubrioo', ar: 'وما أبرئ' },
+  { en: 'Rubama', ar: 'ربما' },
+  { en: 'Subhanallazi', ar: 'سبحان الذي' },
+  { en: 'Qal Alam', ar: 'قال ألم' },
+  { en: 'Iqtaraba Lin-Nasi', ar: 'اقترب للناس' },
+  { en: 'Qadd Aflaha', ar: 'قد أفلح' },
+  { en: 'Wa Qalallazina', ar: 'وقال الذين' },
+  { en: "A'man Khalaqa", ar: 'أمن خلق' },
+  { en: 'Utlu Ma Oohiya', ar: 'اتل ما أوحي' },
+  { en: 'Wa Man Yaqnut', ar: 'ومن يقنت' },
+  { en: 'Wa Mali', ar: 'وما لي' },
+  { en: 'Faman Azlamu', ar: 'فمن أظلم' },
+  { en: 'Ilayhi Yuruddu', ar: 'إليه يرد' },
+  { en: "Ha'a Meem", ar: 'حم' },
+  { en: 'Qala Fama Khatbukum', ar: 'قال فما خطبكم' },
+  { en: 'Qadd Sami Allah', ar: 'قد سمع الله' },
+  { en: 'Tabarakallazi', ar: 'تبارك الذي' },
+  { en: "Amma Yatasa'aloon", ar: 'عم يتساءلون' },
 ];
 
-// Map juz to approximate page numbers (standard 16-line indopak)
-const juzStartPages = [
-  1, 22, 42, 62, 82, 102, 121, 142, 162, 182,
-  201, 222, 242, 262, 282, 302, 322, 342, 362, 382,
-  402, 422, 442, 462, 482, 502, 515, 528, 537, 545,
-];
+interface MushafLayoutProps {
+  searchQuery: string;
+  onOpenPage: (page: number) => void;
+}
 
-export default function MushafLayout() {
+export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutProps) {
   const [activeTab, setActiveTab] = useState<MushafTab>('surahs');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [openPage, setOpenPage] = useState<number | null>(null);
+  const [lastReadPage, setLastReadPage] = useState<number | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lastMushafPage');
+    if (saved) {
+      setLastReadPage(parseInt(saved, 10));
+    }
+  }, []);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -69,11 +93,15 @@ export default function MushafLayout() {
     return juzRaw.map((entry, i) => {
       const startChapterId = Number(entry.start.index);
       const ch = chapterList.find((c) => c.id === startChapterId);
+      // Remove leading zero by casting to Number then String
+      const juzIndexStr = String(Number(entry.index));
+      const startPage = pagesData.juzStartPages?.[juzIndexStr] ?? 1;
       return {
         index: Number(entry.index),
-        title: juzNames[i] ?? `Juz ${entry.index}`,
+        title: juzNames[i]?.en ?? `Juz ${entry.index}`,
+        titleAr: juzNames[i]?.ar ?? '',
         startSurah: ch?.transliteration ?? entry.start.name,
-        startPage: juzStartPages[i] ?? 1,
+        startPage,
       };
     });
   }, []);
@@ -88,49 +116,44 @@ export default function MushafLayout() {
 
   const handleOpenSurah = (surahId: number) => {
     const startPage = pagesData.surahStartPages[String(surahId)] ?? 1;
-    setOpenPage(startPage);
+    onOpenPage(startPage);
   };
 
   const handleOpenJuz = (startPage: number) => {
-    setOpenPage(startPage);
+    onOpenPage(startPage);
   };
-
-  if (openPage !== null) {
-    return (
-      <MushafPageViewer
-        initialPage={openPage}
-        onBack={() => setOpenPage(null)}
-      />
-    );
-  }
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-300">
-      {/* Header */}
-      <div className="px-6 pt-7 pb-3">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-soft-mint flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-[#2B604A]" />
-          </div>
-          <div>
-            <h1 className="text-[18px] font-bold text-gray-800">Mushaf</h1>
-            <p className="text-[11px] text-gray-500">Indopak 16-Line Edition</p>
-          </div>
+      {/* Resume Card */}
+      {lastReadPage && !searchQuery && (
+        <div className="px-6 pt-6 pb-2">
+          <button
+            onClick={() => onOpenPage(lastReadPage)}
+            className="w-full bg-gradient-to-r from-soft-mint to-white border border-[#2B604A]/20 rounded-[24px] p-5 flex items-center justify-between shadow-[0_8px_24px_rgba(43,96,74,0.08)] group hover:shadow-[0_12px_28px_rgba(43,96,74,0.12)] transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#2B604A]/10 flex items-center justify-center text-[#2B604A] group-hover:scale-110 transition-transform">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div className="text-left">
+                <p className="text-[11px] font-bold tracking-wider text-gray-500 uppercase mb-1">
+                  Resume Reading
+                </p>
+                <h3 className="text-[16px] font-bold text-gray-800">
+                  Page {lastReadPage}
+                </h3>
+              </div>
+            </div>
+            <div className="bg-[#2B604A] text-white px-4 py-2 rounded-full text-[13px] font-medium shadow-sm group-hover:bg-[#1C4433] transition-colors">
+              Continue
+            </div>
+          </button>
         </div>
+      )}
 
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search surah or juz..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-full bg-white/80 border border-white/70 text-[13px] text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#2B604A]/20 shadow-sm"
-          />
-        </div>
-
-        {/* Tabs */}
+      {/* Tabs */}
+      <div className="px-6 pt-3 pb-3">
         <div className="flex gap-2">
           {(['surahs', 'juz'] as MushafTab[]).map((tab) => (
             <button
@@ -158,7 +181,7 @@ export default function MushafLayout() {
               </div>
             ) : (
               filteredSurahs.map((ch) => {
-                const range = pagesData.surahPageRanges[String(ch.id)];
+                const startPage = pagesData.surahStartPages[String(ch.id)];
                 return (
                   <button
                     key={ch.id}
@@ -182,10 +205,9 @@ export default function MushafLayout() {
                       <span className="font-arabic text-[20px] text-muted-gold">
                         {ch.name}
                       </span>
-                      {range && (
+                      {startPage && (
                         <span className="text-[9px] text-gray-400 mt-1">
-                          Page {range.start}
-                          {range.count > 1 ? `–${range.end}` : ''}
+                          Page {startPage}
                         </span>
                       )}
                     </div>
@@ -220,9 +242,16 @@ export default function MushafLayout() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-[9px] text-gray-400">
-                    Page {item.startPage}
-                  </span>
+                  <div className="flex flex-col items-end">
+                    {item.titleAr && (
+                      <span className="font-arabic text-[18px] text-muted-gold mb-1">
+                        {item.titleAr}
+                      </span>
+                    )}
+                    <span className="text-[9px] text-gray-400">
+                      Page {item.startPage}
+                    </span>
+                  </div>
                 </button>
               ))
             )}
