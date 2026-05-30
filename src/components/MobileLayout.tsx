@@ -26,6 +26,7 @@ export default function MobileLayout() {
   return (
     <div className="h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-gray-200">
       <div 
+        id="mobile-frame-root"
         className={`w-full h-screen sm:h-[850px] max-w-[400px] transition-colors duration-500 sm:rounded-[48px] shadow-2xl relative overflow-hidden flex flex-col sm:border-[8px] border-white ${
           isPeriodMode ? 'bg-[#FCF5F5]' : 'bg-warm-beige'
         }`}

@@ -1,14 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Compass, Clock, Heart, X, ChevronRight } from 'lucide-react';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { Coordinates, CalculationMethod, PrayerTimes, Madhab } from 'adhan';
+
+interface PrayerItem {
+  name: string;
+  time: string;
+  passed: boolean;
+  active?: boolean;
+  dateObj?: Date;
+}
 
 export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const { isPeriodMode } = usePeriodMode();
-  const [timeLeft, setTimeLeft] = useState(2 * 3600 + 15 * 60 + 30); // 2:15:30 in seconds
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  const playedAdhans = React.useRef(new Set<number>());
   
   const [dates, setDates] = useState({ gregorian: '', islamic: '' });
+  const [prayers, setPrayers] = useState<PrayerItem[]>([
+    { name: 'Fajr', time: '--:-- AM', passed: false },
+    { name: 'Dhuhr', time: '--:-- PM', passed: false },
+    { name: 'Asr', time: '--:-- PM', passed: false },
+    { name: 'Maghrib', time: '--:-- PM', passed: false },
+    { name: 'Isha', time: '--:-- PM', passed: false },
+  ]);
+  const [nextPrayerName, setNextPrayerName] = useState('...');
 
   useEffect(() => {
     const today = new Date();
@@ -21,36 +41,117 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
     const islamic = `${iDay} ${iMonth} ${iYear}`;
     
     setDates({ gregorian, islamic });
+    setPortalTarget(document.getElementById('mobile-frame-root'));
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
+    const calculatePrayers = (lat: number, lng: number) => {
+      const coordinates = new Coordinates(lat, lng);
+      const params = CalculationMethod.Karachi();
+      params.madhab = Madhab.Hanafi; // Defaulting to Hanafi Asr method
+      
+      const date = new Date();
+      const pt = new PrayerTimes(coordinates, date, params);
+      
+      const formatTime = (d: Date) => {
+        return new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(d);
+      };
+      
+      const now = new Date();
+      const p: PrayerItem[] = [
+        { name: 'Fajr', dateObj: pt.fajr, time: formatTime(pt.fajr), passed: now > pt.fajr },
+        { name: 'Dhuhr', dateObj: pt.dhuhr, time: formatTime(pt.dhuhr), passed: now > pt.dhuhr },
+        { name: 'Asr', dateObj: pt.asr, time: formatTime(pt.asr), passed: now > pt.asr },
+        { name: 'Maghrib', dateObj: pt.maghrib, time: formatTime(pt.maghrib), passed: now > pt.maghrib },
+        { name: 'Isha', dateObj: pt.isha, time: formatTime(pt.isha), passed: now > pt.isha },
+      ];
+      
+      let nextIndex = p.findIndex(prayer => !prayer.passed);
+      
+      if (nextIndex === -1) {
+        // All prayers for today have passed, calculate tomorrow's Fajr
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowPt = new PrayerTimes(coordinates, tomorrow, params);
+        p[0].dateObj = tomorrowPt.fajr;
+        p[0].active = true;
+        setNextPrayerName('Fajr');
+      } else {
+        p[nextIndex].active = true;
+        setNextPrayerName(p[nextIndex].name);
+      }
+      
+      setPrayers(p);
+    };
+
+    const fetchLocation = async () => {
+      try {
+        const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+        if (res.ok) {
+          const data = await res.json();
+          calculatePrayers(parseFloat(data.latitude), parseFloat(data.longitude));
+        }
+      } catch (e) {
+        console.error("Failed to load location for prayer times", e);
+        // Fallback to Mecca if IP fetch fails
+        calculatePrayers(21.4225, 39.8262); 
+      }
+    };
+    fetchLocation();
   }, []);
 
-  const formatTime = (seconds: number) => {
+  useEffect(() => {
+    if (prayers.length === 0 || !prayers.some(p => p.active)) return;
+    
+    const nextP = prayers.find(p => p.active);
+    if (!nextP || !nextP.dateObj) return;
+
+    const updateTimer = () => {
+      const now = new Date();
+      const diffInSeconds = Math.floor((nextP.dateObj!.getTime() - now.getTime()) / 1000);
+      if (diffInSeconds <= 0) {
+        setTimeLeft(0);
+        // In a full app, we would re-fetch/re-calculate prayers here to refresh for the next day
+      } else {
+        setTimeLeft(diffInSeconds);
+      }
+    };
+    
+    updateTimer();
+    const timer = setInterval(updateTimer, 1000);
+    return () => clearInterval(timer);
+  }, [prayers]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && prayers.length > 0) {
+      const activePrayer = prayers.find(p => p.active);
+      if (activePrayer && activePrayer.dateObj) {
+        const timeKey = activePrayer.dateObj.getTime();
+        if (!playedAdhans.current.has(timeKey)) {
+          const audio = new Audio('/adhan.mp3');
+          audio.play().catch(e => console.error("Adhan autoplay blocked by browser policy:", e));
+          playedAdhans.current.add(timeKey);
+        }
+      }
+    }
+  }, [timeLeft, prayers]);
+
+  const formatTime = (seconds: number | null) => {
+    if (seconds === null) return '--:--:--';
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return `-${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const prayers = [
-    { name: 'Fajr', time: '04:30 AM', passed: true },
-    { name: 'Dhuhr', time: '12:15 PM', passed: true },
-    { name: 'Asr', time: '03:45 PM', passed: false, active: true },
-    { name: 'Maghrib', time: '06:20 PM', passed: false },
-    { name: 'Isha', time: '07:45 PM', passed: false },
-  ];
-
   return (
     <>
       <div className="px-6 mb-6">
-        <button 
+        <div 
+          role="button"
+          tabIndex={0}
           onClick={() => !isPeriodMode && setIsModalOpen(true)}
-          className={`w-full text-left rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] ${
+          className={`w-full text-left rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer ${
             isPeriodMode 
               ? 'bg-gradient-to-br from-[#FCE7D8] to-soft-pink cursor-default' 
               : 'bg-gradient-to-br from-soft-mint to-[#D1E6DA]'
@@ -107,7 +208,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       transition={{ duration: 0.3 }}
                     >
                       <p className="text-sm font-medium text-[#2B604A]/80 mb-1">Next Prayer</p>
-                      <h3 className="text-4xl font-bold text-[#1F4535] tracking-tight">Asr</h3>
+                      <h3 className="text-4xl font-bold text-[#1F4535] tracking-tight">{nextPrayerName}</h3>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -133,14 +234,15 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
               </AnimatePresence>
             </div>
           </div>
-        </button>
+        </div>
       </div>
 
-      <AnimatePresence>
-        {isModalOpen && (
-          <React.Fragment>
-            <motion.div 
-              initial={{ opacity: 0 }}
+      {portalTarget && createPortal(
+        <AnimatePresence>
+          {isModalOpen && (
+            <React.Fragment>
+              <motion.div 
+                initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
@@ -157,26 +259,26 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                 <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
               </div>
               
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Prayer Times</h2>
                   <p className="text-sm text-gray-500 font-medium">{dates.islamic || '...'}</p>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"
+                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-3 mb-8">
+              <div className="flex flex-col mb-6 bg-gray-50/80 rounded-[24px] p-2 border border-gray-100/80">
                 {prayers.map((prayer, i) => (
                   <div 
                     key={i} 
-                    className={`flex items-center justify-between p-4 rounded-[20px] transition-colors ${
-                      prayer.active ? 'bg-soft-mint border border-soft-mint-dark/30 shadow-sm' : 
-                      prayer.passed ? 'opacity-60' : 'bg-gray-50'
+                    className={`flex items-center justify-between p-3.5 rounded-[18px] transition-all duration-300 ${
+                      prayer.active ? 'bg-soft-mint shadow-sm scale-[1.02] border border-[#2B604A]/10' : 
+                      prayer.passed ? 'opacity-40 grayscale-[50%]' : 'bg-transparent hover:bg-gray-100/50'
                     }`}
                   >
                     <span className={`text-[15px] font-bold ${prayer.active ? 'text-[#1F4535]' : 'text-gray-700'}`}>
@@ -201,8 +303,10 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
               </button>
             </motion.div>
           </React.Fragment>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        portalTarget
+      )}
     </>
   );
 }

@@ -202,8 +202,14 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
                     className="absolute w-full h-full flex justify-center"
                     style={{ transform: `rotate(${qiblaBearing}deg)` }}
                   >
-                    <div className={`-mt-6 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-colors duration-500 ${perfectlyAligned ? 'bg-[#1F4535] scale-110' : 'bg-gray-800'}`}>
-                      <div className="w-4 h-4 bg-yellow-500 rounded-sm" /> {/* Simple Kaaba representation */}
+                    <div className={`-mt-8 w-12 h-12 flex items-center justify-center transition-transform duration-500 ${perfectlyAligned ? 'scale-125 drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]' : 'drop-shadow-md'}`}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
+                        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" fill="#1C1C1C"/>
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#2A2A2A"/>
+                        <path d="M2 7V17L12 22V12L2 7Z" fill="#151515"/>
+                        <path d="M22 7V17L12 22V12L22 7Z" fill="#1C1C1C"/>
+                        <path d="M2 9.5L12 14.5L22 9.5V11L12 16L2 11V9.5Z" fill="#D4AF37"/>
+                      </svg>
                     </div>
                   </div>
                 )}
@@ -211,8 +217,9 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
 
               {/* Fixed Phone Indicator */}
               <div className="absolute z-10 flex flex-col items-center">
-                <div className="w-1 h-6 bg-red-500 rounded-t-full mb-1 shadow-sm" />
-                <div className="w-12 h-20 border-4 border-gray-800 rounded-2xl relative flex items-center justify-center">
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-red-500" />
+                <div className="w-1 h-5 bg-red-500 mb-1 shadow-sm" />
+                <div className="w-12 h-20 border-4 border-gray-800 rounded-2xl relative flex items-center justify-center bg-white/50 backdrop-blur-sm">
                   <div className="w-2 h-2 bg-gray-300 rounded-full absolute top-2" />
                 </div>
               </div>
