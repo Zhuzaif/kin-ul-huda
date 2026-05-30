@@ -9,6 +9,7 @@ import DuasLayout from './DuasLayout';
 import NisaLayout from './NisaLayout';
 
 import ProfileLayout from './ProfileLayout';
+import QiblaFinder from './QiblaFinder';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 
 export default function MobileLayout() {
@@ -33,7 +34,7 @@ export default function MobileLayout() {
           {activeTab === 'home' && (
             <div className="animate-in fade-in duration-300">
               <Header />
-              <PrayerWidget />
+              <PrayerWidget onNavigate={setActiveTab} />
               <DailyVerse />
               <QuickActions onNavigate={setActiveTab} />
             </div>
@@ -44,6 +45,7 @@ export default function MobileLayout() {
           {activeTab === 'duas' && <DuasLayout />}
           {activeTab === 'nisa' && <NisaLayout />}
           {activeTab === 'profile' && <ProfileLayout />}
+          {activeTab === 'qibla' && <QiblaFinder onBack={() => setActiveTab('home')} />}
           {/* Placeholders for other tabs to prevent crashing or empty states */}
         </div>
         <div

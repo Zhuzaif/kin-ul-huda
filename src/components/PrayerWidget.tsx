@@ -3,10 +3,25 @@ import { Compass, Clock, Heart, X, ChevronRight } from 'lucide-react';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function PrayerWidget() {
+export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const { isPeriodMode } = usePeriodMode();
   const [timeLeft, setTimeLeft] = useState(2 * 3600 + 15 * 60 + 30); // 2:15:30 in seconds
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [dates, setDates] = useState({ gregorian: '', islamic: '' });
+
+  useEffect(() => {
+    const today = new Date();
+    const gregorian = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+    
+    const islamicParts = new Intl.DateTimeFormat('en-US-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).formatToParts(today);
+    const iDay = islamicParts.find(p => p.type === 'day')?.value;
+    const iMonth = islamicParts.find(p => p.type === 'month')?.value;
+    const iYear = islamicParts.find(p => p.type === 'year')?.value;
+    const islamic = `${iDay} ${iMonth} ${iYear}`;
+    
+    setDates({ gregorian, islamic });
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,19 +63,25 @@ export default function PrayerWidget() {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <p className={`text-sm font-medium uppercase tracking-wide ${isPeriodMode ? 'text-[#D98A5B]/80' : 'text-[#2B604A]/70'}`}>
-                  28 May 2026
+                  {dates.gregorian || '...'}
                 </p>
                 <p className={`text-xs font-semibold mt-0.5 ${isPeriodMode ? 'text-[#D98A5B]/70' : 'text-[#2B604A]/60'}`}>
-                  11 Dhu al-Hijjah 1447
+                  {dates.islamic || '...'}
                 </p>
               </div>
-              <div className="w-10 h-10 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigate?.('qibla');
+                }}
+                className="w-10 h-10 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white/60 transition-colors"
+              >
                 {isPeriodMode ? (
                   <Heart className="w-5 h-5 text-soft-pink-dark fill-current" />
                 ) : (
                   <Compass className="w-5 h-5 text-[#2B604A]" />
                 )}
-              </div>
+              </button>
             </div>
 
             <div className="flex items-end justify-between">
@@ -139,7 +160,7 @@ export default function PrayerWidget() {
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Prayer Times</h2>
-                  <p className="text-sm text-gray-500 font-medium">11 Dhu al-Hijjah 1447</p>
+                  <p className="text-sm text-gray-500 font-medium">{dates.islamic || '...'}</p>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
@@ -168,7 +189,13 @@ export default function PrayerWidget() {
                 ))}
               </div>
 
-              <button className="w-full bg-[#1F4535] text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[0_4px_15px_rgba(31,69,53,0.3)] active:scale-[0.98] transition-transform">
+              <button 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  onNavigate?.('qibla');
+                }}
+                className="w-full bg-[#1F4535] text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[0_4px_15px_rgba(31,69,53,0.3)] active:scale-[0.98] transition-transform"
+              >
                 <Compass className="w-5 h-5" />
                 Open Qibla Compass
               </button>

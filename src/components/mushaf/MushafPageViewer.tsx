@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import chapters from '../../data/chapters-en.json';
 import mushaf16Lines from '../../data/mushaf-16-lines.json';
+import PeriodModeBanner from '../PeriodModeBanner';
 
 type LineData = {
   line: number;
@@ -139,6 +140,10 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="px-4 pb-2 shrink-0">
+        <PeriodModeBanner />
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 pb-28 flex flex-col">
