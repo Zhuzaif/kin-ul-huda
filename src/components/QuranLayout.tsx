@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { downloadAudioToCache } from '../utils/audioCache';
 import QuranHeader from './QuranHeader';
 import ResumeReading from './ResumeReading';
 import QuranFilters, { QuranFilterId } from './QuranFilters';
@@ -147,6 +148,8 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   const [quranSubTab, setQuranSubTab] = useState<'surahs' | 'juz'>('surahs');
   const [openMushafPage, setOpenMushafPage] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isGlobalDownloading, setIsGlobalDownloading] = useState(false);
+  const [globalDownloadProgress, setGlobalDownloadProgress] = useState(0);
   const [lastRead, setLastRead] = useState<LastRead | null>(() => {
     if (typeof window === 'undefined') {
       return null;
@@ -397,26 +400,32 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     setSearchQuery('');
   };
 
-  const handleDownload = () => {
-    if (typeof window === 'undefined') {
-      return;
+  const handleDownload = async () => {
+    if (isGlobalDownloading) return;
+    const confirmDownload = window.confirm("This will download ~600MB of audio for offline use. Proceed?");
+    if (!confirmDownload) return;
+
+    setIsGlobalDownloading(true);
+    setGlobalDownloadProgress(0);
+
+    try {
+      const res = await fetch('/recitations/yasser/surah.json');
+      if (!res.ok) throw new Error('Failed to fetch surah data');
+      const surahData = await res.json();
+      const urls = Object.values(surahData).map((s: any) => s.audio_url).filter(Boolean);
+      
+      let downloaded = 0;
+      for (const url of urls) {
+        await downloadAudioToCache(url as string);
+        downloaded++;
+        setGlobalDownloadProgress(Math.round((downloaded / urls.length) * 100));
+      }
+    } catch (e) {
+      console.error("Failed to download all audio", e);
+      alert("Failed to download audio. Please check your connection.");
+    } finally {
+      setIsGlobalDownloading(false);
     }
-    const payload = activeFilter === 'saved'
-      ? savedVerses
-      : (activeFilter === 'quran' && quranSubTab === 'juz')
-        ? juzList
-        : chapterList;
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = activeFilter === 'saved'
-      ? 'saved-verses.json'
-      : (activeFilter === 'quran' && quranSubTab === 'juz')
-        ? 'juz.json'
-        : 'surahs.json';
-    link.click();
-    window.URL.revokeObjectURL(url);
   };
 
   if (selectedChapterId !== null) {
@@ -448,6 +457,8 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         onSearchChange={setSearchQuery}
         onSearchSubmit={handleSearchSubmit}
         onDownload={handleDownload}
+        isDownloading={isGlobalDownloading}
+        downloadProgress={globalDownloadProgress}
       />
       <ResumeReading
         chapterName={resumeChapter?.transliteration ?? 'Al-Fatihah'}

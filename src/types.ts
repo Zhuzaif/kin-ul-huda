@@ -7,3 +7,13 @@ export type ActionItem = {
   colorClass: string;
   bgClass: string;
 };
+
+export interface Dua {
+  id: number | string;
+  title: string;
+  arabic: string;
+  translation: string;
+  tags?: string[];
+  repetition?: string;
+  isCustom?: boolean;
+}

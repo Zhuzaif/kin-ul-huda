@@ -6,6 +6,8 @@ interface QuranHeaderProps {
   onSearchChange: (value: string) => void;
   onSearchSubmit?: (value: string) => void;
   onDownload?: () => void;
+  isDownloading?: boolean;
+  downloadProgress?: number;
 }
 
 export default function QuranHeader({
@@ -13,6 +15,8 @@ export default function QuranHeader({
   onSearchChange,
   onSearchSubmit,
   onDownload,
+  isDownloading = false,
+  downloadProgress = 0,
 }: QuranHeaderProps) {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -29,10 +33,21 @@ export default function QuranHeader({
         <button
           type="button"
           onClick={onDownload}
-          className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center shadow-sm text-gray-600 transition-colors hover:bg-white/80"
-          aria-label="Download list"
+          disabled={isDownloading}
+          className="relative w-10 h-10 bg-white/60 rounded-full flex items-center justify-center shadow-sm text-gray-600 transition-colors hover:bg-white/80 overflow-hidden"
+          aria-label="Download all Yasser audio"
         >
-          <DownloadCloud className="w-5 h-5" />
+          {isDownloading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-soft-mint text-[10px] font-bold text-[#1F4535]">
+              {downloadProgress}%
+              <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(31,69,53,0.1)" strokeWidth="2" />
+                <circle cx="20" cy="20" r="18" fill="none" stroke="#1F4535" strokeWidth="2" strokeDasharray="113" strokeDashoffset={113 - (113 * downloadProgress) / 100} className="transition-all duration-300" />
+              </svg>
+            </div>
+          ) : (
+            <DownloadCloud className="w-5 h-5" />
+          )}
         </button>
       </div>
       

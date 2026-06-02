@@ -1,20 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DuasHeader from './DuasHeader';
 import DuaHighlightCard from './DuaHighlightCard';
 import DuaCategories from './DuaCategories';
 import DuaList from './DuaList';
-import TasbeehFAB from './TasbeehFAB';
+import DuaDetailScreen from './DuaDetailScreen';
+import CreateDuaModal from './CreateDuaModal';
+import { Dua } from '../types';
 
 export default function DuasLayout() {
+  const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
+  const [activeTab, setActiveTab] = useState('All Duas');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [currentDuaList, setCurrentDuaList] = useState<Dua[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleSelectDua = (dua: Dua, index: number, duaList: Dua[]) => {
+    setSelectedDua(dua);
+    setCurrentIndex(index);
+    setCurrentDuaList(duaList);
+  };
+
+  const handleNextDua = () => {
+    if (currentDuaList.length > 0) {
+      const nextIndex = (currentIndex + 1) % currentDuaList.length;
+      setCurrentIndex(nextIndex);
+      setSelectedDua(currentDuaList[nextIndex]);
+    }
+  };
+
+  const handlePrevDua = () => {
+    if (currentDuaList.length > 0) {
+      const prevIndex = (currentIndex - 1 + currentDuaList.length) % currentDuaList.length;
+      setCurrentIndex(prevIndex);
+      setSelectedDua(currentDuaList[prevIndex]);
+    }
+  };
+
+  const handleSaveCustomDua = (dua: Dua) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const updated = [dua, ...existing];
+      localStorage.setItem('customDuas', JSON.stringify(updated));
+      setRefreshTrigger(prev => prev + 1);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
       <div className="flex-1 overflow-y-auto scroll-smooth hide-scrollbar relative">
-        <DuasHeader />
-        <DuaHighlightCard />
-        <DuaCategories />
-        <DuaList />
+        <DuasHeader activeTab={activeTab} onTabChange={setActiveTab} />
+        <DuaHighlightCard onAddDua={() => setIsCreateModalOpen(true)} />
+        <DuaCategories activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+        <DuaList 
+          onSelectDua={handleSelectDua} 
+          activeTab={activeTab} 
+          activeCategory={activeCategory} 
+          refreshTrigger={refreshTrigger}
+        />
       </div>
-      <TasbeehFAB />
+
+      {selectedDua && (
+        <DuaDetailScreen 
+          dua={selectedDua} 
+          onBack={() => setSelectedDua(null)} 
+          onNext={handleNextDua}
+          onPrev={handlePrevDua}
+        />
+      )}
+
+      <CreateDuaModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleSaveCustomDua}
+      />
     </div>
   );
 }

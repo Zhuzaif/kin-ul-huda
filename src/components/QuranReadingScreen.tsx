@@ -7,6 +7,7 @@ import translationEn from '../data/editions-en.json';
 import FloatingAudioPlayer from './FloatingAudioPlayer';
 import PeriodModeBanner from './PeriodModeBanner';
 import VerseCard from './VerseCard';
+import { getCachedAudioUrl } from '../utils/audioCache';
 
 type Chapter = {
   id: number;
@@ -232,10 +233,11 @@ export default function QuranReadingScreen({
 
     if (!initialUrl) return;
 
-    const audio = new Audio(initialUrl);
-    audioRef.current = audio;
+    let isSubscribed = true;
+    let audio: HTMLAudioElement;
 
     const seekToActiveVerse = () => {
+      if (!audio) return;
       if (recitationData.isAyahLevel) {
         setProgress(0);
         return;
@@ -251,6 +253,7 @@ export default function QuranReadingScreen({
     };
 
     const handleTimeUpdate = () => {
+      if (!audio) return;
       const currentTimeMs = audio.currentTime * 1000;
       
       if (recitationData.isAyahLevel) {
@@ -291,6 +294,7 @@ export default function QuranReadingScreen({
     };
 
     const handleLoadedMetadata = () => {
+      if (!audio) return;
       seekToActiveVerse();
       if (isPlayingRef.current) {
         audio.play().catch(console.error);
@@ -298,6 +302,7 @@ export default function QuranReadingScreen({
     };
 
     const handleEnded = () => {
+      if (!audio) return;
       if (recitationData.isAyahLevel) {
         const nextIndex = activeVerseIndexRef.current + 1;
         if (nextIndex < verses.length) {
@@ -308,11 +313,15 @@ export default function QuranReadingScreen({
             const key = `${chapterId}:${nextVerse.verse}`;
             const targetSrc = recitationData.segments[key]?.audio_url;
             if (targetSrc) {
-              audioRef.current.src = targetSrc;
-              audioRef.current.load();
-              if (isPlayingRef.current) {
-                audioRef.current.play().catch(console.error);
-              }
+              getCachedAudioUrl(targetSrc).then(cachedSrc => {
+                if (audioRef.current) {
+                  audioRef.current.src = cachedSrc || targetSrc;
+                  audioRef.current.load();
+                  if (isPlayingRef.current) {
+                    audioRef.current.play().catch(console.error);
+                  }
+                }
+              });
             }
           }
         } else {
@@ -325,16 +334,40 @@ export default function QuranReadingScreen({
       }
     };
 
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
+    const setupAudio = async () => {
+      try {
+        const srcUrl = await getCachedAudioUrl(initialUrl);
+        if (!isSubscribed) return;
+
+        audio = new Audio(srcUrl || initialUrl);
+        audioRef.current = audio;
+      } catch (e) {
+        console.error("Audio setup error", e);
+      }
+    };
+
+    const attachListeners = () => {
+      if (!audio) return;
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('ended', handleEnded);
+    };
+
+    setupAudio().then(() => {
+      if (audio && isSubscribed) {
+        attachListeners();
+      }
+    });
 
     return () => {
-      audio.pause();
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      if (audioRef.current === audio) audioRef.current = null;
+      isSubscribed = false;
+      if (audio) {
+        audio.pause();
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+        audio.removeEventListener('ended', handleEnded);
+        if (audioRef.current === audio) audioRef.current = null;
+      }
     };
   }, [recitationData, chapterId, verses]);
 

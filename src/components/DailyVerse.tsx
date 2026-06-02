@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Heart, Share2, BookOpen } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
@@ -6,11 +6,37 @@ import dailyAyat from '../data/daily-ayat.json';
 import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
 import chapters from '../data/chapters-en.json';
+import duasDataRaw from '../data/duas.json';
+import { Dua } from '../types';
+
+const duas: Dua[] = duasDataRaw as Dua[];
 
 export default function DailyVerse() {
   const [isSaved, setIsSaved] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { isPeriodMode } = usePeriodMode();
+  const [periodDuaIndex, setPeriodDuaIndex] = useState(0);
+
+  useEffect(() => {
+    if (isPeriodMode) {
+      const today = new Date().toDateString();
+      let index = parseInt(localStorage.getItem('dailyDuaIndex') || '0', 10);
+      let lastUpdate = localStorage.getItem('dailyDuaLastUpdate');
+
+      if (!lastUpdate) {
+        // First time initialization
+        localStorage.setItem('dailyDuaLastUpdate', today);
+        localStorage.setItem('dailyDuaIndex', index.toString());
+      } else if (lastUpdate !== today) {
+        // A new day has passed since last update, increment index
+        index = (index + 1) % duas.length;
+        localStorage.setItem('dailyDuaIndex', index.toString());
+        localStorage.setItem('dailyDuaLastUpdate', today);
+      }
+      
+      setPeriodDuaIndex(index);
+    }
+  }, [isPeriodMode]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -55,12 +81,14 @@ export default function DailyVerse() {
   const surahName = chapterInfo?.transliteration || '';
   const ayatReference = `${surahName} ${ayatEntry.verseKey}`;
 
+  const currentDua = duas[periodDuaIndex] || duas[0];
+
   const content = isPeriodMode ? {
     title: "Dua of the Day",
     icon: <Sparkles className="w-4 h-4 text-muted-gold" />,
-    arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
-    english: "\"Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire.\"",
-    reference: "Al-Baqarah 2:201"
+    arabic: currentDua.arabic,
+    english: currentDua.translation || "",
+    reference: currentDua.tags && currentDua.tags.length > 0 ? currentDua.tags[0].toUpperCase() : "DUA"
   } : {
     title: "Ayat of the Day",
     icon: <BookOpen className="w-4 h-4 text-muted-gold" />,

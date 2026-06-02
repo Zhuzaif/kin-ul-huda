@@ -1,7 +1,11 @@
 import React from 'react';
 import { Heart, HandHeart } from 'lucide-react';
 
-export default function DuaHighlightCard() {
+interface DuaHighlightCardProps {
+  onAddDua?: () => void;
+}
+
+export default function DuaHighlightCard({ onAddDua }: DuaHighlightCardProps) {
   return (
     <div className="px-6 mb-8">
       <div className="bg-gradient-to-br from-light-peach to-[#FCE7D8] rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden group">
@@ -17,7 +21,10 @@ export default function DuaHighlightCard() {
             Create and save your personal prayers for moments of need and reflection.
           </p>
           
-          <button className="flex items-center gap-2 bg-white/90 hover:bg-white transition-colors text-[#D98A5B] text-[13px] font-bold px-6 py-3 rounded-full shadow-sm">
+          <button 
+            onClick={onAddDua}
+            className="flex items-center gap-2 bg-white/90 hover:bg-white transition-colors text-[#D98A5B] text-[13px] font-bold px-6 py-3 rounded-full shadow-sm"
+          >
             <Heart className="w-4 h-4 fill-current transition-transform group-hover:scale-110" />
             Add your own dua
           </button>
