@@ -30,6 +30,24 @@ export async function isAudioCached(url: string): Promise<boolean> {
   return !!response;
 }
 
+export async function getAudioCacheStats(): Promise<{ count: number; supported: boolean }> {
+  if (!('caches' in window)) {
+    return { count: 0, supported: false };
+  }
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const keys = await cache.keys();
+    return { count: keys.length, supported: true };
+  } catch {
+    return { count: 0, supported: true };
+  }
+}
+
+export async function clearAudioCache(): Promise<void> {
+  if (!('caches' in window)) return;
+  await caches.delete(CACHE_NAME);
+}
+
 export async function getCachedAudioUrl(url: string): Promise<string | null> {
   if (!('caches' in window)) return url;
   const cache = await caches.open(CACHE_NAME);

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface PeriodModeContextType {
   isPeriodMode: boolean;
   togglePeriodMode: () => void;
+  setPeriodMode: (value: boolean) => void;
 }
 
 const PeriodModeContext = createContext<PeriodModeContextType | undefined>(undefined);
@@ -18,8 +19,12 @@ export function PeriodModeProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setPeriodMode = (value: boolean) => {
+    setIsPeriodMode(value);
+  };
+
   return (
-    <PeriodModeContext.Provider value={{ isPeriodMode, togglePeriodMode }}>
+    <PeriodModeContext.Provider value={{ isPeriodMode, togglePeriodMode, setPeriodMode }}>
       {children}
     </PeriodModeContext.Provider>
   );

@@ -67,22 +67,26 @@ const periodActions: ActionItem[] = [
 
 interface QuickActionsProps {
   onNavigate?: (tab: string) => void;
+  onOpenTasbeeh?: () => void;
 }
 
-export default function QuickActions({ onNavigate }: QuickActionsProps) {
+export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActionsProps) {
   const { isPeriodMode } = usePeriodMode();
   const actions = isPeriodMode ? periodActions : defaultActions;
 
   const handleActionClick = (id: string) => {
+    if (id === 'tasbeeh' || id === 'dhikr') {
+      onOpenTasbeeh?.();
+      return;
+    }
+
     if (!onNavigate) return;
-    
+
     switch (id) {
       case 'quran':
       case 'listen-quran':
         onNavigate('quran');
         break;
-      case 'tasbeeh':
-      case 'dhikr':
       case 'duas':
       case 'adhkar':
         onNavigate('duas');
