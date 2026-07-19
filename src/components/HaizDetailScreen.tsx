@@ -4,12 +4,9 @@ import {
   ChevronRight,
   ChevronDown,
   BookOpen,
-  Quote,
   Sparkles,
   User,
   BookMarked,
-  Lightbulb,
-  Droplets,
   ArrowRight,
 } from 'lucide-react';
 import { haizTopics } from '../data/haizTopics';
@@ -21,7 +18,7 @@ interface HaizDetailScreenProps {
   onBack: () => void;
 }
 
-/* ───── Single Topic Detail View ───── */
+/* ───── Single Topic Detail View — Minimalist Spiritual Design ───── */
 function HaizTopicView({
   topic,
   onBack,
@@ -37,219 +34,244 @@ function HaizTopicView({
   currentIndex: number;
   totalCount: number;
 }) {
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const minSwipeDistance = 50;
+  const [activeTab, setActiveTab] = useState<'translation' | 'explanation'>('translation');
+  const [expandedSection, setExpandedSection] = useState<string | null>('explanation');
+  const [bookmarked, setBookmarked] = useState(false);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+  const toggleSection = (section: string) => {
+    setExpandedSection((prev) => (prev === section ? null : section));
   };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    if (distance > minSwipeDistance && onNext) onNext();
-    if (distance < -minSwipeDistance && onPrev) onPrev();
-  };
+
+  /* Spiritual design inline CSS variables */
+  const spiritualStyles = `
+    .spiritual-bg { background-color: #f9f9f6; color: #2b2b28; }
+    .spiritual-header { border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(249,249,246,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .spiritual-gold { color: #b08d35; }
+    .spiritual-emerald { color: #0f5c4a; }
+    .spiritual-secondary { background: #f0efe9; }
+    .spiritual-muted { color: #8a897f; }
+    .spiritual-border { border-color: rgba(0,0,0,0.05); }
+
+    .tab-pill-container { background: #f0efe9; border-radius: 9999px; padding: 4px; display: flex; }
+    .tab-pill { flex: 1; border-radius: 9999px; padding: 8px 16px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: #2b2b28; }
+    .tab-pill.active { background: #ffffff; color: #0f5c4a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+    .accordion-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 0; font-size: 14px; font-weight: 500; color: #2b2b28; text-align: left; cursor: pointer; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.2s; }
+    .accordion-trigger:last-child { border-bottom: none; }
+    .accordion-chevron { width: 16px; height: 16px; color: #8a897f; transition: transform 0.2s; flex-shrink: 0; }
+    .accordion-chevron.open { transform: rotate(180deg); }
+    .accordion-content { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
+    .accordion-content.closed { max-height: 0; opacity: 0; }
+    .accordion-content.open { max-height: 2000px; opacity: 1; }
+  `;
 
   return (
-    <div
-      className="absolute inset-0 bg-warm-beige z-[60] flex flex-col animate-in fade-in duration-300"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* ── Sticky Header ── */}
-      <div className="sticky top-0 z-10 bg-warm-beige/90 backdrop-blur-md px-5 py-3.5 flex items-center gap-3 border-b border-gray-200/40">
-        <button
-          type="button"
-          onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 active:scale-95 transition-all"
-          aria-label="Go back"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#D98A5B]">
-            Haiz · Topic {currentIndex + 1}/{totalCount}
-          </span>
-          <h1 className="text-[15px] font-bold text-gray-800 tracking-tight truncate leading-tight">
-            {topic.title}
-          </h1>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-soft-pink flex items-center justify-center flex-shrink-0">
-          <Droplets className="w-5 h-5 text-soft-pink-dark" />
-        </div>
-      </div>
+    <div className="absolute inset-0 z-[60] flex flex-col animate-in fade-in duration-300 spiritual-bg" style={{ backgroundColor: '#f9f9f6', color: '#2b2b28' }}>
+      <style>{spiritualStyles}</style>
 
-      {/* ── Scrollable Content ── */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-5 py-5 pb-28">
-        {/* Hero Card */}
-        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-soft-pink/60 via-light-peach/40 to-white/50 backdrop-blur-sm border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 mb-5">
-          <div className="absolute -right-6 -top-6 w-28 h-28 bg-soft-pink-dark/15 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute -left-4 -bottom-4 w-20 h-20 bg-muted-gold-light/40 rounded-full blur-xl pointer-events-none" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className="text-2xl">{topic.emoji}</span>
-              <span
-                className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full ${topic.tagBg} ${topic.tagColor}`}
-              >
-                {topic.tagLabel}
-              </span>
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 tracking-tight mb-2 leading-tight">
-              {topic.title}
-            </h2>
-            <p className="text-[13px] font-medium text-gray-600/90 leading-relaxed">
-              {topic.summary}
-            </p>
+      {/* ── Sticky Header ── */}
+      <header className="sticky top-0 z-10 spiritual-header" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(249,249,246,0.8)', backdropFilter: 'blur(12px)' }}>
+        <div className="flex items-center justify-between px-5 py-3.5 max-w-2xl mx-auto">
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9] active:scale-95"
+            aria-label="Back"
+          >
+            <ChevronLeft className="w-5 h-5" style={{ color: '#2b2b28', opacity: 0.7 }} strokeWidth={1.75} />
+          </button>
+
+          <h2 className="text-center text-[15px] font-medium" style={{ color: 'rgba(43,43,40,0.9)' }}>
+            {topic.tagLabel}
+          </h2>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setBookmarked((v) => !v)}
+              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9]"
+              aria-label="Bookmark"
+            >
+              <BookMarked
+                className="w-5 h-5"
+                strokeWidth={1.75}
+                fill={bookmarked ? '#b08d35' : 'none'}
+                stroke={bookmarked ? '#b08d35' : 'currentColor'}
+                style={{ color: 'rgba(43,43,40,0.7)' }}
+              />
+            </button>
+            <button
+              type="button"
+              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9]"
+              aria-label="Share"
+            >
+              <ArrowRight className="w-5 h-5 rotate-[-45deg]" strokeWidth={1.75} style={{ color: 'rgba(43,43,40,0.7)' }} />
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Hadith Section */}
-        {topic.hadith && (
-          <div className="mb-5">
-            {/* Arabic Text Card */}
-            <div className="rounded-t-[24px] rounded-b-none bg-white/70 backdrop-blur-sm border border-white/70 border-b-0 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-full bg-muted-gold-light flex items-center justify-center">
-                  <BookOpen className="w-3.5 h-3.5 text-muted-gold" />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-gold">
-                  📖 Arabic Text
-                </span>
-              </div>
-              <div className="bg-muted-gold-light/40 rounded-[20px] p-5 border border-muted-gold/15">
-                <p
-                  className="font-arabic text-[22px] leading-[2.2] text-gray-800 text-right"
-                  dir="rtl"
-                >
-                  {topic.hadith.arabic}
-                </p>
-              </div>
-            </div>
-
-            {/* English Translation Card */}
-            <div className="rounded-none bg-white/60 backdrop-blur-sm border border-white/70 border-b-0 border-t-0 p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-full bg-soft-mint flex items-center justify-center">
-                  <Quote className="w-3.5 h-3.5 text-[#2B604A]" />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#2B604A]">
-                  🌍 English Translation
-                </span>
-              </div>
-              <p className="text-[13.5px] font-medium text-gray-700 leading-[1.85] whitespace-pre-line">
-                {topic.hadith.translation}
+      {/* ── Scrollable Content ── */}
+      <div className="flex-1 overflow-y-auto hide-scrollbar pb-28">
+        <main className="max-w-2xl mx-auto px-6 pb-16 pt-8">
+          <section className="mb-10">
+            {/* Arabic Text — Centered */}
+            {topic.hadith ? (
+              <p
+                dir="rtl"
+                lang="ar"
+                className="font-arabic text-center text-[28px] leading-[2.4]"
+                style={{ color: '#2b2b28' }}
+              >
+                {topic.hadith.arabic}
               </p>
+            ) : (
+              /* If no hadith, show the summary as main content */
+              <p className="text-center text-[16px] leading-[1.9] font-medium" style={{ color: 'rgba(43,43,40,0.9)' }}>
+                {topic.summary}
+              </p>
+            )}
+
+            {/* Ornamental Divider */}
+            <div className="my-8 flex items-center justify-center gap-3">
+              <span className="h-px w-16" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.1))' }} />
+              <span style={{ color: '#b08d35' }}>۞</span>
+              <span className="h-px w-16" style={{ background: 'linear-gradient(to left, transparent, rgba(0,0,0,0.1))' }} />
             </div>
 
-            {/* Narrator & Reference Card */}
-            <div className="rounded-b-[24px] rounded-t-none bg-white/50 backdrop-blur-sm border border-white/70 border-t-0 p-5 flex flex-col gap-3">
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-light-peach flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5 text-[#D98A5B]" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-0.5">
-                    👤 Narrator
-                  </span>
-                  <p className="text-[13px] font-semibold text-gray-700">
-                    {topic.hadith.narrator}
-                  </p>
-                </div>
+            {/* Tabs — Translation / Explanation */}
+            <div className="w-full">
+              <div className="mx-auto mb-6 max-w-sm tab-pill-container">
+                <button
+                  type="button"
+                  className={`tab-pill ${activeTab === 'translation' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('translation')}
+                >
+                  Translation
+                </button>
+                <button
+                  type="button"
+                  className={`tab-pill ${activeTab === 'explanation' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('explanation')}
+                >
+                  Explanation
+                </button>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-soft-mint flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <BookMarked className="w-3.5 h-3.5 text-[#2B604A]" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-0.5">
-                    📚 Reference
-                  </span>
-                  <p className="text-[13px] font-semibold text-gray-700 whitespace-pre-line">
-                    {topic.hadith.reference}
-                  </p>
-                  {topic.hadith.additionalRef && (
-                    <p className="text-[11px] font-medium text-gray-400 mt-1 italic">
-                      {topic.hadith.additionalRef}
+
+              {/* Translation Tab Content */}
+              {activeTab === 'translation' && (
+                <div className="animate-in fade-in duration-200">
+                  {topic.hadith ? (
+                    <>
+                      <p className="text-left text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.9)' }}>
+                        {topic.hadith.translation}
+                      </p>
+                      {/* Meta Pills */}
+                      <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: '#f0efe9', color: '#8a897f' }}>
+                            <User className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: '#0f5c4a' }} />
+                            <span className="text-[13px]">Narrated by {topic.hadith.narrator}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: '#f0efe9', color: '#8a897f' }}>
+                            <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: '#b08d35' }} />
+                            <span className="text-[13px]">{topic.hadith.reference.split('\n')[0]}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-left text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.9)' }}>
+                      {topic.explanation}
                     </p>
                   )}
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* Simple Explanation Section */}
-        <div className="rounded-[24px] bg-white/60 backdrop-blur-sm border border-white/70 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 mb-5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full bg-light-peach flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-[#D98A5B]" />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#D98A5B]">
-              📝 Simple Explanation
-            </span>
-          </div>
-          <p className="text-[13.5px] font-medium text-gray-700 leading-[1.85]">
-            {topic.explanation}
-          </p>
-        </div>
-
-        {/* Key Points Section */}
-        {topic.keyPoints && topic.keyPoints.length > 0 && (
-          <div className="rounded-[24px] bg-gradient-to-br from-soft-mint/50 to-muted-gold-light/30 backdrop-blur-sm border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 mb-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-full bg-white/80 flex items-center justify-center">
-                <Lightbulb className="w-3.5 h-3.5 text-[#2B604A]" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#2B604A]">
-                Key Takeaways
-              </span>
-            </div>
-            <div className="flex flex-col gap-2.5">
-              {topic.keyPoints.map((point, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
-                    <span className="text-[10px] font-bold text-[#2B604A]">
-                      {idx + 1}
-                    </span>
+              {/* Explanation Tab Content */}
+              {activeTab === 'explanation' && (
+                <div className="animate-in fade-in duration-200">
+                  {/* Simple Explanation Accordion */}
+                  <div style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <button
+                      type="button"
+                      className="accordion-trigger"
+                      onClick={() => toggleSection('explanation')}
+                      style={{ borderBottom: expandedSection === 'explanation' ? 'none' : undefined }}
+                    >
+                      <span>Simple Explanation</span>
+                      <ChevronDown className={`accordion-chevron ${expandedSection === 'explanation' ? 'open' : ''}`} />
+                    </button>
+                    <div className={`accordion-content ${expandedSection === 'explanation' ? 'open' : 'closed'}`}>
+                      <div className="pb-4">
+                        <p className="text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.8)' }}>
+                          {topic.explanation}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-[13px] font-medium text-gray-700 leading-relaxed flex-1">
-                    {point}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Disclaimer */}
-        <p className="text-[11px] text-gray-400 text-center mt-4 leading-relaxed px-4">
-          General guidance only. For personal rulings, consult a qualified
-          Aalima or scholar in your madhab.
-        </p>
+                  {/* Key Takeaways Accordion */}
+                  {topic.keyPoints && topic.keyPoints.length > 0 && (
+                    <div style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                      <button
+                        type="button"
+                        className="accordion-trigger"
+                        onClick={() => toggleSection('takeaways')}
+                      >
+                        <span>Key Takeaways</span>
+                        <ChevronDown className={`accordion-chevron ${expandedSection === 'takeaways' ? 'open' : ''}`} />
+                      </button>
+                      <div className={`accordion-content ${expandedSection === 'takeaways' ? 'open' : 'closed'}`}>
+                        <div className="pb-4">
+                          <ul className="flex flex-col gap-4">
+                            {topic.keyPoints.map((point, i) => (
+                              <li key={i} className="flex items-start gap-3">
+                                <span
+                                  className="mt-0.5 w-5 h-5 shrink-0 grid place-items-center rounded-full"
+                                  style={{ background: 'rgba(15,92,74,0.1)' }}
+                                >
+                                  <Sparkles className="w-3 h-3" strokeWidth={2.5} style={{ color: '#0f5c4a' }} />
+                                </span>
+                                <span className="text-[14px] leading-[1.7]" style={{ color: 'rgba(43,43,40,0.8)' }}>
+                                  {point}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Footer Disclaimer */}
+          <p className="mx-auto max-w-md text-center text-[11px] leading-relaxed" style={{ color: 'rgba(138,137,127,0.7)' }}>
+            General guidance only. For rulings specific to your situation, please
+            consult a qualified scholar.
+          </p>
+        </main>
       </div>
 
       {/* ── Bottom Navigation Bar ── */}
-      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between bg-white/80 backdrop-blur-md px-5 py-3.5 rounded-full shadow-lg border border-gray-100/50">
+      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between px-5 py-3.5 rounded-full shadow-lg" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.05)' }}>
         <button
           type="button"
           onClick={onPrev}
           disabled={!onPrev}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors active:scale-95 ${
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
             onPrev
-              ? 'bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-              : 'bg-gray-50/50 text-gray-200 cursor-not-allowed'
+              ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
+              : 'text-[#2b2b28]/15 cursor-not-allowed'
           }`}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center px-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-center px-2" style={{ color: '#8a897f' }}>
           {currentIndex + 1} of {totalCount}
         </span>
 
@@ -257,10 +279,10 @@ function HaizTopicView({
           type="button"
           onClick={onNext}
           disabled={!onNext}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors active:scale-95 ${
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
             onNext
-              ? 'bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-              : 'bg-gray-50/50 text-gray-200 cursor-not-allowed'
+              ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
+              : 'text-[#2b2b28]/15 cursor-not-allowed'
           }`}
         >
           <ChevronRight className="w-5 h-5" />
