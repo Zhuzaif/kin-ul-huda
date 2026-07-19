@@ -1,14 +1,15 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
-import type { FiqhTopic } from '../data/fiqhTopics';
+import type { FiqhSubTopic, FiqhMainTopic } from '../data/fiqhTopics';
 
-interface FiqhTopicDetailProps {
-  topic: FiqhTopic;
+interface FiqhSubTopicDetailProps {
+  subTopic: FiqhSubTopic;
+  parentTopic: FiqhMainTopic;
   onBack: () => void;
 }
 
-export default function FiqhTopicDetail({ topic, onBack }: FiqhTopicDetailProps) {
-  const Icon = topic.icon;
+export default function FiqhSubTopicDetail({ subTopic, parentTopic, onBack }: FiqhSubTopicDetailProps) {
+  const Icon = parentTopic.icon;
 
   return (
     <div className="absolute inset-0 bg-warm-beige z-50 flex flex-col animate-in fade-in duration-300">
@@ -23,19 +24,19 @@ export default function FiqhTopicDetail({ topic, onBack }: FiqhTopicDetailProps)
         </button>
         <div className="flex-1 min-w-0">
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#D98A5B]">
-            {topic.category}
+            {parentTopic.title}
           </span>
-          <h1 className="text-lg font-bold text-gray-800 tracking-tight truncate">{topic.title}</h1>
+          <h1 className="text-lg font-bold text-gray-800 tracking-tight truncate">{subTopic.title}</h1>
         </div>
-        <div className={`w-10 h-10 rounded-full ${topic.iconBg} flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-5 h-5 ${topic.iconColor}`} />
+        <div className={`w-10 h-10 rounded-full ${parentTopic.iconBg} flex items-center justify-center flex-shrink-0`}>
+          <Icon className={`w-5 h-5 ${parentTopic.iconColor}`} />
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-6 pb-28">
-        <p className="text-[14px] font-medium text-gray-600 leading-relaxed mb-6">{topic.summary}</p>
+        <p className="text-[14px] font-medium text-gray-600 leading-relaxed mb-6">{subTopic.summary}</p>
         <div className="flex flex-col gap-4">
-          {topic.content.map((paragraph, i) => (
+          {subTopic.content.map((paragraph, i) => (
             <p
               key={i}
               className="text-[13px] text-gray-700 leading-relaxed bg-white/60 rounded-[20px] p-4 border border-white/70"
