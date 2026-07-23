@@ -9,17 +9,17 @@ import {
   BookMarked,
   ArrowRight,
 } from 'lucide-react';
-import { haizTopics } from '../data/haizTopics';
-import type { HaizTopic } from '../data/haizTopics';
+import { istihazaTopics } from '../data/istihazaTopics';
+import type { IstihazaTopic } from '../data/istihazaTopics';
 import type { FiqhMainTopic } from '../data/fiqhTopics';
 
-interface HaizDetailScreenProps {
+interface IstihazaDetailScreenProps {
   parentTopic: FiqhMainTopic;
   onBack: () => void;
 }
 
 /* ───── Single Topic Detail View — Minimalist Spiritual Design ───── */
-function HaizTopicView({
+function IstihazaTopicView({
   topic,
   onBack,
   onNext,
@@ -27,7 +27,7 @@ function HaizTopicView({
   currentIndex,
   totalCount,
 }: {
-  topic: HaizTopic;
+  topic: IstihazaTopic;
   onBack: () => void;
   onNext?: () => void;
   onPrev?: () => void;
@@ -327,32 +327,30 @@ function HaizTopicView({
 
 /* ───── Topic card data with gradient colors for numbers ───── */
 const topicsCardData = [
-  { subtitle: 'Foundation · Hadith', color: '#1094b8' },
-  { subtitle: 'Fiqh Ruling · Calculation', color: '#1b9db3' },
+  { subtitle: 'Foundation · Understanding', color: '#1094b8' },
+  { subtitle: 'Detection · Methods', color: '#1b9db3' },
   { subtitle: 'Prayers & Fasting', color: '#27a7ae' },
-  { subtitle: 'Adhkar & Supplications', color: '#35b09f' },
-  { subtitle: 'Purification Method', color: '#51b680' },
-  { subtitle: 'Qada Regulations', color: '#6fbd60' },
-  { subtitle: 'Marriage & Spiritual Connection', color: '#8bc440' },
+  { subtitle: 'Purification · Wudu', color: '#35b09f' },
+  { subtitle: 'Advanced · Fiqh Cases', color: '#51b680' },
 ];
 
-/* ───── Haiz Topics List Screen — Ribbon Track Design ───── */
-export default function HaizDetailScreen({
+/* ───── Istihaza Topics List Screen — Ribbon Track Design ───── */
+export default function IstihazaDetailScreen({
   parentTopic,
   onBack,
-}: HaizDetailScreenProps) {
+}: IstihazaDetailScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (selectedIndex !== null) {
-    const topic = haizTopics[selectedIndex];
+    const topic = istihazaTopics[selectedIndex];
     return (
-      <HaizTopicView
+      <IstihazaTopicView
         topic={topic}
         currentIndex={selectedIndex}
-        totalCount={haizTopics.length}
+        totalCount={istihazaTopics.length}
         onBack={() => setSelectedIndex(null)}
         onNext={
-          selectedIndex < haizTopics.length - 1
+          selectedIndex < istihazaTopics.length - 1
             ? () => setSelectedIndex(selectedIndex + 1)
             : undefined
         }
@@ -373,21 +371,21 @@ export default function HaizDetailScreen({
       font-family: 'Space Grotesk', sans-serif;
     }
 
-    .haiz-thick-track {
+    .istihaza-thick-track {
       background: linear-gradient(to bottom, #1094b8 0%, #35b09f 50%, #8bc440 100%);
       box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.25), inset 0px -4px 10px rgba(0,0,0,0.15);
     }
 
-    .haiz-topic-card {
+    .istihaza-topic-card {
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .haiz-topic-card:active {
+    .istihaza-topic-card:active {
       transform: scale(0.98);
     }
 
-    .haiz-number-block::after {
+    .istihaza-number-block::after {
       content: '';
       position: absolute;
       right: 0;
@@ -440,7 +438,7 @@ export default function HaizDetailScreen({
         <div className="relative flex-1 flex flex-col justify-between py-1 px-1">
           {/* The Continuous Gradient Spine/Track */}
           <div
-            className="haiz-thick-track absolute rounded-full z-0"
+            className="istihaza-thick-track absolute rounded-full z-0"
             style={{
               top: '15px',
               bottom: '15px',
@@ -451,17 +449,17 @@ export default function HaizDetailScreen({
           />
 
           {/* Topic Cards */}
-          {haizTopics.map((topic, idx) => {
+          {istihazaTopics.map((topic, idx) => {
             const cardMeta = topicsCardData[idx] || topicsCardData[0];
             return (
               <button
                 key={topic.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className="haiz-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
+                className="istihaza-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
               >
                 <div
-                  className="haiz-number-block relative shrink-0 flex items-center justify-center"
+                  className="istihaza-number-block relative shrink-0 flex items-center justify-center"
                   style={{ width: '60px', backgroundColor: '#f4f6f8' }}
                 >
                   <span

@@ -19,7 +19,11 @@ function daysBetween(from: Date, to: Date): number {
 }
 
 function isoDateOnly(date: Date): string {
-  return startOfDay(date).toISOString().slice(0, 10);
+  const d = startOfDay(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function parseIsoDate(iso: string): Date {

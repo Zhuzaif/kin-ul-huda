@@ -9,17 +9,17 @@ import {
   BookMarked,
   ArrowRight,
 } from 'lucide-react';
-import { haizTopics } from '../data/haizTopics';
-import type { HaizTopic } from '../data/haizTopics';
+import { wuduTayammumTopics } from '../data/wuduTayammumTopics';
+import type { WuduTayammumTopic } from '../data/wuduTayammumTopics';
 import type { FiqhMainTopic } from '../data/fiqhTopics';
 
-interface HaizDetailScreenProps {
+interface WuduTayammumDetailScreenProps {
   parentTopic: FiqhMainTopic;
   onBack: () => void;
 }
 
 /* ───── Single Topic Detail View — Minimalist Spiritual Design ───── */
-function HaizTopicView({
+function WuduTayammumTopicView({
   topic,
   onBack,
   onNext,
@@ -27,7 +27,7 @@ function HaizTopicView({
   currentIndex,
   totalCount,
 }: {
-  topic: HaizTopic;
+  topic: WuduTayammumTopic;
   onBack: () => void;
   onNext?: () => void;
   onPrev?: () => void;
@@ -304,7 +304,7 @@ function HaizTopicView({
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-center px-2" style={{ color: '#8a897f' }}>
+        <span className="text-[13px] font-medium" style={{ color: 'rgba(43,43,40,0.7)' }}>
           {currentIndex + 1} of {totalCount}
         </span>
 
@@ -327,32 +327,31 @@ function HaizTopicView({
 
 /* ───── Topic card data with gradient colors for numbers ───── */
 const topicsCardData = [
-  { subtitle: 'Foundation · Hadith', color: '#1094b8' },
-  { subtitle: 'Fiqh Ruling · Calculation', color: '#1b9db3' },
-  { subtitle: 'Prayers & Fasting', color: '#27a7ae' },
-  { subtitle: 'Adhkar & Supplications', color: '#35b09f' },
-  { subtitle: 'Purification Method', color: '#51b680' },
-  { subtitle: 'Qada Regulations', color: '#6fbd60' },
-  { subtitle: 'Marriage & Spiritual Connection', color: '#8bc440' },
+  { subtitle: 'Sunnah Method · Step-by-Step', color: '#1094b8' },
+  { subtitle: 'Fiqh Rulings · Invalidators', color: '#1b9db3' },
+  { subtitle: 'Precautions · Common Mistakes', color: '#27a7ae' },
+  { subtitle: 'Tayammum · Permissions', color: '#35b09f' },
+  { subtitle: 'Sunnah Tayammum · Steps', color: '#51b680' },
+  { subtitle: 'Dua & Virtues · Paradise', color: '#6fbd60' },
 ];
 
-/* ───── Haiz Topics List Screen — Ribbon Track Design ───── */
-export default function HaizDetailScreen({
+/* ───── Wudu & Tayammum Topics List Screen — Ribbon Track Design ───── */
+export default function WuduTayammumDetailScreen({
   parentTopic,
   onBack,
-}: HaizDetailScreenProps) {
+}: WuduTayammumDetailScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (selectedIndex !== null) {
-    const topic = haizTopics[selectedIndex];
+    const topic = wuduTayammumTopics[selectedIndex];
     return (
-      <HaizTopicView
+      <WuduTayammumTopicView
         topic={topic}
         currentIndex={selectedIndex}
-        totalCount={haizTopics.length}
+        totalCount={wuduTayammumTopics.length}
         onBack={() => setSelectedIndex(null)}
         onNext={
-          selectedIndex < haizTopics.length - 1
+          selectedIndex < wuduTayammumTopics.length - 1
             ? () => setSelectedIndex(selectedIndex + 1)
             : undefined
         }
@@ -373,21 +372,21 @@ export default function HaizDetailScreen({
       font-family: 'Space Grotesk', sans-serif;
     }
 
-    .haiz-thick-track {
+    .wudu-thick-track {
       background: linear-gradient(to bottom, #1094b8 0%, #35b09f 50%, #8bc440 100%);
       box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.25), inset 0px -4px 10px rgba(0,0,0,0.15);
     }
 
-    .haiz-topic-card {
+    .wudu-topic-card {
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .haiz-topic-card:active {
+    .wudu-topic-card:active {
       transform: scale(0.98);
     }
 
-    .haiz-number-block::after {
+    .wudu-number-block::after {
       content: '';
       position: absolute;
       right: 0;
@@ -425,22 +424,22 @@ export default function HaizDetailScreen({
             <ChevronLeft className="w-4 h-4 text-slate-600" />
           </button>
           <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight text-center leading-tight font-arabic">
-            وَٱذْكُرُواْ ٱللَّهَ
+            فَاغْسِلُواْ وُجُوهَكُمْ وَأَيْدِيَكُمْ
           </h1>
           <div className="flex items-center gap-2 mt-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
             <span className="text-[10px] font-bold tracking-[0.15em] text-[#35b09f] uppercase">
-              Taharah &amp; Purity
+              Taharah &amp; Wudu &amp; Tayammum
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
           </div>
         </header>
 
-        {/* Central Content Area with ribbon and cards */}
+        {/* Central Content Area with ribbon and cards — 6 items using justify-between */}
         <div className="relative flex-1 flex flex-col justify-between py-1 px-1">
           {/* The Continuous Gradient Spine/Track */}
           <div
-            className="haiz-thick-track absolute rounded-full z-0"
+            className="wudu-thick-track absolute rounded-full z-0"
             style={{
               top: '15px',
               bottom: '15px',
@@ -451,17 +450,17 @@ export default function HaizDetailScreen({
           />
 
           {/* Topic Cards */}
-          {haizTopics.map((topic, idx) => {
+          {wuduTayammumTopics.map((topic, idx) => {
             const cardMeta = topicsCardData[idx] || topicsCardData[0];
             return (
               <button
                 key={topic.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className="haiz-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
+                className="wudu-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
               >
                 <div
-                  className="haiz-number-block relative shrink-0 flex items-center justify-center"
+                  className="wudu-number-block relative shrink-0 flex items-center justify-center"
                   style={{ width: '60px', backgroundColor: '#f4f6f8' }}
                 >
                   <span

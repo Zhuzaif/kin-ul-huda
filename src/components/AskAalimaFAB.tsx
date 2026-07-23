@@ -7,22 +7,17 @@ interface AskAalimaFABProps {
 
 export default function AskAalimaFAB({ onOpen }: AskAalimaFABProps) {
   return (
-    <div className="absolute left-6 bottom-[100px] z-40">
+    <div className="absolute right-5 bottom-[100px] z-40">
       <button
         type="button"
         onClick={onOpen}
-        className="flex items-center gap-2.5 bg-white/95 backdrop-blur-md pl-2 pr-5 py-2 rounded-full shadow-[0_8px_28px_rgba(235,182,186,0.25)] border border-white/70 active:scale-95 transition-all"
+        className="nisa-fab-pulse flex items-center gap-2 bg-gradient-to-br from-[#2B604A] to-[#1D4535] pl-2.5 pr-4 py-2 rounded-full shadow-[0_4px_20px_rgba(43,96,74,0.3)] active:scale-95 transition-all"
         aria-label="Open Ask Aalima AI chat"
       >
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-[0_4px_12px_rgba(217,138,91,0.35)]">
-          <Bot className="w-5 h-5 text-white" />
+        <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <Bot className="w-4 h-4 text-white" />
         </div>
-        <div className="flex flex-col items-start pr-1">
-          <span className="text-[9px] uppercase font-bold text-[#D98A5B] tracking-wider">
-            AI Assistant
-          </span>
-          <span className="text-[13px] font-bold text-gray-800 leading-tight">Ask Aalima</span>
-        </div>
+        <span className="text-[12px] font-semibold text-white/95 pr-0.5">Ask Aalima</span>
       </button>
     </div>
   );

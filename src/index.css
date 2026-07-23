@@ -54,3 +54,38 @@ body {
   animation: verse-save-pop 260ms ease-out;
   transform-origin: center;
 }
+
+/* Al-Nisa page animations */
+@keyframes nisa-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(235, 182, 186, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(235, 182, 186, 0); }
+}
+
+@keyframes nisa-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nisa-ring-fill {
+  from { stroke-dasharray: 0, 100; }
+}
+
+.nisa-fab-pulse {
+  animation: nisa-pulse 2.5s ease-in-out infinite;
+}
+
+.nisa-slide-up {
+  animation: nisa-slide-up 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nisa-slide-up-delay-1 {
+  animation: nisa-slide-up 400ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+}
+
+.nisa-slide-up-delay-2 {
+  animation: nisa-slide-up 400ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+}
+
+.nisa-ring-animate {
+  animation: nisa-ring-fill 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}

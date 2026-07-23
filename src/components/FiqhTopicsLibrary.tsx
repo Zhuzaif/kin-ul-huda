@@ -1,150 +1,162 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, BookMarked, Clock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Clock } from 'lucide-react';
 import { fiqhMainTopics } from '../data/fiqhTopics';
 import type { FiqhMainTopic, FiqhSubTopic } from '../data/fiqhTopics';
 
 interface FiqhTopicsLibraryProps {
   onSelectSubTopic: (sub: FiqhSubTopic, parent: FiqhMainTopic) => void;
   onOpenHaiz: (parent: FiqhMainTopic) => void;
+  onOpenNifas: (parent: FiqhMainTopic) => void;
+  onOpenIstihaza: (parent: FiqhMainTopic) => void;
+  onOpenGhusl: (parent: FiqhMainTopic) => void;
+  onOpenWuduTayammum: (parent: FiqhMainTopic) => void;
 }
 
-export default function FiqhTopicsLibrary({ onSelectSubTopic, onOpenHaiz }: FiqhTopicsLibraryProps) {
+/* Accent colors for the left-border indicator on each topic card */
+const ACCENT_COLORS: Record<string, string> = {
+  'taharat-aur-paki': '#6BAF92',
+  'ibaadaat': '#C9A66B',
+  'parda-aur-haya': '#D98A5B',
+  'nikah-aur-zindagi': '#E8919A',
+  'talaq-khula-iddat': '#9CA3AF',
+  'maliyati-maashi-huquq': '#6BAF92',
+  'taleem-aur-tarbiyat': '#C9A66B',
+};
+
+export default function FiqhTopicsLibrary({
+  onSelectSubTopic,
+  onOpenHaiz,
+  onOpenNifas,
+  onOpenIstihaza,
+  onOpenGhusl,
+  onOpenWuduTayammum,
+}: FiqhTopicsLibraryProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const handleSubTopicClick = (sub: FiqhSubTopic, topic: FiqhMainTopic) => {
+    if (sub.id === 'haiz') onOpenHaiz(topic);
+    else if (sub.id === 'nifas') onOpenNifas(topic);
+    else if (sub.id === 'istihaza') onOpenIstihaza(topic);
+    else if (sub.id === 'ghusl') onOpenGhusl(topic);
+    else if (sub.id === 'wudu-tayammum') onOpenWuduTayammum(topic);
+    else onSelectSubTopic(sub, topic);
+  };
+
   return (
-    <>
-      <div className="px-6 pb-36">
-        <div className="mb-6">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-gold block mb-1">
-            Knowledge Library
-          </span>
-          <h3 className="text-lg font-bold text-gray-800 tracking-tight">
-            Women&apos;s Fiqh Topics
-          </h3>
-          <p className="text-[13px] font-medium text-gray-500 mt-1 leading-relaxed">
-            Trusted summaries on purity, worship, and daily life — read at your own pace.
-          </p>
-        </div>
+    <div className="px-5 pb-36 nisa-slide-up-delay-1">
+      {/* Section header */}
+      <div className="mb-4">
+        <h3 className="text-[17px] font-bold text-gray-800 tracking-tight">
+          Fiqh Library
+        </h3>
+        <p className="text-[12px] font-medium text-gray-400 mt-0.5">
+          Trusted summaries — read at your own pace
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-3">
-          {fiqhMainTopics.map((topic) => {
-            const Icon = topic.icon;
-            const isExpanded = expandedId === topic.id;
-            const hasSubTopics = topic.subTopics.length > 0;
+      {/* Topic cards */}
+      <div className="flex flex-col gap-2.5">
+        {fiqhMainTopics.map((topic) => {
+          const Icon = topic.icon;
+          const isExpanded = expandedId === topic.id;
+          const hasSubTopics = topic.subTopics.length > 0;
+          const accentColor = ACCENT_COLORS[topic.id] || '#C9A66B';
 
-            return (
-              <div key={topic.id} className="flex flex-col">
-                {/* Main Heading Card */}
-                <button
-                  type="button"
-                  onClick={() => toggleExpand(topic.id)}
-                  className={`w-full text-left backdrop-blur-sm p-4 border shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all duration-300 group ${
-                    isExpanded
-                      ? 'bg-white/90 border-white/80 rounded-t-[24px] rounded-b-none'
-                      : 'bg-white/70 border-white/60 rounded-[24px] hover:bg-white/90'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-[18px] ${topic.iconBg} flex items-center justify-center flex-shrink-0 shadow-sm transition-transform duration-300 ${
-                        isExpanded ? 'scale-110' : ''
-                      }`}
-                    >
-                      <Icon className={`w-6 h-6 ${topic.iconColor} stroke-[2]`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-[15px] font-bold text-gray-800 tracking-tight">
+          return (
+            <div key={topic.id} className="flex flex-col">
+              {/* Topic Header Card */}
+              <button
+                type="button"
+                onClick={() => toggleExpand(topic.id)}
+                className={`w-full text-left p-4 border transition-all duration-200 active:scale-[0.98] group ${
+                  isExpanded
+                    ? 'bg-white border-gray-100 rounded-t-[20px] rounded-b-none shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
+                    : 'bg-white border-gray-100 rounded-[20px] hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
+                }`}
+                style={{
+                  borderLeftWidth: '3px',
+                  borderLeftColor: accentColor,
+                }}
+              >
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className={`w-10 h-10 rounded-xl ${topic.iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${
+                      isExpanded ? 'scale-105' : ''
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 ${topic.iconColor}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-[14px] font-bold text-gray-800 tracking-tight">
                         {topic.title}
                       </h4>
-                      <p className="text-[12px] font-medium text-gray-400 mt-0.5">
-                        {topic.subtitle}
+                      {hasSubTopics && (
+                        <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                          {topic.subTopics.length}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-gray-400 mt-0.5">
+                      {topic.subtitle}
+                    </p>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
+                      isExpanded ? 'rotate-180' : ''
+                    }`}
+                  />
+                </div>
+              </button>
+
+              {/* Expandable Sub-Topics */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div
+                  className="bg-white border border-t-0 border-gray-100 rounded-b-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                  style={{ borderLeftWidth: '3px', borderLeftColor: accentColor }}
+                >
+                  {hasSubTopics ? (
+                    <div className="py-2 px-2">
+                      {topic.subTopics.map((sub) => (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() => handleSubTopicClick(sub, topic)}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 group/sub"
+                        >
+                          <div className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0" />
+                          <span className="text-[13px] font-medium text-gray-700 flex-1 min-w-0 truncate group-hover/sub:text-gray-900 transition-colors">
+                            {sub.title}
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover/sub:text-[#D98A5B] flex-shrink-0 transition-all group-hover/sub:translate-x-0.5" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-5 py-5 flex flex-col items-center text-center">
+                      <Clock className="w-5 h-5 text-gray-300 mb-2" />
+                      <p className="text-[12px] font-semibold text-gray-500">
+                        Coming soon
+                      </p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        Sub-topics will be added shortly
                       </p>
                     </div>
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                        isExpanded
-                          ? 'bg-[#2B604A] rotate-180'
-                          : 'bg-gray-100 group-hover:bg-gray-200'
-                      }`}
-                    >
-                      <ChevronDown
-                        className={`w-4 h-4 transition-colors duration-300 ${
-                          isExpanded ? 'text-white' : 'text-gray-400'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </button>
-
-                {/* Expandable Sub-Topics Section */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-                >
-                  <div className="bg-white/60 backdrop-blur-sm border border-t-0 border-white/60 rounded-b-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-                    {hasSubTopics ? (
-                      <div className="px-4 py-3 flex flex-col gap-1">
-                        {topic.subTopics.map((sub, idx) => (
-                          <button
-                            key={sub.id}
-                            type="button"
-                            onClick={() => {
-                              if (sub.id === 'haiz') {
-                                onOpenHaiz(topic);
-                              } else {
-                                onSelectSubTopic(sub, topic);
-                              }
-                            }}
-                            className="w-full text-left flex items-center gap-3 px-3 py-3 rounded-[16px] hover:bg-white/80 active:scale-[0.98] transition-all duration-200 group/sub"
-                          >
-                            <div
-                              className={`w-7 h-7 rounded-full ${topic.iconBg} flex items-center justify-center flex-shrink-0`}
-                            >
-                              <span
-                                className={`text-[11px] font-bold ${topic.iconColor}`}
-                              >
-                                {idx + 1}
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-semibold text-gray-700 truncate">
-                                {sub.title}
-                              </p>
-                              {sub.summary && (
-                                <p className="text-[11px] text-gray-400 truncate mt-0.5">
-                                  {sub.summary}
-                                </p>
-                              )}
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover/sub:text-[#D98A5B] flex-shrink-0 transition-colors" />
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="px-6 py-6 flex flex-col items-center text-center">
-                        <div className={`w-10 h-10 rounded-full ${topic.iconBg} flex items-center justify-center mb-3`}>
-                          <Clock className={`w-5 h-5 ${topic.iconColor}`} />
-                        </div>
-                        <p className="text-[13px] font-semibold text-gray-500">
-                          Jald aane wali hain
-                        </p>
-                        <p className="text-[11px] text-gray-400 mt-1 leading-relaxed max-w-[220px]">
-                          Is topic ki sub-headings jald hi add ki jayengi. Stay tuned!
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
-    </>
+    </div>
   );
 }
