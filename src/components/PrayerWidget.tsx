@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Compass, Clock, Heart, X } from 'lucide-react';
+import { Clock, Heart, X } from 'lucide-react';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { useProfile } from '../contexts/ProfileContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { getMadhabLabel, getCalculationMethodLabel } from '../utils/prayerTimes';
 
+function QiblaIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+      <path
+        d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.6"
+      />
+      <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="currentColor" />
+      <path d="M8.5 11H15.5" stroke="#D4AF37" strokeWidth="1.5" />
+      <path d="M12 3.5L13.5 6.5H10.5L12 3.5Z" fill="#D4AF37" />
+    </svg>
+  );
+}
+
 export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const { isPeriodMode } = usePeriodMode();
   const { profile } = useProfile();
-  const { widgetPrayers, nextPrayerName, activePrayerDate, loading } = usePrayerTimes(
+  const { widgetPrayers, nextPrayerName, activePrayerTime, activePrayerDate, loading } = usePrayerTimes(
     profile.madhab,
     profile.calculationMethod
   );
@@ -36,8 +54,8 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
       year: 'numeric',
     }).formatToParts(today);
     const iDay = islamicParts.find((p) => p.type === 'day')?.value;
-    const iMonth = islamicParts.find(p => p.type === 'month')?.value;
-    const iYear = islamicParts.find(p => p.type === 'year')?.value;
+    const iMonth = islamicParts.find((p) => p.type === 'month')?.value;
+    const iYear = islamicParts.find((p) => p.type === 'year')?.value;
     const islamic = `${iDay} ${iMonth} ${iYear}`;
 
     setDates({ gregorian, islamic });
@@ -70,11 +88,12 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
   }, [timeLeft, activePrayerDate]);
 
   const formatCountdown = (seconds: number | null) => {
-    if (seconds === null) return '--:--:--';
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `-${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    if (seconds === null) return '00:00:00';
+    const safeSeconds = Math.max(0, seconds);
+    const h = Math.floor(safeSeconds / 3600);
+    const m = Math.floor((safeSeconds % 3600) / 60);
+    const s = safeSeconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const madhabNote = `${getMadhabLabel(profile.madhab)} · ${getCalculationMethodLabel(profile.calculationMethod)}`;
@@ -95,7 +114,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
           <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/20 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-5">
               <div>
                 <p
                   className={`text-sm font-medium uppercase tracking-wide ${isPeriodMode ? 'text-[#D98A5B]/80' : 'text-[#2B604A]/70'}`}
@@ -108,20 +127,26 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                   {dates.islamic || '...'}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigate?.('qibla');
-                }}
-                className="w-10 h-10 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white/60 transition-colors"
-              >
-                {isPeriodMode ? (
+              {isPeriodMode ? (
+                <div
+                  className="w-10 h-10 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs"
+                  title="Period Mode Active"
+                >
                   <Heart className="w-5 h-5 text-soft-pink-dark fill-current" />
-                ) : (
-                  <Compass className="w-5 h-5 text-[#2B604A]" />
-                )}
-              </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate?.('qibla');
+                  }}
+                  title="Find Qibla Direction"
+                  className="w-10 h-10 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs hover:bg-white/70 active:scale-95 transition-all group"
+                >
+                  <QiblaIcon className="w-5 h-5 text-[#1F4535] group-hover:scale-110 transition-transform" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-end justify-between">
@@ -147,9 +172,16 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       transition={{ duration: 0.3 }}
                     >
                       <p className="text-sm font-medium text-[#2B604A]/80 mb-1">Next Prayer</p>
-                      <h3 className="text-4xl font-bold text-[#1F4535] tracking-tight">
-                        {loading ? '...' : nextPrayerName}
-                      </h3>
+                      <div className="flex items-baseline gap-2">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-[#1F4535] tracking-tight">
+                          {loading ? '...' : nextPrayerName}
+                        </h3>
+                        {activePrayerTime && !loading && (
+                          <span className="text-xs font-bold text-[#1F4535] bg-white/50 px-2 py-0.5 rounded-lg shadow-2xs">
+                            {activePrayerTime}
+                          </span>
+                        )}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -161,7 +193,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className={`flex items-center gap-1.5 bg-white/50 backdrop-blur-sm px-3 pt-1.5 pb-1 rounded-xl shadow-sm ${isPeriodMode ? 'text-[#D98A5B]' : 'text-[#1F4535]'}`}
+                  className={`flex items-center gap-1.5 bg-white/60 backdrop-blur-sm px-3 pt-1.5 pb-1 rounded-xl shadow-sm ${isPeriodMode ? 'text-[#D98A5B]' : 'text-[#1F4535]'}`}
                 >
                   {isPeriodMode ? (
                     <span className="text-sm font-semibold tracking-tight pb-0.5 px-2">
@@ -169,8 +201,8 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     </span>
                   ) : (
                     <>
-                      <Clock className="w-4 h-4 mb-0.5 opacity-80" />
-                      <span className="text-lg font-semibold tabular-nums tracking-tight font-mono">
+                      <Clock className="w-4 h-4 mb-0.5 opacity-80 text-[#1F4535]" />
+                      <span className="text-base sm:text-lg font-bold tabular-nums tracking-tight font-mono text-[#1F4535]">
                         {formatCountdown(timeLeft)}
                       </span>
                     </>
@@ -178,6 +210,26 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {!isPeriodMode && (
+              <div className="mt-4 pt-3.5 border-t border-[#1F4535]/10 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate?.('qibla');
+                  }}
+                  className="flex items-center gap-2 bg-white/70 hover:bg-white text-[#1F4535] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs active:scale-95 border border-white/60"
+                >
+                  <QiblaIcon className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Qibla Direction</span>
+                </button>
+
+                <span className="text-[11px] font-semibold text-[#2B604A]/70">
+                  Tap card for timetable
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -273,7 +325,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     }}
                     className="w-full bg-[#1F4535] text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[0_4px_15px_rgba(31,69,53,0.3)] active:scale-[0.98] transition-transform"
                   >
-                    <Compass className="w-5 h-5" />
+                    <QiblaIcon className="w-5 h-5 text-[#FFD700]" />
                     Open Qibla Compass
                   </button>
                 </motion.div>

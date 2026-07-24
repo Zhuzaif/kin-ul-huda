@@ -6,6 +6,7 @@ export type ActionItem = {
   icon: ElementType;
   colorClass: string;
   bgClass: string;
+  svg?: string;
 };
 
 export interface Dua {

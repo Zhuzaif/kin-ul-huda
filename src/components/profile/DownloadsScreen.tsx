@@ -5,6 +5,7 @@ import {
   clearAudioCache,
   downloadAudioToCache,
   getAudioCacheStats,
+  markAllSurahsDownloaded,
 } from '../../utils/audioCache';
 
 interface DownloadsScreenProps {
@@ -51,6 +52,7 @@ export default function DownloadsScreen({ onBack }: DownloadsScreenProps) {
         done += 1;
         setProgress(Math.round((done / urls.length) * 100));
       }
+      markAllSurahsDownloaded(Array.from({ length: 114 }, (_, i) => i + 1));
       await refreshStats();
     } catch (e) {
       console.error(e);

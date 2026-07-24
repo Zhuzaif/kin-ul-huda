@@ -56,8 +56,8 @@ function getGuidance(status: PurityStatus, dayInPhase: number, daysUntil: number
     return {
       icon: Droplets,
       iconColor: 'text-gray-500',
-      title: 'Istihada — Salah paused',
-      body: 'Irregular bleeding noted. Consult your scholar for specific rulings. Dhikr and Quran listening remain encouraged.',
+      title: 'Istihada — Salah continues',
+      body: 'Irregular bleeding does not pause Salah or fasting. Perform Wudu for each prayer and continue worship as normal. Consult a scholar for your specific situation.',
       bg: 'bg-gray-50',
       border: 'border-gray-200',
     };

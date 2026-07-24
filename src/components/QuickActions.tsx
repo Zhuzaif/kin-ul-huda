@@ -8,6 +8,7 @@ const defaultActions: ActionItem[] = [
     id: 'quran',
     label: 'Quran Reading',
     icon: BookOpen,
+    svg: '/icons/default/quran.svg',
     bgClass: 'bg-light-peach',
     colorClass: 'text-[#D98A5B]'
   },
@@ -15,6 +16,7 @@ const defaultActions: ActionItem[] = [
     id: 'tasbeeh',
     label: 'Tasbeeh Counter',
     icon: CircleDashed,
+    svg: '/icons/period/2.svg',
     bgClass: 'bg-soft-mint',
     colorClass: 'text-[#2B604A]'
   },
@@ -22,6 +24,7 @@ const defaultActions: ActionItem[] = [
     id: 'adhkar',
     label: 'Morning Adhkar',
     icon: Sun,
+    svg: '/icons/default/adhkar.svg',
     bgClass: 'bg-muted-gold-light',
     colorClass: 'text-muted-gold'
   },
@@ -29,6 +32,7 @@ const defaultActions: ActionItem[] = [
     id: 'fiqh',
     label: 'Fiqh Guide',
     icon: Library,
+    svg: '/icons/period/5.svg',
     bgClass: 'bg-soft-pink',
     colorClass: 'text-soft-pink-dark'
   }
@@ -39,6 +43,7 @@ const periodActions: ActionItem[] = [
     id: 'listen-quran',
     label: 'Listen to Quran',
     icon: Headphones,
+    svg: '/icons/period/1.svg',
     bgClass: 'bg-light-peach',
     colorClass: 'text-[#D98A5B]'
   },
@@ -46,6 +51,7 @@ const periodActions: ActionItem[] = [
     id: 'dhikr',
     label: 'Daily Dhikr',
     icon: CircleDashed,
+    svg: '/icons/period/3.svg',
     bgClass: 'bg-soft-pink',
     colorClass: 'text-soft-pink-dark'
   },
@@ -53,6 +59,7 @@ const periodActions: ActionItem[] = [
     id: 'duas',
     label: 'Special Duas',
     icon: Heart,
+    svg: '/icons/period/2.svg',
     bgClass: 'bg-muted-gold-light',
     colorClass: 'text-muted-gold'
   },
@@ -60,6 +67,7 @@ const periodActions: ActionItem[] = [
     id: 'fiqh',
     label: 'Fiqh Guide',
     icon: Library,
+    svg: '/icons/period/5.svg',
     bgClass: 'bg-gray-100',
     colorClass: 'text-gray-600'
   }
@@ -106,15 +114,24 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
         {actions.map((action) => {
           const IconInfo = action.icon;
           return (
-            <button 
+            <button
               key={action.id}
               onClick={() => handleActionClick(action.id)}
               className="flex flex-col items-center gap-3 group active:scale-95 transition-transform"
             >
-              <div 
-                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-sm ${action.bgClass} transition-transform group-hover:-translate-y-0.5`}
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-sm ${action.bgClass} transition-transform group-hover:-translate-y-0.5 overflow-hidden p-3`}
               >
-                <IconInfo className={`w-6 h-6 stroke-[2.5] ${action.colorClass}`} />
+                {action.svg ? (
+                  <img
+                    src={action.svg}
+                    alt={action.label}
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                  />
+                ) : (
+                  <IconInfo className={`w-6 h-6 stroke-[2.5] ${action.colorClass}`} />
+                )}
               </div>
               <span className="text-[10px] font-semibold text-gray-600 text-center leading-tight w-16">
                 {action.label}

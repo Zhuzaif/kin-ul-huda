@@ -28,15 +28,11 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
   const totalPages = 548;
 
   useEffect(() => {
-    const savedPage = localStorage.getItem('lastMushafPage');
-    if (savedPage) {
-      setCurrentPage(parseInt(savedPage, 10));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (initialPage > 1) {
-      setCurrentPage(initialPage);
+    if (!initialPage) {
+      const savedPage = localStorage.getItem('lastMushafPage');
+      if (savedPage) {
+        setCurrentPage(parseInt(savedPage, 10));
+      }
     }
   }, [initialPage]);
 

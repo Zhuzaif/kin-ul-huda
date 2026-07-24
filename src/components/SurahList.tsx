@@ -2,16 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { DownloadCloud, CheckCircle, X } from 'lucide-react';
 import chapters from '../data/chapters-en.json';
-import { downloadAudioToCache, isAudioCached } from '../utils/audioCache';
-
-type Chapter = {
-  id: number;
-  name: string;
-  transliteration: string;
-  translation: string;
-  type: 'meccan' | 'medinan';
-  total_verses: number;
-};
+import {
+  downloadAudioToCache,
+  getDownloadedSurahsFromStorage,
+  markSurahDownloaded,
+  checkCachedSurahs,
+} from '../utils/audioCache';
+import { RECITER_OPTIONS, Chapter } from '../data/quranConstants';
 
 const surahs = chapters as Chapter[];
 
@@ -20,14 +17,6 @@ interface SurahListProps {
   items?: Chapter[];
   emptyLabel?: string;
 }
-
-const RECITER_OPTIONS = [
-  { id: 'mishary', label: 'Mishary' },
-  { id: 'abdul-basit', label: 'Abdul Basit' },
-  { id: 'maher', label: 'Maher' },
-  { id: 'yasser', label: 'Yasser' },
-  { id: 'shuraim', label: 'Shuraim' },
-];
 
 export default function SurahList({ onSelect, items, emptyLabel }: SurahListProps) {
   const list = items ?? surahs;
@@ -40,10 +29,19 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
 
   useEffect(() => {
     setPortalTarget(document.getElementById('mobile-frame-root'));
-  }, []);
 
-  // In a real app we'd check cache status for all surahs on mount, but for simplicity we rely on optimistic updates
-  
+    // Load initial downloaded status from localStorage & verify with CacheStorage
+    const initial = getDownloadedSurahsFromStorage();
+    setDownloadedSurahs(initial);
+
+    const surahIds = list.map((s) => s.id);
+    checkCachedSurahs(surahIds).then((cachedMap) => {
+      if (Object.keys(cachedMap).length > 0) {
+        setDownloadedSurahs(cachedMap);
+      }
+    });
+  }, [list]);
+
   const handleDownloadClick = (e: React.MouseEvent, surahId: number) => {
     e.stopPropagation();
     setDownloadModalSurah(surahId);
@@ -73,6 +71,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
         }, 300);
 
         await downloadAudioToCache(surahInfo.audio_url);
+        markSurahDownloaded(surahId);
         clearInterval(interval);
         
         setDownloadProgress(prev => ({ ...prev, [surahId]: 100 }));

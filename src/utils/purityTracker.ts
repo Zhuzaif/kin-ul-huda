@@ -32,13 +32,9 @@ function parseIsoDate(iso: string): Date {
 }
 
 export function getDefaultStore(): PurityStore {
-  const today = startOfDay(new Date());
-  const periodStart = new Date(today);
-  periodStart.setDate(periodStart.getDate() - 3);
-
   return {
     settings: { ...DEFAULT_SETTINGS },
-    lastPeriodStart: isoDateOnly(periodStart),
+    lastPeriodStart: null,
     manualStatus: null,
     manualStatusSince: null,
   };
@@ -113,7 +109,8 @@ function buildSnapshot(
   dayInPhase: number,
   settings: PuritySettings,
   lastPeriodStart: string | null,
-  isManual: boolean
+  isManual: boolean,
+  today: Date
 ): PuritySnapshot {
   let ringProgress = 0;
   let phaseLabel = '';
@@ -130,7 +127,7 @@ function buildSnapshot(
   } else {
     if (lastPeriodStart) {
       const periodStart = parseIsoDate(lastPeriodStart);
-      const cycleDay = daysBetween(periodStart, new Date()) + 1;
+      const cycleDay = daysBetween(periodStart, today) + 1;
       const purityWindow = settings.cycleLengthDays - settings.periodLengthDays;
       const purityDay = Math.max(1, cycleDay - settings.periodLengthDays);
       ringProgress = Math.min(100, Math.round((purityDay / purityWindow) * 100));

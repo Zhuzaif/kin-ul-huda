@@ -89,28 +89,32 @@ export default function VerseCard({
       </div>
 
       <div className="border-t border-gray-100/80 mt-4 pt-3 flex items-center gap-3 text-gray-500">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onPlay?.();
-          }}
-          className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
-          aria-label={isActive ? "Pause verse audio" : "Play verse audio"}
-        >
-          {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-        </button>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onShare?.();
-          }}
-          className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
-          aria-label="Share verse"
-        >
-          <Share2 className="w-4 h-4" />
-        </button>
+        {onPlay && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onPlay();
+            }}
+            className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
+            aria-label={isActive ? "Pause verse audio" : "Play verse audio"}
+          >
+            {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+        )}
+        {onShare && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onShare();
+            }}
+            className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
+            aria-label="Share verse"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        )}
         <button
           type="button"
           onClick={(event) => {

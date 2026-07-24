@@ -8,23 +8,7 @@ import FloatingAudioPlayer from './FloatingAudioPlayer';
 import PeriodModeBanner from './PeriodModeBanner';
 import VerseCard from './VerseCard';
 import { getCachedAudioUrl } from '../utils/audioCache';
-
-type Chapter = {
-  id: number;
-  name: string;
-  transliteration: string;
-  translation: string;
-  type: 'meccan' | 'medinan';
-  total_verses: number;
-};
-
-type Verse = {
-  chapter: number;
-  verse: number;
-  text: string;
-};
-
-type QuranMap = Record<string, Verse[]>;
+import { RECITER_OPTIONS, Chapter, Verse, QuranMap } from '../data/quranConstants';
 
 interface QuranReadingScreenProps {
   chapterId: number;
@@ -39,13 +23,6 @@ const chapterList = chapters as Chapter[];
 const quranByChapter = quran as QuranMap;
 const translationByChapter = translationEn as QuranMap;
 const RECITER_STORAGE_KEY = 'nisa.quran.reciter';
-const RECITER_OPTIONS = [
-  { id: 'mishary', label: 'Mishary' },
-  { id: 'abdul-basit', label: 'Abdul Basit' },
-  { id: 'maher', label: 'Maher' },
-  { id: 'yasser', label: 'Yasser' },
-  { id: 'shuraim', label: 'Shuraim' },
-];
 
 export default function QuranReadingScreen({
   chapterId,
@@ -217,6 +194,16 @@ export default function QuranReadingScreen({
       initialScrollDone.current = true;
     }
   }, [chapterId, initialVerseNumber, verses.length]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const verse = verses[activeVerseIndex];
+    if (!verse) return;
+    const element = document.getElementById(`verse-${chapterId}-${verse.verse}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeVerseIndex, isPlaying, chapterId, verses]);
 
   useEffect(() => {
     if (!recitationData) return;
@@ -394,18 +381,34 @@ export default function QuranReadingScreen({
   const seekToVerse = (index: number) => {
     setActiveVerseIndex(index);
     setProgress(0);
-    
+
     if (audioRef.current && recitationData) {
       const verse = verses[index];
       const key = `${chapterId}:${verse.verse}`;
       const segment = recitationData.segments[key];
-      if (segment) {
-        audioRef.current.currentTime = segment.timestamp_from / 1000;
+
+      if (recitationData.isAyahLevel) {
+        const targetSrc = segment?.audio_url;
+        if (targetSrc) {
+          getCachedAudioUrl(targetSrc).then((cachedSrc) => {
+            if (audioRef.current) {
+              audioRef.current.src = cachedSrc || targetSrc;
+              audioRef.current.load();
+              if (isPlayingRef.current) {
+                audioRef.current.play().catch(console.error);
+              }
+            }
+          });
+        }
       } else {
-        audioRef.current.currentTime = 0;
-      }
-      if (isPlayingRef.current) {
-        audioRef.current.play().catch(console.error);
+        if (segment) {
+          audioRef.current.currentTime = segment.timestamp_from / 1000;
+        } else {
+          audioRef.current.currentTime = 0;
+        }
+        if (isPlayingRef.current) {
+          audioRef.current.play().catch(console.error);
+        }
       }
     }
   };
@@ -572,13 +575,15 @@ export default function QuranReadingScreen({
 
       <PeriodModeBanner />
 
-      <div className="px-6">
-        <div className="bg-soft-mint/70 border border-white/70 rounded-[20px] px-5 py-4 text-center shadow-[0_6px_16px_rgba(0,0,0,0.04)]">
-          <p className="font-arabic text-[22px] text-[#2B604A] leading-[2]" dir="rtl">
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </p>
+      {chapterId !== 9 && (
+        <div className="px-6">
+          <div className="bg-soft-mint/70 border border-white/70 rounded-[20px] px-5 py-4 text-center shadow-[0_6px_16px_rgba(0,0,0,0.04)]">
+            <p className="font-arabic text-[22px] text-[#2B604A] leading-[2]" dir="rtl">
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="px-6 mt-6 pb-36 flex flex-col gap-4">
         {verses.map((verse, index) => (

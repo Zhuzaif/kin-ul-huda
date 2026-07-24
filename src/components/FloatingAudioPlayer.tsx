@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
-
-type ReciterOption = {
-  id: string;
-  label: string;
-};
+import { ChevronDown } from 'lucide-react';
+import { ReciterOption } from '../data/quranConstants';
 
 interface FloatingAudioPlayerProps {
   isPlaying: boolean;
@@ -40,18 +36,16 @@ export default function FloatingAudioPlayer({
   className,
 }: FloatingAudioPlayerProps) {
   const safeProgress = Math.max(0, Math.min(progress, 1));
-  const progressPercent = Math.round(safeProgress * 100);
+  const progressPercent = safeProgress * 100;
   const [isReciterOpen, setIsReciterOpen] = useState(false);
   const reciterMenuRef = useRef<HTMLDivElement | null>(null);
   const selectedReciter = reciterOptions.find((item) => item.id === selectedReciterId);
   const reciterLabel = selectedReciter?.label ?? 'Reciter';
-  const label = currentLabel ? `${currentLabel}` : 'Verse';
+  const label = currentLabel ? `${currentLabel}` : 'V1';
   const isDisabled = isLoading || !isReady;
 
   useEffect(() => {
-    if (!isReciterOpen) {
-      return;
-    }
+    if (!isReciterOpen) return;
 
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
@@ -70,9 +64,7 @@ export default function FloatingAudioPlayer({
   }, [isReciterOpen]);
 
   useEffect(() => {
-    if (!isReciterOpen) {
-      return;
-    }
+    if (!isReciterOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -91,130 +83,296 @@ export default function FloatingAudioPlayer({
     setIsReciterOpen(false);
   };
 
+  const fillRef = useRef<HTMLDivElement | null>(null);
+  const thumbRef = useRef<HTMLDivElement | null>(null);
+  const lastProgressRef = useRef(safeProgress);
+  const lastTimeRef = useRef(performance.now());
+  const speedRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const now = performance.now();
+    const dt = now - lastTimeRef.current;
+    if (dt > 30 && safeProgress >= lastProgressRef.current) {
+      const calculatedSpeed = (safeProgress - lastProgressRef.current) / dt;
+      if (calculatedSpeed > 0 && calculatedSpeed < 0.01) {
+        speedRef.current = calculatedSpeed;
+      }
+    } else if (safeProgress < lastProgressRef.current) {
+      speedRef.current = 0;
+    }
+    lastProgressRef.current = safeProgress;
+    lastTimeRef.current = now;
+  }, [safeProgress]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      const pct = `${progressPercent}%`;
+      if (fillRef.current) fillRef.current.style.width = pct;
+      if (thumbRef.current) thumbRef.current.style.left = pct;
+      return;
+    }
+
+    const animate = () => {
+      const now = performance.now();
+      const elapsed = now - lastTimeRef.current;
+      const currentVal = lastProgressRef.current + speedRef.current * elapsed;
+      const pct = `${Math.max(0, Math.min(100, currentVal * 100))}%`;
+
+      if (fillRef.current) fillRef.current.style.width = pct;
+      if (thumbRef.current) thumbRef.current.style.left = pct;
+
+      rafRef.current = requestAnimationFrame(animate);
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [isPlaying, progressPercent]);
+
   return (
     <div
-      className={`relative bg-gradient-to-r from-[#173B2D] via-[#1C4433] to-[#1F4535] text-white rounded-[26px] px-4 py-4 shadow-[0_16px_34px_rgba(20,45,34,0.35)] ${
-        className ?? ''
-      }`}
+      className={`w-full flex flex-col gap-2.5 px-4 py-3 ${className ?? ''}`}
+      style={{
+        background: '#C4D6C3',
+        borderRadius: '2rem',
+        boxShadow:
+          '8px 8px 16px rgba(160,185,159,0.4), -8px -8px 16px rgba(255,255,255,0.8), inset 1px 1px 2px rgba(255,255,255,0.9), inset -1px -1px 2px rgba(160,185,159,0.2)',
+        fontFamily: "'Inter', sans-serif",
+      }}
     >
-      {/* Background layer for decorative circles, with overflow-hidden and matching rounded corners */}
-      <div className="absolute inset-0 overflow-hidden rounded-[26px] pointer-events-none">
-        <div className="absolute -top-10 -right-12 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-10 -left-12 h-24 w-24 rounded-full bg-emerald-200/10 blur-2xl" />
-      </div>
-
-      <div className="relative flex flex-col gap-3">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <div className="flex justify-start">
-            <span className="text-[11px] font-semibold tracking-wide text-white/90 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 whitespace-nowrap">
-              {label}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-1.5 flex-shrink-0">
-            <button
-              type="button"
-              onClick={onPrevious}
-              disabled={isPreviousDisabled || isDisabled}
-              aria-label="Previous verse"
-              className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <SkipBack className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={onPlayPause}
-              disabled={isDisabled}
-              aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
-              className="w-10 h-10 rounded-full bg-white/20 border border-white/25 flex items-center justify-center shadow-[0_8px_16px_rgba(0,0,0,0.18)] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="relative w-5 h-5">
-                <Play
-                  className={`absolute inset-0 transition-all duration-200 ${
-                    isPlaying ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
-                  }`}
-                />
-                <Pause
-                  className={`absolute inset-0 transition-all duration-200 ${
-                    isPlaying ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                  }`}
-                />
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onNext}
-              disabled={isNextDisabled || isDisabled}
-              aria-label="Next verse"
-              className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <SkipForward className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex justify-end">
-            <div ref={reciterMenuRef} className="relative flex flex-col items-center gap-1">
-              <span className="text-[9px] uppercase tracking-[0.2em] text-white/60">Reciter</span>
-              <button
-                type="button"
-                onClick={() => setIsReciterOpen((prev) => !prev)}
-                disabled={isLoading}
-                aria-label="Select reciter"
-                aria-expanded={isReciterOpen}
-                aria-haspopup="listbox"
-                className="flex items-center gap-2 bg-white/10 border border-white/20 text-white text-[11px] font-semibold rounded-full px-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-white/40 disabled:opacity-50"
-              >
-                <span className="min-w-[64px] text-center">{reciterLabel}</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-white/70 transition-transform ${
-                    isReciterOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              {isReciterOpen ? (
-                <div
-                  role="listbox"
-                  aria-label="Reciter options"
-                  className="absolute right-0 bottom-full mb-2 w-40 rounded-[18px] border border-white/80 bg-[#FAF8F5] p-1 shadow-[0_10px_26px_rgba(0,0,0,0.12)] z-50"
-                >
-                  {reciterOptions.map((item) => {
-                    const isSelected = item.id === selectedReciterId;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        role="option"
-                        aria-selected={isSelected}
-                        onClick={() => handleReciterSelect(item.id)}
-                        className={`w-full text-left text-[11px] font-semibold px-3 py-2 rounded-[14px] transition-colors ${
-                          isSelected
-                            ? 'bg-soft-mint/80 text-[#1F4535]'
-                            : 'text-gray-700 hover:bg-soft-mint/50'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
-          </div>
+      {/* Main row */}
+      <div className="flex items-center justify-between gap-1.5 min-w-0">
+        {/* V-badge */}
+        <div
+          className="h-8 px-2.5 rounded-full flex items-center justify-center font-semibold text-[11px] shrink-0 select-none whitespace-nowrap"
+          style={{
+            background: '#C4D6C3',
+            border: '2px solid #CCA08A',
+            color: '#3A4A38',
+            boxShadow:
+              'inset 2px 2px 4px rgba(255,255,255,0.7), inset -2px -2px 4px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.05)',
+          }}
+        >
+          {label}
         </div>
 
-        <div className="flex justify-center">
-          <div className="w-full max-w-[220px]">
-            <div className="h-1.5 rounded-full bg-white/15 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-white transition-[width] duration-300 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
+        {/* Controls */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <NeoBtn
+            size="sm"
+            onClick={onPrevious}
+            disabled={isPreviousDisabled || isDisabled}
+            aria-label="Previous verse"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </NeoBtn>
+
+          <NeoBtn
+            size="md"
+            onClick={onPlayPause}
+            disabled={isDisabled}
+            aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
+          >
+            {isPlaying ? (
+              <svg className="w-5 h-5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 ml-0.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </NeoBtn>
+
+          <NeoBtn
+            size="sm"
+            onClick={onNext}
+            disabled={isNextDisabled || isDisabled}
+            aria-label="Next verse"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+          </NeoBtn>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-4 shrink-0" style={{ background: 'rgba(58,74,56,0.2)' }} />
+
+        {/* Reciter dropdown */}
+        <div ref={reciterMenuRef} className="relative shrink-0 flex justify-end min-w-0">
+          <button
+            type="button"
+            onClick={() => setIsReciterOpen((o) => !o)}
+            disabled={isLoading}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80 disabled:opacity-50 min-w-0"
+            style={{
+              color: '#3A4A38',
+              fontSize: 12,
+              fontWeight: 600,
+              background: 'rgba(255,255,255,0.3)',
+              border: '1px solid rgba(255,255,255,0.4)',
+            }}
+          >
+            <span className="truncate max-w-[75px] sm:max-w-[110px]" style={{ fontWeight: 600, fontSize: 12 }}>
+              {reciterLabel}
+            </span>
+            <ChevronDown
+              size={13}
+              strokeWidth={2.5}
+              className="shrink-0"
+              style={{
+                color: '#CCA08A',
+                transform: isReciterOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease',
+              }}
+            />
+          </button>
+
+          {isReciterOpen && (
+            <div
+              role="listbox"
+              aria-label="Reciter options"
+              className="absolute right-0 bottom-full mb-2 z-50 overflow-hidden"
+              style={{
+                background: '#C4D6C3',
+                borderRadius: '1rem',
+                boxShadow:
+                  '8px 8px 20px rgba(160,185,159,0.5), -4px -4px 12px rgba(255,255,255,0.8)',
+                minWidth: 140,
+                border: '1px solid rgba(255,255,255,0.4)',
+              }}
+            >
+              {reciterOptions.map((r) => {
+                const isSelected = r.id === selectedReciterId;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => handleReciterSelect(r.id)}
+                    className="w-full text-left px-4 py-2.5 transition-opacity hover:opacity-70"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: isSelected ? 600 : 400,
+                      color: isSelected ? '#CCA08A' : '#3A4A38',
+                      background: 'transparent',
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {r.label}
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          )}
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div
+        className="relative cursor-pointer select-none mx-1"
+        style={{
+          background: '#A9BEA7',
+          borderRadius: 10,
+          height: 4,
+          boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.1), inset -2px -2px 4px rgba(255,255,255,0.4)',
+        }}
+      >
+        <div
+          ref={fillRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: `${progressPercent}%`,
+            background: 'linear-gradient(90deg, #E2C2B3, #CCA08A)',
+            borderRadius: 10,
+            pointerEvents: 'none',
+            willChange: 'width',
+          }}
+        />
+        <div
+          ref={thumbRef}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: `${progressPercent}%`,
+            transform: 'translate(-50%, -50%)',
+            color: '#CCA08A',
+            filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2)) drop-shadow(0px -1px 2px rgba(255,255,255,0.6))',
+            pointerEvents: 'none',
+            willChange: 'left',
+          }}
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
         </div>
       </div>
     </div>
   );
 }
+
+function NeoBtn({
+  children,
+  size,
+  onClick,
+  disabled,
+  'aria-label': ariaLabel,
+}: {
+  children: React.ReactNode;
+  size: 'sm' | 'md';
+  onClick?: () => void;
+  disabled?: boolean;
+  'aria-label'?: string;
+}) {
+  const dim = size === 'md' ? 'w-11 h-11' : 'w-8 h-8';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={`${dim} rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed`}
+      style={{
+        background: '#C4D6C3',
+        boxShadow: '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)',
+        border: '1px solid rgba(255,255,255,0.3)',
+      }}
+      onMouseDown={(e) => {
+        if (!disabled) {
+          (e.currentTarget as HTMLButtonElement).style.boxShadow =
+            'inset 4px 4px 8px rgba(160,185,159,0.6), inset -4px -4px 8px rgba(255,255,255,0.8)';
+        }
+      }}
+      onMouseUp={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.boxShadow =
+          '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.boxShadow =
+          '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)';
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+

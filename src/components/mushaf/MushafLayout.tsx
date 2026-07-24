@@ -3,15 +3,7 @@ import { BookOpen, Search, Clock } from 'lucide-react';
 import chapters from '../../data/chapters-en.json';
 import juzData from '../../data/juz.json';
 import mushaf16Metadata from '../../data/mushaf-16-metadata.json';
-
-type Chapter = {
-  id: number;
-  name: string;
-  transliteration: string;
-  translation: string;
-  type: 'meccan' | 'medinan';
-  total_verses: number;
-};
+import { Chapter } from '../../data/quranConstants';
 
 type JuzEntry = {
   index: string;

@@ -49,14 +49,28 @@ export default function DuasLayout() {
     }
   };
 
+  const handleDeleteCustomDua = (duaId: Dua['id']) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const updated = existing.filter((dua: Dua) => dua.id !== duaId);
+      localStorage.setItem('customDuas', JSON.stringify(updated));
+      setRefreshTrigger(prev => prev + 1);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
       <div className="flex-1 overflow-y-auto scroll-smooth hide-scrollbar relative">
         <DuasHeader activeTab={activeTab} onTabChange={setActiveTab} />
-        <DuaHighlightCard onAddDua={() => setIsCreateModalOpen(true)} />
+        {activeTab === 'My Prayers' && (
+          <DuaHighlightCard onAddDua={() => setIsCreateModalOpen(true)} />
+        )}
         <DuaCategories activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
         <DuaList 
           onSelectDua={handleSelectDua} 
+          onDeleteDua={handleDeleteCustomDua}
           activeTab={activeTab} 
           activeCategory={activeCategory} 
           refreshTrigger={refreshTrigger}

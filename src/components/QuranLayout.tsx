@@ -12,23 +12,7 @@ import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
 import juzData from '../data/juz.json';
-
-type Chapter = {
-  id: number;
-  name: string;
-  transliteration: string;
-  translation: string;
-  type: 'meccan' | 'medinan';
-  total_verses: number;
-};
-
-type Verse = {
-  chapter: number;
-  verse: number;
-  text: string;
-};
-
-type QuranMap = Record<string, Verse[]>;
+import { Chapter, Verse, QuranMap } from '../data/quranConstants';
 
 type JuzEntry = {
   index: string;

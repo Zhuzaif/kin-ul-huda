@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, ChevronRight } from 'lucide-react';
+import { Heart, ChevronRight, Trash2 } from 'lucide-react';
 import duasDataRaw from '../data/duas.json';
 import { Dua } from '../types';
 
@@ -7,12 +7,13 @@ const defaultDuas: Dua[] = duasDataRaw as Dua[];
 
 interface DuaListProps {
   onSelectDua?: (dua: Dua, index: number, duaList: Dua[]) => void;
+  onDeleteDua?: (duaId: Dua['id']) => void;
   activeTab: string;
   activeCategory: string | null;
   refreshTrigger?: number;
 }
 
-export default function DuaList({ onSelectDua, activeTab, activeCategory, refreshTrigger }: DuaListProps) {
+export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCategory, refreshTrigger }: DuaListProps) {
   const [customDuas, setCustomDuas] = useState<Dua[]>([]);
 
   useEffect(() => {
@@ -87,15 +88,30 @@ export default function DuaList({ onSelectDua, activeTab, activeCategory, refres
                   );
                 })}
                 {dua.repetition && (
-                  <span className="text-[9.5px] uppercase font-bold tracking-wider text-soft-pink-dark bg-soft-pink/30 px-2.5 py-1 rounded-full shadow-sm">
-                    {dua.repetition}
-                  </span>
+                    <span className="text-[9.5px] uppercase font-bold tracking-wider text-soft-pink-dark bg-soft-pink/30 px-2.5 py-1 rounded-full shadow-sm">
+                      {dua.repetition}
+                    </span>
                 )}
               </div>
             </div>
-            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100/50 hover:bg-gray-50 transition-colors">
-              <Heart className="w-4 h-4 text-gray-300 hover:text-soft-pink-dark transition-colors" />
-            </button>
+              <div className="flex items-center gap-2">
+                {activeTab === 'My Prayers' && dua.isCustom && onDeleteDua && (
+                  <button
+                    onClick={() => {
+                      if (!window.confirm('Delete this dua from My Prayers?')) return;
+                      onDeleteDua(dua.id);
+                    }}
+                    className="h-10 px-4 rounded-full bg-white flex items-center justify-center gap-2 shadow-sm border border-gray-100/50 hover:bg-red-50 transition-colors"
+                    aria-label="Delete dua"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-300 hover:text-red-500 transition-colors" />
+                    <span className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors">Delete</span>
+                  </button>
+                )}
+                <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100/50 hover:bg-gray-50 transition-colors">
+                  <Heart className="w-4 h-4 text-gray-300 hover:text-soft-pink-dark transition-colors" />
+                </button>
+              </div>
           </div>
           
           <div className="mb-4">
