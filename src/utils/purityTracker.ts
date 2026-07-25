@@ -81,27 +81,27 @@ export function computePuritySnapshot(store: PurityStore, today = new Date()): P
       ? parseIsoDate(store.manualStatusSince)
       : startOfDay(today);
     const dayInPhase = daysBetween(manualSince, today) + 1;
-    return buildSnapshot(manualStatus, dayInPhase, settings, lastPeriodStart, true);
+    return buildSnapshot(manualStatus, dayInPhase, settings, lastPeriodStart, true, today);
   }
 
   if (!lastPeriodStart) {
-    return buildSnapshot('taharah', 0, settings, null, false);
+    return buildSnapshot('taharah', 0, settings, null, false, today);
   }
 
   const periodStart = parseIsoDate(lastPeriodStart);
   const cycleDay = daysBetween(periodStart, today) + 1;
 
   if (cycleDay <= settings.periodLengthDays) {
-    return buildSnapshot('haiz', cycleDay, settings, lastPeriodStart, false);
+    return buildSnapshot('haiz', cycleDay, settings, lastPeriodStart, false, today);
   }
 
   if (cycleDay <= settings.cycleLengthDays) {
     const purityDay = cycleDay - settings.periodLengthDays;
-    return buildSnapshot('taharah', purityDay, settings, lastPeriodStart, false);
+    return buildSnapshot('taharah', purityDay, settings, lastPeriodStart, false, today);
   }
 
   const overdueDay = cycleDay - settings.cycleLengthDays;
-  return buildSnapshot('taharah', overdueDay, settings, lastPeriodStart, false);
+  return buildSnapshot('taharah', overdueDay, settings, lastPeriodStart, false, today);
 }
 
 function buildSnapshot(
