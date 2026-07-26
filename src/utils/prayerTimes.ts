@@ -136,9 +136,6 @@ export async function resolvePrayerCoordinates(): Promise<{ lat: number; lng: nu
   return cachedCoords;
 }
 
-export function clearPrayerCoordsCache(): void {
-  cachedCoords = null;
-}
 
 export function getCalculationMethodLabel(id: CalculationMethodId): string {
   return CALCULATION_METHOD_OPTIONS.find((m) => m.id === id)?.label ?? id;

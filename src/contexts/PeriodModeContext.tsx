@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface PeriodModeContextType {
   isPeriodMode: boolean;
-  togglePeriodMode: () => void;
   setPeriodMode: (value: boolean) => void;
 }
 
@@ -11,20 +10,12 @@ const PeriodModeContext = createContext<PeriodModeContextType | undefined>(undef
 export function PeriodModeProvider({ children }: { children: ReactNode }) {
   const [isPeriodMode, setIsPeriodMode] = useState(false);
 
-  const togglePeriodMode = () => {
-    setIsPeriodMode((prev) => !prev);
-    // Trigger subtle haptic feedback if supported
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-  };
-
   const setPeriodMode = (value: boolean) => {
     setIsPeriodMode(value);
   };
 
   return (
-    <PeriodModeContext.Provider value={{ isPeriodMode, togglePeriodMode, setPeriodMode }}>
+    <PeriodModeContext.Provider value={{ isPeriodMode, setPeriodMode }}>
       {children}
     </PeriodModeContext.Provider>
   );

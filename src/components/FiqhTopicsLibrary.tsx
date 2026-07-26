@@ -66,13 +66,18 @@ export default function FiqhTopicsLibrary({
           const hasSubTopics = topic.subTopics.length > 0;
           const accentColor = ACCENT_COLORS[topic.id] || '#C9A66B';
 
+          const isComingSoon = topic.id !== 'taharat-aur-paki';
+
           return (
             <div key={topic.id} className="flex flex-col">
               {/* Topic Header Card */}
               <button
                 type="button"
+                disabled={isComingSoon}
                 onClick={() => toggleExpand(topic.id)}
-                className={`w-full text-left p-4 border transition-all duration-200 active:scale-[0.98] group ${
+                className={`w-full text-left p-4 border transition-all duration-200 group ${
+                  isComingSoon ? 'opacity-60 cursor-not-allowed' : 'active:scale-[0.98]'
+                } ${
                   isExpanded
                     ? 'bg-white border-gray-100 rounded-t-[20px] rounded-b-none shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
                     : 'bg-white border-gray-100 rounded-[20px] hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
@@ -91,11 +96,15 @@ export default function FiqhTopicsLibrary({
                     <Icon className={`w-5 h-5 ${topic.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="text-[14px] font-bold text-gray-800 tracking-tight">
                         {topic.title}
                       </h4>
-                      {hasSubTopics && (
+                      {isComingSoon ? (
+                        <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                          Coming Soon
+                        </span>
+                      ) : hasSubTopics && (
                         <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                           {topic.subTopics.length}
                         </span>
@@ -105,11 +114,13 @@ export default function FiqhTopicsLibrary({
                       {topic.subtitle}
                     </p>
                   </div>
-                  <ChevronDown
-                    className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
-                      isExpanded ? 'rotate-180' : ''
-                    }`}
-                  />
+                  {!isComingSoon && (
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180' : ''
+                      }`}
+                    />
+                  )}
                 </div>
               </button>
 

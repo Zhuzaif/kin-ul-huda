@@ -157,26 +157,27 @@ export default function PreferencesScreen({ onBack }: PreferencesScreenProps) {
           </div>
         </section>
 
-        <section className="bg-white/70 rounded-[24px] p-5 border border-white/60 shadow-sm">
+        <section className="bg-white/70 rounded-[24px] p-5 border border-white/60 shadow-sm opacity-60">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[14px] font-bold text-gray-800">Prayer reminders</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[14px] font-bold text-gray-800">Prayer reminders</p>
+                <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                  Coming Soon
+                </span>
+              </div>
               <p className="text-[12px] text-gray-500 mt-1 leading-relaxed">
-                Browser notifications before the next salah (when supported).
+                Browser notifications before the next salah. This feature is under development.
               </p>
             </div>
             <button
               type="button"
-              onClick={() => updateProfile({ prayerReminders: !profile.prayerReminders })}
-              className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 ${
-                profile.prayerReminders ? 'bg-[#2B604A]' : 'bg-gray-200'
-              }`}
-              aria-label="Toggle prayer reminders"
+              disabled
+              className="relative w-14 h-8 rounded-full transition-colors flex-shrink-0 bg-gray-200 cursor-not-allowed"
+              aria-label="Prayer reminders — coming soon"
             >
               <span
-                className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${
-                  profile.prayerReminders ? 'left-7' : 'left-1'
-                }`}
+                className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow"
               />
             </button>
           </div>

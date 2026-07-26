@@ -1,4 +1,12 @@
 import React from 'react';
+import {
+  Sunrise,
+  ShieldCheck,
+  Check,
+  BookMarked,
+  Sparkles,
+  BookOpenCheck,
+} from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
 
 export default function SpiritualGoalCard() {
@@ -8,29 +16,89 @@ export default function SpiritualGoalCard() {
     updateProfile({ spiritualGoal: value.slice(0, 200) });
   };
 
-  const label =
-    profile.language === 'ur' ? 'میرا روحانی مقصد' : 'My Spiritual Goal';
+  const fillQuickGoal = (text: string) => {
+    updateProfile({ spiritualGoal: text });
+  };
 
+  const label =
+    profile.language === 'ur' ? 'میری روزانہ نیّت اور مقصد' : 'My Daily Niyyah & Goal';
+  const sublabel =
+    profile.language === 'ur' ? 'آج کے لیے ایک نیک نیّت رکھیں' : 'Set a mindful intention for today';
   const placeholder =
     profile.language === 'ur'
-      ? 'آپ کا روحانی مقصد کیا ہے؟'
-      : 'What is your spiritual goal?';
+      ? 'آج آپ کون سا روحانی مقصد حاصل کرنا چاہتی ہیں؟'
+      : 'What intention or spiritual goal would you like to achieve today? (e.g. Recite Surah Kahf, 100x Istighfar...)';
 
   return (
-    <div className="px-6 mb-8">
+    <div className="px-6 mb-4">
       <div className="bg-white/60 backdrop-blur-sm rounded-[24px] p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-white/60">
-        <h3 className="text-sm font-bold text-gray-800 tracking-tight mb-3">{label}</h3>
-        <div className="relative">
+        {/* Header row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+              <Sunrise className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-800">{label}</h2>
+              <p className="text-[11px] text-gray-500">{sublabel}</p>
+            </div>
+          </div>
+
+
+        </div>
+
+        {/* Textarea */}
+        <div className="relative mb-3">
           <textarea
+            rows={3}
+            maxLength={200}
             value={profile.spiritualGoal}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={placeholder}
-            className="w-full bg-[#FAF8F5] rounded-2xl p-4 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-muted-gold/30 border border-transparent focus:border-muted-gold/20 resize-none h-24 transition-all"
+            className="w-full text-[12px] bg-[#FAF8F5] rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#2B604A]/20 transition resize-none leading-relaxed border border-transparent text-gray-700 placeholder:text-gray-400"
             dir={profile.language === 'ur' ? 'rtl' : 'ltr'}
           />
-          <span className="absolute bottom-3 right-4 text-[10px] font-semibold text-gray-400">
-            {profile.spiritualGoal.length}/200
-          </span>
+
+          <div className="flex items-center justify-between mt-2 text-[11px]">
+            {/* Quick Suggestion Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-[70%]">
+              <button
+                onClick={() => fillQuickGoal('Recite Surah Al-Kahf')}
+                className="px-2.5 py-1 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+              >
+                <BookMarked className="w-3 h-3" /> Read Kahf
+              </button>
+              <button
+                onClick={() => fillQuickGoal('100x Astaghfirullah after Asr')}
+                className="px-2.5 py-1 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+              >
+                <Sparkles className="w-3 h-3 text-amber-500" /> 100x Istighfar
+              </button>
+              <button
+                onClick={() => fillQuickGoal('Learn 1 new Ayah of Quran')}
+                className="px-2.5 py-1 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+              >
+                <BookOpenCheck className="w-3 h-3" /> Learn 1 Ayah
+              </button>
+            </div>
+
+            <span className="font-mono text-[10px] text-gray-400">
+              {profile.spiritualGoal.length}/200
+            </span>
+          </div>
+        </div>
+
+        {/* Save row */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Private to you</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[11px] text-emerald-600">
+            <Check className="w-3.5 h-3.5" />
+            <span className="font-medium">Auto-saved</span>
+          </div>
         </div>
       </div>
     </div>

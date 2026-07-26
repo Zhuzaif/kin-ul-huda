@@ -26,6 +26,12 @@ const LANGUAGES: Array<{
     native: 'اردو',
     sample: 'السلام علیکم — آپ کا ساتھی اردو میں۔',
   },
+  {
+    id: 'ar',
+    label: 'Arabic',
+    native: 'العربية',
+    sample: 'السلام عليكم — رفيقك باللغة العربية.',
+  },
 ];
 
 export default function LanguageScreen({ onBack }: LanguageScreenProps) {
@@ -40,12 +46,17 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
       <div className="flex flex-col gap-3">
         {LANGUAGES.map((lang) => {
           const selected = profile.language === lang.id;
+          const isComingSoon = lang.id === 'ur' || lang.id === 'ar';
+          
           return (
             <button
               key={lang.id}
               type="button"
+              disabled={isComingSoon}
               onClick={() => updateProfile({ language: lang.id })}
-              className={`w-full text-left rounded-[24px] p-4 border transition-all active:scale-[0.98] ${
+              className={`w-full text-left rounded-[24px] p-4 border transition-all ${
+                isComingSoon ? 'opacity-60 cursor-not-allowed' : 'active:scale-[0.98]'
+              } ${
                 selected
                   ? 'bg-white shadow-md border-muted-gold/30 ring-2 ring-muted-gold/20'
                   : 'bg-white/60 border-white/70'
@@ -53,7 +64,14 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
             >
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-[15px] font-bold text-gray-800">{lang.label}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[15px] font-bold text-gray-800">{lang.label}</p>
+                    {isComingSoon && (
+                      <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                        Coming Soon
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[13px] font-arabic text-muted-gold">{lang.native}</p>
                 </div>
                 {selected && (

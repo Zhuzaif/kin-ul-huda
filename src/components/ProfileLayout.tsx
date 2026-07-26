@@ -41,8 +41,10 @@ export default function ProfileLayout({ onOverlayChange }: ProfileLayoutProps) {
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
       <div className="flex-1 overflow-y-auto scroll-smooth hide-scrollbar">
-        <ProfileHeader />
-        <SpiritualGoalCard />
+        <ProfileHeader
+          onOpenPreferences={() => setActiveScreen('preferences')}
+        />
+        {/* <SpiritualGoalCard /> */}
         <SettingsList
           onOpenScreen={setActiveScreen}
           onSupport={() => setShowSupport(true)}

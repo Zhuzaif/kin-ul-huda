@@ -18,13 +18,6 @@ function daysBetween(from: Date, to: Date): number {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
-function isoDateOnly(date: Date): string {
-  const d = startOfDay(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
 
 function parseIsoDate(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);

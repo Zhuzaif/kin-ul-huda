@@ -295,11 +295,10 @@ function IstihazaTopicView({
           type="button"
           onClick={onPrev}
           disabled={!onPrev}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
-            onPrev
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onPrev
               ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
               : 'text-[#2b2b28]/15 cursor-not-allowed'
-          }`}
+            }`}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -312,11 +311,10 @@ function IstihazaTopicView({
           type="button"
           onClick={onNext}
           disabled={!onNext}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
-            onNext
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onNext
               ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
               : 'text-[#2b2b28]/15 cursor-not-allowed'
-          }`}
+            }`}
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -423,12 +421,12 @@ export default function IstihazaDetailScreen({
             <ChevronLeft className="w-4 h-4 text-slate-600" />
           </button>
           <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight text-center leading-tight font-arabic">
-            وَٱذْكُرُواْ ٱللَّهَ
+            إِنَّ اللَّهَ يُحِبُّ الْمُتَطَهِّرِينَ
           </h1>
           <div className="flex items-center gap-2 mt-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
-            <span className="text-[10px] font-bold tracking-[0.15em] text-[#35b09f] uppercase">
-              Taharah &amp; Purity
+            <span className="text-[10px] font-bold tracking-[0.15em] text-[#b05335] uppercase">
+              Taharah &amp; Istihaza
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
           </div>

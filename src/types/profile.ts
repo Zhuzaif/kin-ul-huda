@@ -1,5 +1,5 @@
 export type AppTheme = 'serenity' | 'bloom' | 'meadow';
-export type AppLanguage = 'en' | 'ur';
+export type AppLanguage = 'en' | 'ur' | 'ar';
 
 /** Affects Asr calculation: Hanafi uses later Asr; others use standard (earlier) Asr. */
 export type Madhab = 'hanafi' | 'shafi' | 'maliki' | 'hanbali';

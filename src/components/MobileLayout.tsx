@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import PrayerWidget from './PrayerWidget';
 import DailyVerse from './DailyVerse';
+import DailyGoalWidget from './DailyGoalWidget';
 import QuickActions from './QuickActions';
 import BottomNav from './BottomNav';
 import QuranLayout from './QuranLayout';
@@ -50,6 +51,7 @@ export default function MobileLayout() {
             <div className="animate-in fade-in duration-300">
               <Header />
               <PrayerWidget onNavigate={setActiveTab} />
+              {/* <DailyGoalWidget /> */}
               <DailyVerse />
               <QuickActions onNavigate={setActiveTab} onOpenTasbeeh={() => setShowTasbeeh(true)} />
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Heart, Share2, BookOpen } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import AyatShareCards from './AyatShareCards';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import dailyAyat from '../data/daily-ayat.json';
 import quran from '../data/quran.json';
@@ -13,6 +14,7 @@ const duas: Dua[] = duasDataRaw as Dua[];
 
 export default function DailyVerse() {
   const [isSaved, setIsSaved] = useState(false);
+  const [showShareCards, setShowShareCards] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { isPeriodMode } = usePeriodMode();
   const [periodDuaIndex, setPeriodDuaIndex] = useState(0);
@@ -111,8 +113,12 @@ export default function DailyVerse() {
   };
 
   return (
+    <>
     <div className="px-6 mb-6" ref={containerRef}>
-      <div className="bg-muted-gold-light rounded-[32px] p-6 shadow-sm relative overflow-hidden group">
+      <div
+        className="bg-muted-gold-light rounded-[32px] p-6 shadow-sm relative overflow-hidden group cursor-pointer"
+        onClick={() => setShowShareCards(true)}
+      >
         {/* Subtle geometric pattern with parallax */}
         <motion.div
           style={{ y: backgroundY }}
@@ -135,13 +141,13 @@ export default function DailyVerse() {
 
             <div className="flex items-center gap-2">
               <button
-                onClick={handleShare}
+                onClick={(e) => { e.stopPropagation(); handleShare(); }}
                 className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center text-muted-gold hover:bg-white/80 transition-colors shadow-sm"
               >
                 <Share2 className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setIsSaved(!isSaved)}
+                onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
                 className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center text-muted-gold hover:bg-white/80 transition-colors shadow-sm relative"
               >
                 <AnimatePresence>
@@ -185,5 +191,15 @@ export default function DailyVerse() {
         </div>
       </div>
     </div>
+
+      {showShareCards && (
+        <AyatShareCards
+          arabicText={content.arabic}
+          englishText={content.english}
+          reference={content.reference}
+          onClose={() => setShowShareCards(false)}
+        />
+      )}
+    </>
   );
 }

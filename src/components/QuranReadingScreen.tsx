@@ -7,7 +7,7 @@ import translationEn from '../data/editions-en.json';
 import FloatingAudioPlayer from './FloatingAudioPlayer';
 import PeriodModeBanner from './PeriodModeBanner';
 import VerseCard from './VerseCard';
-import { getCachedAudioUrl } from '../utils/audioCache';
+import { getCachedAudioUrl, findCachedReciterForSurah } from '../utils/audioCache';
 import { RECITER_OPTIONS, Chapter, Verse, QuranMap } from '../data/quranConstants';
 
 interface QuranReadingScreenProps {
@@ -143,8 +143,37 @@ export default function QuranReadingScreen({
         }
       } catch (err) {
         console.error('Failed to load recitation data', err);
-        if (isActive) {
-          setRecitationData(null);
+        if (!isActive) return;
+
+        // ── Offline fallback: try to find a cached reciter ──
+        try {
+          const cached = await findCachedReciterForSurah(chapterId);
+          if (cached && isActive) {
+            // We have cached audio — try loading the corresponding segments from local files
+            // Segments are bundled in /public/recitations/ so they should load from browser cache
+            let fallbackSegments: Record<string, any> = {};
+            if (cached.reciterId !== 'cached') {
+              try {
+                const segRes = await fetch(`/recitations/${cached.reciterId}/segments.json`);
+                if (segRes.ok) {
+                  fallbackSegments = await segRes.json();
+                }
+              } catch {
+                // Segments unavailable — play without verse tracking
+              }
+            }
+
+            setRecitationData({
+              surahUrl: cached.cachedUrl,
+              segments: fallbackSegments,
+              isAyahLevel: false,
+            });
+            console.info(`Offline: using cached audio from "${cached.reciterId}" reciter`);
+          } else if (isActive) {
+            setRecitationData(null);
+          }
+        } catch {
+          if (isActive) setRecitationData(null);
         }
       } finally {
         if (isActive) {
@@ -323,7 +352,17 @@ export default function QuranReadingScreen({
 
     const setupAudio = async () => {
       try {
-        const srcUrl = await getCachedAudioUrl(initialUrl);
+        let srcUrl = await getCachedAudioUrl(initialUrl);
+
+        // If audio not cached for current reciter and we're offline, find any cached reciter
+        if (!srcUrl && typeof navigator !== 'undefined' && !navigator.onLine) {
+          const cached = await findCachedReciterForSurah(chapterId);
+          if (cached) {
+            srcUrl = await getCachedAudioUrl(cached.cachedUrl);
+            console.info(`Offline: falling back to cached "${cached.reciterId}" audio`);
+          }
+        }
+
         if (!isSubscribed) return;
 
         audio = new Audio(srcUrl || initialUrl);

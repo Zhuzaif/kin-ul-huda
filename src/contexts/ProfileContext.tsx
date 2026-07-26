@@ -12,7 +12,6 @@ import { DEFAULT_PROFILE, loadProfile, saveProfile } from '../utils/profileStore
 type ProfileContextType = {
   profile: UserProfile;
   updateProfile: (partial: Partial<UserProfile>) => void;
-  resetProfile: () => void;
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -28,15 +27,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const resetProfile = useCallback(() => {
-    const defaults = { ...DEFAULT_PROFILE };
-    setProfile(defaults);
-    saveProfile(defaults);
-  }, []);
-
   const value = useMemo(
-    () => ({ profile, updateProfile, resetProfile }),
-    [profile, updateProfile, resetProfile]
+    () => ({ profile, updateProfile }),
+    [profile, updateProfile]
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

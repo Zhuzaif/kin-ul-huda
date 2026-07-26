@@ -1,6 +1,48 @@
 const CACHE_NAME = 'nisa-quran-audio-v1';
 const STORAGE_KEY = 'nisa_downloaded_surahs';
 
+/** All reciters whose surah.json files are bundled locally in /public/recitations/ */
+const KNOWN_RECITERS = ['yasser', 'mishary', 'abdul-basit', 'maher', 'shuraim'];
+
+/**
+ * When offline, find a reciter whose audio for a given surah is already cached.
+ * Scans CacheStorage keys directly — works without any network.
+ * Returns { reciterId, cachedUrl } or null if nothing is cached.
+ */
+export async function findCachedReciterForSurah(
+  chapterId: number
+): Promise<{ reciterId: string; cachedUrl: string } | null> {
+  if (!('caches' in window)) return null;
+
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const keys = await cache.keys();
+
+    // Surah number is zero-padded to 3 digits in typical audio URLs (e.g. 001, 002, 114)
+    const paddedId = String(chapterId).padStart(3, '0');
+
+    for (const request of keys) {
+      const url = request.url;
+      // Check if URL contains the surah number pattern
+      // Typical pattern: .../001.mp3 or .../surah_001... etc.
+      if (url.includes(paddedId)) {
+        // Try to identify which reciter this belongs to
+        for (const reciterId of KNOWN_RECITERS) {
+          if (url.toLowerCase().includes(reciterId.toLowerCase())) {
+            return { reciterId, cachedUrl: url };
+          }
+        }
+        // If reciter can't be identified from URL but audio is cached, still return it
+        return { reciterId: 'cached', cachedUrl: url };
+      }
+    }
+  } catch {
+    // CacheStorage error
+  }
+
+  return null;
+}
+
 export function getDownloadedSurahsFromStorage(): Record<number, boolean> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -58,12 +100,6 @@ export async function downloadAudioToCache(url: string, onProgress?: (percent: n
   }
 }
 
-export async function isAudioCached(url: string): Promise<boolean> {
-  if (!('caches' in window)) return false;
-  const cache = await caches.open(CACHE_NAME);
-  const response = await cache.match(url);
-  return !!response;
-}
 
 export async function checkCachedSurahs(surahIds: number[]): Promise<Record<number, boolean>> {
   const result: Record<number, boolean> = { ...getDownloadedSurahsFromStorage() };
@@ -74,7 +110,7 @@ export async function checkCachedSurahs(surahIds: number[]): Promise<Record<numb
     const keys = await cache.keys();
     if (keys.length === 0) return result;
 
-    const res = await fetch('/recitations/mishary/surah.json');
+    const res = await fetch('/recitations/yasser/surah.json');
     if (res.ok) {
       const surahData = await res.json();
       for (const id of surahIds) {

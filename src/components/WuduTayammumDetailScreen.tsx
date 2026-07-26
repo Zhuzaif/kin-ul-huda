@@ -295,11 +295,10 @@ function WuduTayammumTopicView({
           type="button"
           onClick={onPrev}
           disabled={!onPrev}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
-            onPrev
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onPrev
               ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
               : 'text-[#2b2b28]/15 cursor-not-allowed'
-          }`}
+            }`}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -312,11 +311,10 @@ function WuduTayammumTopicView({
           type="button"
           onClick={onNext}
           disabled={!onNext}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${
-            onNext
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onNext
               ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
               : 'text-[#2b2b28]/15 cursor-not-allowed'
-          }`}
+            }`}
         >
           <ChevronRight className="w-5 h-5" />
         </button>

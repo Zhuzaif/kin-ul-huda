@@ -62,9 +62,11 @@ export function getThemeLabel(theme: UserProfile['theme']): string {
     bloom: 'Bloom (Soft Pink)',
     meadow: 'Meadow (Fresh Mint)',
   };
-  return labels[theme];
+  return labels[theme] ?? theme;
 }
 
 export function getLanguageLabel(lang: UserProfile['language']): string {
-  return lang === 'ur' ? 'اردو / Urdu' : 'English';
+  if (lang === 'ur') return 'اردو / Urdu';
+  if (lang === 'ar') return 'العربية / Arabic';
+  return 'English';
 }
