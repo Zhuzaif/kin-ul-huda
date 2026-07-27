@@ -21,6 +21,9 @@ export type UserProfile = {
   prayerReminders: boolean;
   theme: AppTheme;
   language: AppLanguage;
+  onboardingCompleted: boolean;
+  locationCoords: { lat: number; lng: number } | null;
+  notificationPrefs: { adhan: boolean; reminders: boolean };
 };
 
 export type SettingsScreenId =

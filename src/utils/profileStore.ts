@@ -3,13 +3,16 @@ import type { UserProfile } from '../types/profile';
 export const PROFILE_STORAGE_KEY = 'nisa.user.profile';
 
 export const DEFAULT_PROFILE: UserProfile = {
-  name: 'Sarah',
+  name: '',
   spiritualGoal: '',
   madhab: 'hanafi',
   calculationMethod: 'karachi',
   prayerReminders: true,
   theme: 'serenity',
   language: 'en',
+  onboardingCompleted: false,
+  locationCoords: null,
+  notificationPrefs: { adhan: true, reminders: true },
 };
 
 const VALID_MADHABS = new Set(['hanafi', 'shafi', 'maliki', 'hanbali']);

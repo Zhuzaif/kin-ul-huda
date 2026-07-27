@@ -11,6 +11,10 @@ const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 let cachedCoords: { lat: number; lng: number } | null = null;
 
+export function setCachedCoords(coords: { lat: number; lng: number }) {
+  cachedCoords = coords;
+}
+
 export const MADHAB_OPTIONS: Array<{
   id: ProfileMadhab;
   label: string;
@@ -116,6 +120,18 @@ export function computePrayerSchedule(
 
 export async function resolvePrayerCoordinates(): Promise<{ lat: number; lng: number }> {
   if (cachedCoords) return cachedCoords;
+
+  // Check if user saved coords during onboarding
+  try {
+    const raw = window.localStorage.getItem('nisa.user.profile');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.locationCoords && typeof parsed.locationCoords.lat === 'number') {
+        cachedCoords = parsed.locationCoords;
+        return cachedCoords;
+      }
+    }
+  } catch { /* ignore */ }
 
   try {
     const res = await fetch('https://get.geojs.io/v1/ip/geo.json');

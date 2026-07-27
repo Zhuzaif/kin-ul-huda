@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { BookOpen, Search, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import chapters from '../../data/chapters-en.json';
 import juzData from '../../data/juz.json';
 import mushaf16Metadata from '../../data/mushaf-16-metadata.json';
@@ -21,6 +21,10 @@ type MushafTab = 'surahs' | 'juz';
 const chapterList = chapters as Chapter[];
 const juzRaw = juzData as JuzEntry[];
 const pagesData = mushaf16Metadata as MushafPagesData;
+
+// Octagon clip-path for number badges
+const OCTAGON_CLIP =
+  'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
 
 const juzNames = [
   { en: 'Alif Lam Meem', ar: 'الم' },
@@ -85,7 +89,6 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
     return juzRaw.map((entry, i) => {
       const startChapterId = Number(entry.start.index);
       const ch = chapterList.find((c) => c.id === startChapterId);
-      // Remove leading zero by casting to Number then String
       const juzIndexStr = String(Number(entry.index));
       const startPage = pagesData.juzStartPages?.[juzIndexStr] ?? 1;
       return {
@@ -117,134 +120,206 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-300">
-      {/* Resume Card */}
+      {/* Resume Card — compact, matching the new hero style */}
       {lastReadPage && !searchQuery && (
-        <div className="px-6 pt-6 pb-2">
+        <div className="px-6 pb-4">
           <button
             onClick={() => onOpenPage(lastReadPage)}
-            className="w-full bg-gradient-to-r from-soft-mint to-white border border-[#2B604A]/20 rounded-[24px] p-5 flex items-center justify-between shadow-[0_8px_24px_rgba(43,96,74,0.08)] group hover:shadow-[0_12px_28px_rgba(43,96,74,0.12)] transition-all"
+            className="relative w-full rounded-[20px] px-5 py-4 overflow-hidden shadow-[0_10px_20px_rgba(11,77,60,0.25)] flex items-center justify-between"
+            style={{
+              background: 'linear-gradient(135deg, #0B4D3C 0%, #135E4A 100%)',
+            }}
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#2B604A]/10 flex items-center justify-center text-[#2B604A] group-hover:scale-110 transition-transform">
-                <Clock className="w-6 h-6" />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 90% 10%, rgba(201,162,75,0.22) 0%, transparent 42%), radial-gradient(circle at 10% 90%, rgba(255,255,255,0.10) 0%, transparent 32%)",
+              }}
+            />
+            <div className="relative z-10 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                <Clock className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[11px] font-bold tracking-wider text-gray-500 uppercase mb-1">
-                  Resume Reading
-                </p>
-                <h3 className="text-[16px] font-bold text-gray-800">
-                  Page {lastReadPage}
+                <span
+                  className="inline-block text-[10px] font-semibold tracking-[1px] px-2.5 py-0.5 rounded-full mb-1"
+                  style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff' }}
+                >
+                  CONTINUE
+                </span>
+                <h3
+                  className="text-[17px] font-bold text-white leading-tight"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
+                  Mushaf Page {lastReadPage}
                 </h3>
               </div>
             </div>
-            <div className="bg-[#2B604A] text-white px-4 py-2 rounded-full text-[13px] font-medium shadow-sm group-hover:bg-[#1C4433] transition-colors">
+            <span
+              className="relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold"
+              style={{ background: '#C9A24B', color: '#0B4D3C' }}
+            >
               Continue
-            </div>
+            </span>
           </button>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="px-6 pt-3 pb-3">
-        <div className="flex gap-2">
-          {(['surahs', 'juz'] as MushafTab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 rounded-[20px] text-xs font-semibold transition-all shadow-sm border border-white/40 ${
-                activeTab === tab
-                  ? 'bg-[#2B604A] text-white'
-                  : 'bg-white/80 text-gray-600 hover:bg-white'
-              }`}
-            >
-              {tab === 'surahs' ? 'Surahs' : 'Juz'}
-            </button>
-          ))}
+      <div className="px-6 pb-3">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar">
+          {(['surahs', 'juz'] as MushafTab[]).map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`whitespace-nowrap px-[18px] py-2 rounded-[12px] text-[13px] font-medium transition-all border ${isActive
+                  ? 'bg-[#0B4D3C] text-white border-[#0B4D3C]'
+                  : 'bg-white text-gray-700 border-[#E0E0E0] hover:bg-gray-50'
+                  }`}
+              >
+                {tab === 'surahs' ? 'Surahs' : 'Juz'}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-28">
         {activeTab === 'surahs' ? (
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col">
             {filteredSurahs.length === 0 ? (
-              <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center">
+              <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
                 No surahs match your search.
               </div>
             ) : (
               filteredSurahs.map((ch) => {
                 const startPage = pagesData.surahStartPages[String(ch.id)];
                 return (
-                  <button
+                  <div
                     key={ch.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleOpenSurah(ch.id)}
-                    className="bg-white/60 hover:bg-white/85 transition-colors rounded-[22px] p-4 flex items-center justify-between shadow-[0_4px_14px_rgba(0,0,0,0.03)] border border-white/70 text-left group"
+                    aria-label={`Open ${ch.transliteration} in Mushaf`}
+                    className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-soft-mint flex items-center justify-center text-[#2B604A] font-bold text-[12px] shadow-inner">
-                        {ch.id}
+                    {/* Left: octagon number + info */}
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="relative w-10 h-10 flex-shrink-0">
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            clipPath: OCTAGON_CLIP,
+                            background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                          }}
+                        />
+                        <div
+                          className="absolute inset-[2px] flex items-center justify-center"
+                          style={{
+                            clipPath: OCTAGON_CLIP,
+                            background: '#FFFFFF',
+                          }}
+                        >
+                          <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                            {ch.id}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-[14px] font-bold text-gray-800">
+
+                      <div className="min-w-0">
+                        <h4 className="text-[15px] font-semibold text-gray-800 truncate">
                           {ch.transliteration}
                         </h4>
-                        <p className="text-[11px] text-gray-500">
-                          {ch.translation} • {ch.total_verses} ayahs
+                        <p className="text-[12px] text-gray-400 mt-0.5">
+                          {ch.translation} • {ch.total_verses} Verses
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-arabic text-[20px] text-muted-gold">
+
+                    {/* Right: Arabic + page */}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span
+                        className="text-[22px] leading-none text-[#0B4D3C]"
+                        style={{ fontFamily: "'Amiri', serif" }}
+                      >
                         {ch.name}
                       </span>
                       {startPage && (
-                        <span className="text-[9px] text-gray-400 mt-1">
-                          Page {startPage}
+                        <span className="text-[11px] text-[#C9A24B] font-medium">
+                          P{startPage}
                         </span>
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex flex-col">
             {filteredJuz.length === 0 ? (
-              <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center sm:col-span-2">
+              <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
                 No juz match your search.
               </div>
             ) : (
               filteredJuz.map((item) => (
-                <button
+                <div
                   key={item.index}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleOpenJuz(item.startPage)}
-                  className="bg-white/60 hover:bg-white/85 transition-colors rounded-[22px] p-4 flex items-center justify-between shadow-[0_4px_14px_rgba(0,0,0,0.03)] border border-white/70 text-left group"
+                  aria-label={`Open Juz ${item.index} in Mushaf`}
+                  className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-soft-mint flex items-center justify-center text-[#2B604A] font-bold text-[12px] shadow-inner">
-                      {item.index}
+                  {/* Left: octagon number + info */}
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="relative w-10 h-10 flex-shrink-0">
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          clipPath: OCTAGON_CLIP,
+                          background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                        }}
+                      />
+                      <div
+                        className="absolute inset-[2px] flex items-center justify-center"
+                        style={{
+                          clipPath: OCTAGON_CLIP,
+                          background: '#FFFFFF',
+                        }}
+                      >
+                        <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                          {item.index}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-[14px] font-bold text-gray-800">
-                        {item.title}
+
+                    <div className="min-w-0">
+                      <h4 className="text-[15px] font-semibold text-gray-800 truncate">
+                        Juz {item.index} • {item.title}
                       </h4>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[12px] text-gray-400 mt-0.5">
                         Starts: {item.startSurah}
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
+
+                  {/* Right: Arabic */}
+                  <div className="text-right shrink-0">
                     {item.titleAr && (
-                      <span className="font-arabic text-[18px] text-muted-gold mb-1">
+                      <span
+                        className="text-[20px] leading-none text-[#0B4D3C]"
+                        style={{ fontFamily: "'Amiri', serif" }}
+                      >
                         {item.titleAr}
                       </span>
                     )}
-                    <span className="text-[9px] text-gray-400">
-                      Page {item.startPage}
-                    </span>
                   </div>
-                </button>
+                </div>
               ))
             )}
           </div>

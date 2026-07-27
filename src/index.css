@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -20,19 +20,21 @@
   --color-soft-pink-dark: #EBB6BA;
   --color-muted-gold: #C9A66B;
   --color-muted-gold-light: #F8F1E3;
-  
+
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-arabic: 'Amiri', serif;
 }
 
 body {
-  background-color: #E5E7EB; /* Gray background outside the mobile preview */
+  background-color: #E5E7EB;
+  /* Gray background outside the mobile preview */
 }
 
 /* Hide scrollbar for a cleaner mobile feel */
 ::-webkit-scrollbar {
   display: none;
 }
+
 * {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -42,9 +44,11 @@ body {
   0% {
     transform: scale(1);
   }
+
   40% {
     transform: scale(1.12);
   }
+
   100% {
     transform: scale(1);
   }
@@ -57,17 +61,33 @@ body {
 
 /* Al-Nisa page animations */
 @keyframes nisa-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(235, 182, 186, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(235, 182, 186, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(235, 182, 186, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(235, 182, 186, 0);
+  }
 }
 
 @keyframes nisa-slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes nisa-ring-fill {
-  from { stroke-dasharray: 0, 100; }
+  from {
+    stroke-dasharray: 0, 100;
+  }
 }
 
 .nisa-fab-pulse {
@@ -135,6 +155,7 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .share-overlay-close:hover {
   background: rgba(255, 255, 255, 0.15);
 }
@@ -153,6 +174,7 @@ body {
   padding: 0 30px;
   gap: 20px;
 }
+
 .share-carousel::-webkit-scrollbar {
   display: none;
 }
@@ -240,6 +262,7 @@ body {
   transition: all 0.3s ease;
   padding: 0;
 }
+
 .share-dot.active {
   background: #C4A15E;
   width: 22px;
@@ -271,16 +294,19 @@ body {
   transition: all 0.25s ease;
   letter-spacing: 0.03em;
 }
+
 .share-action-btn:hover {
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.3);
 }
+
 .share-action-btn.primary {
   background: #C4A15E;
   border-color: #C4A15E;
   color: #111;
   font-weight: 600;
 }
+
 .share-action-btn.primary:hover {
   background: #d4b16e;
   border-color: #d4b16e;
@@ -288,15 +314,30 @@ body {
 
 /* Card-specific: Lantern swing */
 @keyframes lantern-swing {
-  0%, 100% { transform: translateX(-50%) rotate(-3deg); }
-  50% { transform: translateX(-50%) rotate(3deg); }
+
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(-3deg);
+  }
+
+  50% {
+    transform: translateX(-50%) rotate(3deg);
+  }
 }
 
 /* Card-specific: Badge shimmer */
 @keyframes badge-shimmer {
-  0% { background-position: 160% 0; }
-  55% { background-position: -60% 0; }
-  100% { background-position: -60% 0; }
+  0% {
+    background-position: 160% 0;
+  }
+
+  55% {
+    background-position: -60% 0;
+  }
+
+  100% {
+    background-position: -60% 0;
+  }
 }
 
 /* Loading state */

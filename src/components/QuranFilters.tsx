@@ -1,12 +1,13 @@
 import React from 'react';
 
-export type QuranFilterId = 'quran' | 'mushaf' | 'friday' | 'saved';
+export type QuranFilterId = 'surah' | 'juz' | 'mushaf' | 'bookmarks' | 'sajda';
 
 const filters: { id: QuranFilterId; label: string }[] = [
-  { id: 'quran', label: 'Quran' },
+  { id: 'surah', label: 'Surah' },
+  { id: 'juz', label: 'Juz' },
   { id: 'mushaf', label: 'Mushaf' },
-  { id: 'friday', label: 'Friday Surahs (Al-Kahf)' },
-  { id: 'saved', label: 'Saved Verses' },
+  { id: 'bookmarks', label: 'Bookmarks' },
+  { id: 'sajda', label: 'Sajda' },
 ];
 
 interface QuranFiltersProps {
@@ -16,19 +17,18 @@ interface QuranFiltersProps {
 
 export default function QuranFilters({ activeFilter, onChange }: QuranFiltersProps) {
   return (
-    <div className="pl-6 mb-6">
-      <div className="flex gap-2.5 overflow-x-auto pr-6 pb-2 scroll-smooth hide-scrollbar">
+    <div className="px-6 mb-4">
+      <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar">
         {filters.map((filter) => {
           const isActive = activeFilter === filter.id;
           return (
-            <button 
+            <button
               key={filter.id}
               onClick={() => onChange(filter.id)}
-              className={`whitespace-nowrap px-5 py-2.5 rounded-[20px] text-xs font-semibold transition-all shadow-sm border border-white/40 ${
-                isActive 
-                  ? 'bg-[#2B604A] text-white' 
-                  : 'bg-white/80 text-gray-600 hover:bg-white'
-              }`}
+              className={`whitespace-nowrap px-[18px] py-2 rounded-[12px] text-[13px] font-medium transition-all border ${isActive
+                ? 'bg-[#0B4D3C] text-white border-[#0B4D3C]'
+                : 'bg-white text-gray-700 border-[#E0E0E0] hover:bg-gray-50'
+                }`}
             >
               {filter.label}
             </button>
