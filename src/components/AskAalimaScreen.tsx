@@ -1,59 +1,176 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Send, Bot, Loader2 } from 'lucide-react';
+import { ChevronLeft, Send, Bot, Loader2, Image as ImageIcon, X, Reply } from 'lucide-react';
 import { motion } from 'motion/react';
-import { askAalima } from '../utils/askAalima';
+import { useProfile } from '../contexts/ProfileContext';
+import { supabase } from '../lib/supabase';
+import { parseChatMessage, stringifyChatMessage, compressImage } from '../utils/chatUtils';
 
-const SUGGESTIONS = [
-  'Can I read Quran during my period?',
-  'When is ghusl required after Haiz?',
-  'What is the difference between Haiz and Istihada?',
-  'Do I make up missed fasts after my period?',
-];
-
-type Message = { role: 'user' | 'assistant'; text: string };
+type Message = { 
+  id?: string;
+  role: 'user' | 'assistant'; 
+  text: string;
+  image?: string;
+  replyToId?: string;
+};
 
 interface AskAalimaScreenProps {
   onBack: () => void;
 }
 
 export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
+  const { profile, updateProfile } = useProfile();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      text: 'As-salamu alaikum. I am Aalima, your AI guide for women\'s fiqh. Ask about purity, salah, fasting, or daily worship — I will answer with care and clarity.',
+      text: 'As-salamu alaikum. I am the Aalima, your guide for women\'s fiqh. Ask about purity, salah, fasting, or daily worship — I will answer your questions as soon as possible.',
     },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [replyingToMsg, setReplyingToMsg] = useState<Message | null>(null);
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!profile?.userId) return;
+
+    const fetchHistory = async () => {
+      const { data, error } = await supabase
+        .from('aalima_queries')
+        .select('*')
+        .eq('user_id', profile.userId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching chat history', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const historyMsgs: Message[] = [];
+        data.forEach((q) => {
+          if (q.question) {
+            const parsed = parseChatMessage(q.question);
+            historyMsgs.push({ id: q.id, role: 'user', ...parsed });
+          }
+          if (q.admin_reply) {
+            const parsed = parseChatMessage(q.admin_reply);
+            historyMsgs.push({ id: q.id + '-r', role: 'assistant', ...parsed });
+          } else if (q.ai_answer && q.status !== 'pending') {
+            const parsed = parseChatMessage(q.ai_answer);
+            historyMsgs.push({ id: q.id + '-ai', role: 'assistant', ...parsed });
+          }
+        });
+        
+        setMessages(prev => [prev[0], ...historyMsgs]);
+      }
+    };
+
+    fetchHistory();
+
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT for new replies, UPDATE for older style)
+          schema: 'public',
+          table: 'aalima_queries',
+          filter: `user_id=eq.${profile.userId}`,
+        },
+        () => {
+          fetchHistory();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.userId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
   }, [messages, loading]);
 
-  const sendMessage = async (text?: string) => {
-    const q = (text ?? input).trim();
-    if (!q || loading) return;
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const userMsg: Message = { role: 'user', text: q };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput('');
+  const sendMessage = async () => {
+    const q = input.trim();
+    if ((!q && !imageFile) || loading) return;
+
     setLoading(true);
 
     try {
-      const history = messages.map((m) => ({
-        role: m.role,
-        text: m.text,
-      }));
-      const answer = await askAalima(q, history);
-      setMessages((prev) => [...prev, { role: 'assistant', text: answer }]);
+      let currentUserId = profile?.userId;
+      
+      if (!currentUserId) {
+        const { data, error } = await supabase.from('nisa_users').insert([
+          {
+            full_name: profile?.name || 'Anonymous',
+            email: `anon_${Date.now()}@anonymous.local`,
+            madhab: profile?.madhab || 'hanafi',
+            country: profile?.locationCoords ? `${profile.locationCoords.lat},${profile.locationCoords.lng}` : 'Unknown'
+          }
+        ]).select().single();
+        
+        if (error || !data) throw new Error('Unable to create local user profile.');
+        currentUserId = data.id;
+        updateProfile({ userId: data.id });
+      }
+
+      let base64Image = undefined;
+      if (imageFile) {
+        base64Image = await compressImage(imageFile);
+      }
+
+      const payload = stringifyChatMessage({
+        text: q,
+        image: base64Image,
+        replyToId: replyingToMsg?.id
+      });
+
+      // Optimistic update
+      const tempId = `temp-${Date.now()}`;
+      setMessages(prev => [...prev, { id: tempId, role: 'user', text: q, image: base64Image, replyToId: replyingToMsg?.id }]);
+      setInput('');
+      setImageFile(null);
+      setImagePreview(null);
+      setReplyingToMsg(null);
+
+      const { error } = await supabase.from('aalima_queries').insert([
+        { 
+          user_id: currentUserId, 
+          question: payload,
+          status: 'pending' 
+        }
+      ]);
+
+      if (error) {
+        setMessages(prev => prev.filter(m => m.id !== tempId));
+        throw error;
+      }
     } catch (e) {
-      const err = e instanceof Error ? e.message : 'Something went wrong.';
+      console.error(e);
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: `I could not respond right now. ${err} Please try again or read the fiqh topics below.`,
+          text: 'Unable to send your message right now. Please try again.',
         },
       ]);
     } finally {
@@ -65,10 +182,8 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
     <div className="absolute inset-0 bg-warm-beige z-50 flex flex-col animate-in fade-in duration-300">
       <div className="sticky top-0 z-10 bg-warm-beige/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-gray-200/40">
         <button
-          type="button"
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 active:scale-95 transition-all"
-          aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5 text-gray-700" />
         </button>
@@ -78,75 +193,119 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
           </div>
           <div className="min-w-0">
             <h1 className="text-lg font-bold text-gray-800 tracking-tight leading-tight">Ask Aalima</h1>
-            <p className="text-[11px] font-medium text-[#D98A5B]">AI fiqh assistant</p>
+            <p className="text-[11px] font-medium text-[#D98A5B]">Your trusted fiqh advisor</p>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-4">
-        <div className="flex flex-col gap-3">
-          {messages.map((msg, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[88%] rounded-[22px] px-4 py-3 text-[13px] leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'bg-[#2B604A] text-white font-medium'
-                    : 'bg-white/85 border border-white/70 text-gray-700 shadow-sm'
-                }`}
+      <div className="flex-1 overflow-y-auto hide-scrollbar px-4 sm:px-6 py-4">
+        <div className="flex flex-col gap-4">
+          {messages.map((msg, i) => {
+            let quotedText = '';
+            if (msg.replyToId) {
+              const quotedMsg = messages.find(m => m.id === msg.replyToId || m.id?.startsWith(msg.replyToId!));
+              quotedText = quotedMsg?.text || (quotedMsg?.image ? 'Image attachment' : '');
+            }
+
+            return (
+              <motion.div
+                key={msg.id || i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
-                {msg.role === 'assistant' && (
-                  <Bot className="w-4 h-4 text-[#D98A5B] mb-1.5" />
-                )}
-                {msg.text}
-              </div>
-            </motion.div>
-          ))}
+                <div className={`max-w-[85%] group relative flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  
+                  {/* Reply Button inside the app */}
+                  <button 
+                    onClick={() => setReplyingToMsg(msg)}
+                    className={`absolute top-1/2 -translate-y-1/2 p-2 bg-white/80 backdrop-blur shadow-sm rounded-full text-gray-500 active:scale-95 transition-all z-10 ${
+                      msg.role === 'user' ? '-left-12' : '-right-12'
+                    }`}
+                  >
+                    <Reply className="w-4 h-4" />
+                  </button>
+
+                  {/* Quoted Reply box */}
+                  {msg.replyToId && quotedText && (
+                    <div className={`text-[11px] px-2 py-1 mb-1 rounded-lg border-l-2 max-w-full truncate ${
+                      msg.role === 'user' 
+                        ? 'bg-[#1E4334] text-white/80 border-[#3D8566]' 
+                        : 'bg-white/50 text-gray-500 border-gray-300'
+                    }`}>
+                      {quotedText.length > 40 ? quotedText.slice(0, 40) + '...' : quotedText}
+                    </div>
+                  )}
+
+                  <div className={`rounded-2xl px-4 py-3 text-[13px] leading-relaxed relative ${
+                    msg.role === 'user'
+                      ? 'bg-[#2B604A] text-white font-medium rounded-tr-sm shadow-md'
+                      : 'bg-white/85 border border-white/70 text-gray-700 shadow-sm rounded-tl-sm'
+                  }`}>
+                    {msg.image && (
+                      <img src={msg.image} alt="Attachment" className="max-w-full rounded-lg mb-2" />
+                    )}
+                    {msg.text}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+          
           {loading && (
-            <div className="flex justify-start">
-              <div className="bg-white/85 border border-white/70 rounded-[22px] px-4 py-3 flex items-center gap-2 text-gray-500 text-[13px]">
-                <Loader2 className="w-4 h-4 animate-spin text-[#D98A5B]" />
-                Aalima is thinking...
+            <div className="flex justify-end">
+              <div className="bg-[#2B604A]/70 text-white rounded-[22px] px-4 py-3 flex items-center gap-2 text-[13px]">
+                <Loader2 className="w-4 h-4 animate-spin text-white/80" />
+                Sending...
               </div>
             </div>
           )}
         </div>
-
-        {messages.length <= 1 && (
-          <div className="mt-6 flex flex-col gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-1">
-              Suggested questions
-            </p>
-            {SUGGESTIONS.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => sendMessage(q)}
-                className="text-left text-[13px] font-medium text-gray-700 bg-white/60 rounded-[18px] px-4 py-3 border border-white/70 active:scale-[0.98] transition-all hover:bg-white"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
-        <div ref={bottomRef} />
+        <div ref={bottomRef} className="h-4" />
       </div>
 
-      <div className="px-6 pb-6 pt-2 border-t border-gray-200/30 bg-warm-beige/95 backdrop-blur-sm">
-        <p className="text-[10px] text-gray-400 text-center mb-2 leading-relaxed">
-          General guidance only — not a personal fatwa. Consult a scholar for complex cases.
-        </p>
-        <div className="flex gap-2 items-end">
+      <div className="px-4 sm:px-6 pb-6 pt-3 border-t border-gray-200/30 bg-warm-beige/95 backdrop-blur-sm relative">
+        
+        {/* Reply To Preview Box */}
+        {replyingToMsg && (
+          <div className="absolute -top-12 left-4 right-4 bg-white/90 backdrop-blur-md rounded-t-xl px-4 py-2 shadow-sm border border-gray-100 flex items-center justify-between z-0">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Reply className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-xs text-gray-600 truncate">
+                {replyingToMsg.text ? (replyingToMsg.text.length > 40 ? replyingToMsg.text.slice(0,40)+'...' : replyingToMsg.text) : 'Image'}
+              </span>
+            </div>
+            <button onClick={() => setReplyingToMsg(null)} className="text-gray-400 hover:text-gray-700 p-1">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Image Preview Box */}
+        {imagePreview && (
+          <div className="absolute bottom-[100%] left-4 mb-2 bg-white p-2 rounded-xl shadow-lg border border-gray-100 max-w-[120px]">
+            <button 
+              onClick={() => { setImageFile(null); setImagePreview(null); }}
+              className="absolute -top-2 -right-2 bg-gray-900 text-white p-1 rounded-full shadow-sm"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <img src={imagePreview} alt="Preview" className="w-full h-auto rounded-lg object-cover" />
+          </div>
+        )}
+
+        <div className="flex gap-2 items-end relative z-10">
+          <label className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 text-gray-400 hover:text-[#D98A5B] active:scale-95 transition-all cursor-pointer shrink-0">
+            <ImageIcon className="w-5 h-5" />
+            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+          </label>
+
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value.slice(0, 600))}
-            placeholder="Ask about purity, salah, fasting..."
-            rows={2}
-            className="flex-1 bg-white/90 rounded-[20px] px-4 py-3 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-soft-pink-dark/30 border border-white/60 resize-none"
+            onChange={(e) => setInput(e.target.value.slice(0, 1000))}
+            placeholder="Type a message..."
+            rows={1}
+            className="flex-1 bg-white/90 rounded-[20px] px-4 py-3.5 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-soft-pink-dark/30 border border-white/60 resize-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -155,11 +314,9 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
             }}
           />
           <button
-            type="button"
-            onClick={() => sendMessage()}
-            disabled={!input.trim() || loading}
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-40"
-            aria-label="Send"
+            onClick={sendMessage}
+            disabled={(!input.trim() && !imageFile) || loading}
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-40 shrink-0"
           >
             <Send className="w-5 h-5 text-white" />
           </button>

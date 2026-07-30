@@ -3,6 +3,7 @@ import type { UserProfile } from '../types/profile';
 export const PROFILE_STORAGE_KEY = 'nisa.user.profile';
 
 export const DEFAULT_PROFILE: UserProfile = {
+  userId: null,
   name: '',
   spiritualGoal: '',
   madhab: 'hanafi',

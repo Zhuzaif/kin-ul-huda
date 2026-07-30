@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, MapPin, Check, Bell, BellRing } from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
 import { setCachedCoords, computePrayerSchedule, formatPrayerTime } from '../utils/prayerTimes';
+import { supabase } from '../lib/supabase';
 import type { Madhab } from '../types/profile';
 
 type MadhhabKey = 'hanafi' | 'maliki' | 'shafi';
@@ -878,18 +879,44 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
   const [name, setName] = useState('');
   const [madhab, setMadhab] = useState<MadhhabKey>('hanafi');
   const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const next = useCallback((s: Step) => {
     setDir(1);
     setStep(s);
   }, []);
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
+    // Attempt to register user in Supabase
+    let userId = null;
+    try {
+      const { data, error } = await supabase
+        .from('nisa_users')
+        .insert([
+          {
+            full_name: name,
+            email: `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now()}@anonymous.local`, // Dummy email since we don't have auth yet
+            madhab: madhab,
+            country: locationCoords ? `${locationCoords.lat},${locationCoords.lng}` : 'Unknown', // In real app, reverse geocode
+            notifications_enabled: notificationsEnabled,
+          }
+        ])
+        .select()
+        .single();
+        
+      if (data && !error) {
+        userId = data.id;
+      }
+    } catch (e) {
+      console.error('Supabase registration failed:', e);
+    }
+
     // Sync all collected data to profile
     const profileUpdate: Record<string, unknown> = {
       name,
       madhab: madhab as Madhab,
       onboardingCompleted: true,
+      userId,
     };
 
     if (locationCoords) {
@@ -899,7 +926,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
 
     updateProfile(profileUpdate as any);
     onComplete();
-  }, [name, madhab, locationCoords, updateProfile, onComplete]);
+  }, [name, madhab, locationCoords, notificationsEnabled, updateProfile, onComplete]);
 
   const stepVariants = {
     enter: (d: number) => ({ x: d > 0 ? '100%' : '-100%', opacity: 0 }),
@@ -1001,13 +1028,18 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
               {step === 2 && (
                 <NotificationStep
                   onNext={(prefs) => {
+                    const enabled = prefs.adhan || prefs.reminders;
+                    setNotificationsEnabled(enabled);
                     updateProfile({
-                      prayerReminders: prefs.adhan || prefs.reminders,
+                      prayerReminders: enabled,
                       notificationPrefs: prefs,
                     });
                     next(3);
                   }}
-                  onSkip={() => next(3)}
+                  onSkip={() => {
+                    setNotificationsEnabled(false);
+                    next(3);
+                  }}
                 />
               )}
               {step === 3 && (

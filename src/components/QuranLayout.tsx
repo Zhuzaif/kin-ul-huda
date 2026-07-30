@@ -8,6 +8,7 @@ import QuranReadingScreen from './QuranReadingScreen';
 import MushafLayout from './mushaf/MushafLayout';
 import MushafPageViewer from './mushaf/MushafPageViewer';
 import VerseCard from './VerseCard';
+import { useProfile } from '../contexts/ProfileContext';
 import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
@@ -43,6 +44,8 @@ type LastRead = {
   verse: number;
   updatedAt: number;
 };
+
+type QuranTab = 'surah' | 'juz' | 'bookmarks';
 
 interface QuranLayoutProps {
   onReadingModeChange?: (isReading: boolean) => void;
@@ -152,10 +155,17 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
   const [selectedVerseNumber, setSelectedVerseNumber] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<QuranFilterId>('surah');
+  const [activeTab, setActiveTab] = useState<QuranTab>('surah');
   const [openMushafPage, setOpenMushafPage] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isGlobalDownloading, setIsGlobalDownloading] = useState(false);
   const [globalDownloadProgress, setGlobalDownloadProgress] = useState(0);
+
+  const handleBackFromReading = () => {
+    setSelectedChapterId(null);
+    setOpenMushafPage(null);
+  };
+
   const [lastRead, setLastRead] = useState<LastRead | null>(() => {
     if (typeof window === 'undefined') {
       return null;

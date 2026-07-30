@@ -14,6 +14,7 @@ export type CalculationMethodId =
   | 'singapore';
 
 export type UserProfile = {
+  userId: string | null;
   name: string;
   spiritualGoal: string;
   madhab: Madhab;

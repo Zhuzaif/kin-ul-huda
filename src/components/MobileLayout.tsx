@@ -14,6 +14,7 @@ import QiblaFinder from './QiblaFinder';
 import TasbeehCounterScreen from './TasbeehCounterScreen';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { useProfile } from '../contexts/ProfileContext';
+import { useActivityTracker } from '../hooks/useActivityTracker';
 
 const THEME_BG: Record<string, string> = {
   serenity: 'bg-warm-beige',
@@ -28,6 +29,9 @@ export default function MobileLayout() {
   const [profileOverlay, setProfileOverlay] = useState(false);
   const { isPeriodMode } = usePeriodMode();
   const { profile } = useProfile();
+  
+  // Track global activity across tabs and overlays
+  useActivityTracker(activeTab, isQuranReading, showTasbeeh, profileOverlay);
 
   const frameBg =
     isPeriodMode && profile.theme === 'serenity'
@@ -39,6 +43,32 @@ export default function MobileLayout() {
       setIsQuranReading(false);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NAVIGATE' && event.data.screen) {
+        setActiveTab(event.data.screen);
+      }
+    };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+    }
+    
+    // Also check URL on load for ?screen=xxx
+    const params = new URLSearchParams(window.location.search);
+    const screenParam = params.get('screen');
+    if (screenParam) {
+      setActiveTab(screenParam);
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    return () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      }
+    };
+  }, []);
 
   return (
     <div className="h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-gray-200">
