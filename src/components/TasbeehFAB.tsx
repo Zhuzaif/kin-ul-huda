@@ -15,8 +15,8 @@ export default function TasbeehFAB({ onOpen }: TasbeehFABProps) {
         aria-label="Open Tasbeeh Counter"
       >
         {/* Subtle Glowing Aura Effect */}
-        <div className="absolute -inset-2 bg-soft-mint-dark/30 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-        <CircleDashed className="w-7 h-7 text-[#E2F0EA] relative z-10 opacity-90 stroke-[2.5]" />
+        <div className="absolute -inset-2 bg-theme-accent-soft-dark/30 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
+        <CircleDashed className="w-7 h-7 text-theme-accent-soft relative z-10 opacity-90 stroke-[2.5]" />
       </button>
     </div>
   );

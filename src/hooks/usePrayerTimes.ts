@@ -6,7 +6,11 @@ import {
   type PrayerScheduleItem,
 } from '../utils/prayerTimes';
 
-export function usePrayerTimes(madhab: Madhab, calculationMethod: CalculationMethodId) {
+export function usePrayerTimes(
+  madhab: Madhab,
+  calculationMethod: CalculationMethodId,
+  coordsOverride?: { lat: number; lng: number } | null
+) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +18,16 @@ export function usePrayerTimes(madhab: Madhab, calculationMethod: CalculationMet
 
   useEffect(() => {
     let cancelled = false;
+    // When the caller supplies an explicit location (e.g. the user picked one
+    // in settings), use it directly and skip IP/geo resolution.
+    if (coordsOverride) {
+      setCoords(coordsOverride);
+      setError(null);
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
     setLoading(true);
     resolvePrayerCoordinates()
       .then((c) => {

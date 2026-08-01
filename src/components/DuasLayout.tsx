@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useBackHandler } from '../hooks/useBackHandler';
+import { BACK_PRIORITY } from '../lib/backButton';
 import DuasHeader from './DuasHeader';
 import DuaHighlightCard from './DuaHighlightCard';
 import DuaCategories from './DuaCategories';
@@ -15,6 +17,14 @@ export default function DuasLayout() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Android back closes the open dua detail / create modal first.
+  useBackHandler(selectedDua !== null, () => setSelectedDua(null));
+  useBackHandler(
+    isCreateModalOpen,
+    () => setIsCreateModalOpen(false),
+    BACK_PRIORITY.modal
+  );
 
   const handleSelectDua = (dua: Dua, index: number, duaList: Dua[]) => {
     setSelectedDua(dua);

@@ -94,7 +94,7 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
   );
 
   return (
-    <div ref={containerRef} className="flex w-full flex-col h-full bg-warm-beige animate-in fade-in duration-300">
+    <div ref={containerRef} className="flex w-full flex-col h-full bg-theme-surface animate-in fade-in duration-300">
       <div className="px-4 pt-6 pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <button
@@ -204,7 +204,7 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
                   return (
                     <div key={`line-${index}`} className="text-center py-1 flex-1 flex items-center justify-center">
                       <span
-                        className="text-[22px] text-[#2B604A]/90"
+                        className="text-[22px] text-theme-accent/90"
                         style={{ fontFamily: 'IndopakNastaleeq, serif' }}
                       >
                         {line.text}

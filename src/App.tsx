@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import MobileLayout from './components/MobileLayout';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PeriodModeProvider } from './contexts/PeriodModeContext';
@@ -14,27 +18,76 @@ function AppContent() {
   useEffect(() => {
     if (!profile.onboardingCompleted || !profile.userId) return;
 
+    if (Capacitor.isNativePlatform()) {
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('Native Push Registration Token: ', token.value);
+        if (profile.userId) {
+          await supabase.from('nisa_users').update({
+            push_token: token.value,
+            notifications_enabled: true
+          }).eq('id', profile.userId);
+        }
+      });
+
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('Push received: ', notification);
+        LocalNotifications.schedule({
+          notifications: [
+            {
+              title: notification.title || 'Notification',
+              body: notification.body || '',
+              id: new Date().getTime(),
+              extra: notification.data
+            }
+          ]
+        });
+      });
+    }
+
     const unsubscribe = onMessageListener((payload) => {
-      console.log('Received foreground message: ', payload);
-      const title = payload.notification?.title || 'Notification';
-      const options = {
-        body: payload.notification?.body,
-        icon: '/vite.svg',
-      };
-      // Show native notification even when in foreground
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(title, options);
+      if (!Capacitor.isNativePlatform()) {
+        console.log('Received web foreground message: ', payload);
+        const title = payload.notification?.title || 'Notification';
+        const options = {
+          body: payload.notification?.body,
+          icon: '/vite.svg',
+        };
+        // Show native notification even when in foreground
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(title, options);
+        }
       }
     });
 
     async function setupNotifications() {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        const token = await requestForToken();
-        if (token) {
-          await supabase.from('nisa_users').update({
-            push_token: token,
-            notifications_enabled: true
-          }).eq('id', profile.userId);
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await StatusBar.setStyle({ style: Style.Light });
+          if (Capacitor.getPlatform() === 'android') {
+            await StatusBar.setOverlaysWebView({ overlay: true });
+          }
+        } catch (e) {
+          console.error('StatusBar error:', e);
+        }
+      }
+      
+      if (Capacitor.isNativePlatform()) {
+        let permStatus = await PushNotifications.checkPermissions();
+        if (permStatus.receive === 'prompt') {
+          permStatus = await PushNotifications.requestPermissions();
+        }
+        if (permStatus.receive === 'granted') {
+          await PushNotifications.register();
+        }
+      } else if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+          const token = await requestForToken();
+          if (token) {
+            await supabase.from('nisa_users').update({
+              push_token: token,
+              notifications_enabled: true
+            }).eq('id', profile.userId);
+          }
         }
       }
     }
@@ -43,6 +96,9 @@ function AppContent() {
     return () => {
       if (unsubscribe && typeof unsubscribe === 'function') {
         unsubscribe();
+      }
+      if (Capacitor.isNativePlatform()) {
+        PushNotifications.removeAllListeners();
       }
     };
   }, [profile.onboardingCompleted, profile.userId]);

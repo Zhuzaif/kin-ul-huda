@@ -53,14 +53,14 @@ function WuduTayammumTopicView({
             const [, num, heading, body] = numberedMatch;
             return (
               <div key={i} className="flex flex-col gap-1">
-                <p className="text-[14px] font-semibold leading-[1.7]" style={{ color: 'rgba(43,43,40,0.95)' }}>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold mr-2" style={{ background: 'rgba(15,92,74,0.1)', color: '#0f5c4a' }}>
+                <p className="text-[14px] font-semibold leading-[1.7]" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold mr-2" style={{ background: 'var(--color-theme-accent-soft)', color: 'var(--color-theme-accent-strong)' }}>
                     {num}
                   </span>
                   {heading}
                 </p>
                 {body && (
-                  <p className="text-[13.5px] leading-[1.85] pl-7" style={{ color: 'rgba(43,43,40,0.75)' }}>
+                  <p className="text-[13.5px] leading-[1.85] pl-7" style={{ color: 'var(--color-text-secondary)' }}>
                     {body}
                   </p>
                 )}
@@ -68,7 +68,7 @@ function WuduTayammumTopicView({
             );
           }
           return (
-            <p key={i} className="text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.8)' }}>
+            <p key={i} className="text-[14px] leading-[1.9]" style={{ color: 'var(--color-text-secondary)' }}>
               {trimmed}
             </p>
           );
@@ -77,19 +77,16 @@ function WuduTayammumTopicView({
     );
   };
 
-  /* Spiritual design inline CSS variables */
+  /* Injected Minimalist Spiritual Styles */
   const spiritualStyles = `
-    .spiritual-bg { background-color: #f9f9f6; color: #2b2b28; }
-    .spiritual-header { border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(249,249,246,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .spiritual-gold { color: #b08d35; }
-    .spiritual-emerald { color: #0f5c4a; }
-    .spiritual-secondary { background: #f0efe9; }
-    .spiritual-muted { color: #8a897f; }
+    .spiritual-bg { background-color: var(--color-theme-surface); color: var(--color-text-primary); }
+    .spiritual-header { border-bottom: 1px solid var(--color-theme-border); background: var(--color-theme-surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .spiritual-gold { color: var(--color-theme-gold); }
+    .spiritual-emerald { color: var(--color-theme-accent-strong); }
+    .spiritual-secondary { background: var(--color-theme-surface-alt); }
+    .spiritual-muted { color: var(--color-text-muted); }
     .spiritual-border { border-color: rgba(0,0,0,0.05); }
 
-    .tab-pill-container { background: #f0efe9; border-radius: 9999px; padding: 4px; display: flex; }
-    .tab-pill { flex: 1; border-radius: 9999px; padding: 8px 16px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: #2b2b28; }
-    .tab-pill.active { background: #ffffff; color: #0f5c4a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 
     .accordion-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 0; font-size: 14px; font-weight: 500; color: #2b2b28; text-align: left; cursor: pointer; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.2s; }
     .accordion-trigger:last-child { border-bottom: none; }
@@ -409,9 +406,9 @@ export default function WuduTayammumDetailScreen({
       <style>{trackStyles}</style>
 
       {/* Frosted glass mobile container */}
-      <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-white/60 backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-white/80 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
+      <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-theme-surface-card backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-theme-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
         {/* Floating Arabic Header Block */}
-        <header className="bg-white rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-slate-50 flex flex-col items-center justify-center">
+        <header className="bg-theme-surface-card rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-slate-50 flex flex-col items-center justify-center">
           {/* Back button positioned absolutely on the left */}
           <button
             type="button"
@@ -455,7 +452,7 @@ export default function WuduTayammumDetailScreen({
                 key={topic.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className="wudu-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
+                className="wudu-topic-card bg-theme-surface-card rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
               >
                 <div
                   className="wudu-number-block relative shrink-0 flex items-center justify-center"
@@ -468,7 +465,7 @@ export default function WuduTayammumDetailScreen({
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <div className="flex-1 px-4 flex flex-col justify-center bg-white min-w-0">
+                <div className="flex-1 px-4 flex flex-col justify-center bg-theme-surface-card min-w-0">
                   <h3 className="text-[13px] font-bold text-slate-800 leading-tight truncate">
                     {topic.title}
                   </h3>

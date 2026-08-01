@@ -585,7 +585,7 @@ export default function QuranReadingScreen({
             onClick={onBack}
             disabled={!onBack}
             aria-label="Back to surah list"
-            className="w-10 h-10 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -594,18 +594,18 @@ export default function QuranReadingScreen({
             <p className="text-[10px] font-semibold tracking-[0.2em] text-muted-gold uppercase">
               Surah
             </p>
-            <h1 className="text-[18px] font-bold text-gray-800 tracking-tight">
+            <h1 className="text-[18px] font-bold text-text-primary tracking-tight">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-[11px] font-medium text-gray-500">{subtitle}</p>
+              <p className="text-[11px] font-medium text-text-tertiary">{subtitle}</p>
             )}
           </div>
 
           <button
             type="button"
             aria-label="Typography settings"
-            className="w-10 h-10 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-white transition-colors"
           >
             <Type className="w-5 h-5" />
           </button>
@@ -616,8 +616,8 @@ export default function QuranReadingScreen({
 
       {chapterId !== 9 && (
         <div className="px-6">
-          <div className="bg-soft-mint/70 border border-white/70 rounded-[20px] px-5 py-4 text-center shadow-[0_6px_16px_rgba(0,0,0,0.04)]">
-            <p className="font-arabic text-[22px] text-[#2B604A] leading-[2]" dir="rtl">
+          <div className="bg-theme-accent-soft/70 border border-theme-border rounded-[20px] px-5 py-4 text-center shadow-[0_6px_16px_rgba(0,0,0,0.04)]">
+            <p className="font-arabic text-[22px] text-theme-accent leading-[2]" dir="rtl">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </p>
           </div>

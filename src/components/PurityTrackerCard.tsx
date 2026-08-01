@@ -16,28 +16,28 @@ const STATUS_OPTIONS: Array<{
     key: 'haiz',
     label: 'Haiz',
     sub: 'Period',
-    dot: 'bg-[#E8919A]',
-    activeBg: 'bg-[#FDF0F1]',
-    activeBorder: 'border-[#E8919A]/40',
-    activeText: 'text-[#C0616B]',
+    dot: 'bg-theme-rose',
+    activeBg: 'bg-theme-rose/10',
+    activeBorder: 'border-theme-rose/30',
+    activeText: 'text-theme-rose',
   },
   {
     key: 'istihada',
     label: 'Istihada',
     sub: 'Irregular',
-    dot: 'bg-gray-400',
-    activeBg: 'bg-gray-50',
-    activeBorder: 'border-gray-300',
-    activeText: 'text-gray-600',
+    dot: 'bg-text-muted',
+    activeBg: 'bg-theme-surface-alt',
+    activeBorder: 'border-text-muted/30',
+    activeText: 'text-text-secondary',
   },
   {
     key: 'taharah',
     label: 'Taharah',
     sub: 'Pure',
-    dot: 'bg-[#6BAF92]',
-    activeBg: 'bg-[#EFFAF4]',
-    activeBorder: 'border-[#6BAF92]/40',
-    activeText: 'text-[#2B604A]',
+    dot: 'bg-theme-accent',
+    activeBg: 'bg-theme-accent/10',
+    activeBorder: 'border-theme-accent/30',
+    activeText: 'text-theme-accent',
   },
 ];
 
@@ -45,49 +45,49 @@ function getGuidance(status: PurityStatus, dayInPhase: number, daysUntil: number
   if (status === 'haiz') {
     return {
       icon: Heart,
-      iconColor: 'text-[#E8919A]',
+      iconColor: 'text-theme-rose',
       title: 'Salah is paused',
       body: `Day ${dayInPhase} of Haiz — focus on dhikr, duas, and listening to the Quran. You're still growing spiritually.`,
-      bg: 'bg-[#FDF5F5]',
-      border: 'border-[#F5DCDE]',
+      bg: 'bg-theme-rose/10',
+      border: 'border-theme-rose/20',
     };
   }
   if (status === 'istihada') {
     return {
       icon: Droplets,
-      iconColor: 'text-gray-500',
+      iconColor: 'text-text-tertiary',
       title: 'Istihada — Salah continues',
       body: 'Irregular bleeding does not pause Salah or fasting. Perform Wudu for each prayer and continue worship as normal. Consult a scholar for your specific situation.',
-      bg: 'bg-gray-50',
-      border: 'border-gray-200',
+      bg: 'bg-theme-surface-alt',
+      border: 'border-theme-border',
     };
   }
   if (!daysUntil && dayInPhase === 0) {
     return {
       icon: CalendarPlus,
-      iconColor: 'text-[#2B604A]',
+      iconColor: 'text-theme-accent',
       title: 'Welcome to your tracker',
       body: 'Log when your period starts to track Haiz, Taharah, and get personalised guidance.',
-      bg: 'bg-[#F0F9F4]',
-      border: 'border-[#D5EDE1]',
+      bg: 'bg-theme-accent-soft',
+      border: 'border-theme-accent/20',
     };
   }
   return {
     icon: Leaf,
-    iconColor: 'text-[#2B604A]',
+    iconColor: 'text-theme-accent',
     title: 'You are in Taharah',
     body: daysUntil
       ? `Salah and fasting apply as usual. Next period expected in ~${daysUntil} day${daysUntil === 1 ? '' : 's'}.`
       : 'Salah and fasting apply as usual. You may be due for your next cycle — log when period starts.',
-    bg: 'bg-[#F0F9F4]',
-    border: 'border-[#D5EDE1]',
+    bg: 'bg-theme-accent-soft',
+    border: 'border-theme-accent/20',
   };
 }
 
 function ringStroke(status: PurityStatus): string {
-  if (status === 'haiz') return '#E8919A';
-  if (status === 'istihada') return '#B0B0B0';
-  return '#6BAF92';
+  if (status === 'haiz') return 'var(--color-theme-rose)';
+  if (status === 'istihada') return 'var(--color-text-muted)';
+  return 'var(--color-theme-accent)';
 }
 
 export default function PurityTrackerCard() {
@@ -119,14 +119,14 @@ export default function PurityTrackerCard() {
   return (
     <div className="px-5 mb-5 nisa-slide-up">
       {/* ── Main tracker card ── */}
-      <div className="rounded-[28px] bg-white border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="rounded-[28px] bg-theme-surface-card border border-theme-border shadow-[var(--nisa-shadow-card)] overflow-hidden">
         <div className="p-5 pb-4">
           {/* Header row */}
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h2 className="text-[17px] font-bold text-gray-800 tracking-tight">My Cycle</h2>
+              <h2 className="text-[17px] font-bold text-text-primary tracking-tight">My Cycle</h2>
               {lastPeriodStart && (
-                <p className="text-[11px] font-medium text-gray-400 mt-0.5">
+                <p className="text-[11px] font-medium text-text-muted mt-0.5">
                   Started{' '}
                   {new Date(lastPeriodStart + 'T12:00:00').toLocaleDateString('en-GB', {
                     day: 'numeric',
@@ -136,7 +136,7 @@ export default function PurityTrackerCard() {
                     <button
                       type="button"
                       onClick={clearManualStatus}
-                      className="ml-1.5 text-[#D98A5B] font-semibold hover:underline"
+                      className="ml-1.5 text-theme-orange font-semibold hover:underline"
                     >
                       · Auto
                     </button>
@@ -145,7 +145,7 @@ export default function PurityTrackerCard() {
               )}
             </div>
             {showDay && (
-              <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              <span className="text-[11px] font-bold text-text-tertiary bg-theme-surface-dark px-3 py-1 rounded-full">
                 Day {dayInPhase}
               </span>
             )}
@@ -161,7 +161,7 @@ export default function PurityTrackerCard() {
                   cy="18"
                   r="15.5"
                   fill="none"
-                  stroke="#F0EAE1"
+                  stroke="var(--color-theme-surface-dark)"
                   strokeWidth="2.5"
                 />
                 <circle
@@ -177,7 +177,7 @@ export default function PurityTrackerCard() {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[32px] font-bold text-gray-800 tabular-nums leading-none">
+                <span className="text-[32px] font-bold text-text-primary tabular-nums leading-none">
                   {showDay ? dayInPhase : '—'}
                 </span>
               </div>
@@ -199,7 +199,7 @@ export default function PurityTrackerCard() {
                     </span>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                    className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
                       dropdownOpen ? 'rotate-180' : ''
                     }`}
                   />
@@ -207,7 +207,7 @@ export default function PurityTrackerCard() {
 
                 {/* Dropdown menu */}
                 {dropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl border border-gray-100 shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-20 overflow-hidden">
+                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-theme-surface-card rounded-2xl border border-theme-border shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-20 overflow-hidden">
                     {STATUS_OPTIONS.map((opt) => {
                       const isCurrent = status === opt.key;
                       return (
@@ -219,17 +219,17 @@ export default function PurityTrackerCard() {
                             setDropdownOpen(false);
                           }}
                           className={`w-full flex items-center gap-2.5 px-3.5 py-3 transition-colors duration-150 ${
-                            isCurrent ? 'bg-gray-50' : 'hover:bg-gray-50'
+                            isCurrent ? 'bg-theme-surface-alt' : 'hover:bg-theme-surface-alt'
                           }`}
                         >
                           <div className={`w-2 h-2 rounded-full ${opt.dot} flex-shrink-0`} />
                           <span className={`text-[13px] font-semibold flex-1 text-left ${
-                            isCurrent ? opt.activeText : 'text-gray-700'
+                            isCurrent ? opt.activeText : 'text-text-secondary'
                           }`}>
                             {opt.label}
                           </span>
-                          <span className="text-[10px] text-gray-400">{opt.sub}</span>
-                          {isCurrent && <Check className="w-3.5 h-3.5 text-[#2B604A] ml-1" />}
+                          <span className="text-[10px] text-text-muted">{opt.sub}</span>
+                          {isCurrent && <Check className="w-3.5 h-3.5 text-theme-accent ml-1" />}
                         </button>
                       );
                     })}
@@ -241,7 +241,7 @@ export default function PurityTrackerCard() {
               <button
                 type="button"
                 onClick={logPeriodStartToday}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-[#FDF5F0] border border-[#F0DFD0] text-[12px] font-semibold text-[#C8885B] active:scale-[0.98] transition-all hover:bg-[#FCF0E8]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-theme-orange/10 border border-theme-orange/20 text-[12px] font-semibold text-theme-orange active:scale-[0.98] transition-all hover:bg-theme-orange/20"
               >
                 <CalendarPlus className="w-3.5 h-3.5" />
                 Period started today
@@ -252,12 +252,12 @@ export default function PurityTrackerCard() {
 
         {/* Guidance message — pinned at bottom of card */}
         <div className={`px-5 py-4 ${guidance.bg} border-t ${guidance.border} flex gap-3`}>
-          <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-theme-surface-card flex items-center justify-center flex-shrink-0 shadow-sm">
             <GuidanceIcon className={`w-4 h-4 ${guidance.iconColor}`} />
           </div>
           <div className="min-w-0">
-            <p className="text-[12px] font-bold text-gray-800 mb-0.5">{guidance.title}</p>
-            <p className="text-[11.5px] text-gray-500 leading-relaxed">{guidance.body}</p>
+            <p className="text-[12px] font-bold text-text-primary mb-0.5">{guidance.title}</p>
+            <p className="text-[11.5px] text-text-tertiary leading-relaxed">{guidance.body}</p>
           </div>
         </div>
       </div>

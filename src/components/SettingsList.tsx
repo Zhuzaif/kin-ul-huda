@@ -28,125 +28,123 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
     <div className="px-6 pb-32">
       {/* ── Settings Group 1: Personal & Faith ── */}
       <div className="space-y-2 mb-5">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider px-1 text-gray-400">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider px-1 text-text-muted">
           Personal &amp; Faith
         </h3>
 
-        <div className="rounded-[24px] overflow-hidden border border-white/60 shadow-sm divide-y divide-gray-100/60 bg-white/70 backdrop-blur-sm">
+        <div className="rounded-[24px] overflow-hidden border border-theme-border shadow-[var(--nisa-shadow-card)] divide-y divide-theme-divider bg-theme-surface-card">
           {/* Preferences Row */}
           <button
             type="button"
             onClick={() => onOpenScreen('preferences')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/90 transition active:scale-[0.99]"
+            className="w-full p-4 flex items-center justify-between hover:bg-theme-surface-alt/50 transition active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-theme-accent/10 border border-theme-accent/15 text-theme-accent flex items-center justify-center shadow-sm">
                 <SlidersHorizontal className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <h4 className="text-[13px] font-bold text-gray-800">My Preferences</h4>
-                <p className="text-[11px] mt-0.5 text-gray-500">
-                  {profile.name} · {getMadhabLabel(profile.madhab)}
+                <h4 className="text-[13px] font-bold text-text-primary">My Preferences</h4>
+                <p className="text-[11px] mt-0.5 text-text-tertiary">
+                  {profile.name ? `${profile.name} · ` : ''}{getMadhabLabel(profile.madhab)}
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
 
           {/* Period Tracker Row */}
           <button
             type="button"
             onClick={() => onOpenScreen('period')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/90 transition active:scale-[0.99]"
+            className="w-full p-4 flex items-center justify-between hover:bg-theme-surface-alt/50 transition active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-100/80 text-rose-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-theme-rose/10 border border-theme-rose/15 text-theme-rose flex items-center justify-center shadow-sm">
                 <CalendarHeart className="w-5 h-5" />
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-[13px] font-bold text-gray-800">Period Tracker Settings</h4>
-                  <span className="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-semibold">
+                  <h4 className="text-[13px] font-bold text-text-primary">Period Tracker Settings</h4>
+                  <span className="text-[9px] bg-theme-rose/15 text-theme-rose px-1.5 py-0.5 rounded font-semibold">
                     Al-Nisa
                   </span>
                 </div>
-                <p className="text-[11px] mt-0.5 text-gray-500">
+                <p className="text-[11px] mt-0.5 text-text-tertiary">
                   Cycle: {store.settings.cycleLengthDays} days · Period: {store.settings.periodLengthDays} days
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
         </div>
       </div>
 
       {/* ── Settings Group 2: App Experience ── */}
       <div className="space-y-2 mb-6">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider px-1 text-gray-400">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider px-1 text-text-muted">
           App Experience
         </h3>
 
-        <div className="rounded-[24px] overflow-hidden border border-white/60 shadow-sm divide-y divide-gray-100/60 bg-white/70 backdrop-blur-sm">
+        <div className="rounded-[24px] overflow-hidden border border-theme-border shadow-[var(--nisa-shadow-card)] divide-y divide-theme-divider bg-theme-surface-card">
           {/* Theme Row */}
           <button
             type="button"
             onClick={() => onOpenScreen('theme')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/90 transition active:scale-[0.99]"
+            className="w-full p-4 flex items-center justify-between hover:bg-theme-surface-alt/50 transition active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100/80 text-amber-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-theme-accent/10 border border-theme-accent/15 text-theme-accent flex items-center justify-center shadow-sm">
                 <Palette className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <h4 className="text-[13px] font-bold text-gray-800">Appearance Theme</h4>
-                <p className="text-[11px] mt-0.5 text-gray-500">
+                <h4 className="text-[13px] font-bold text-text-primary">Appearance Theme</h4>
+                <p className="text-[11px] mt-0.5 text-text-tertiary">
                   {getThemeLabel(profile.theme)}
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
 
           {/* Language Row */}
           <button
             type="button"
             onClick={() => onOpenScreen('language')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/90 transition active:scale-[0.99]"
+            className="w-full p-4 flex items-center justify-between hover:bg-theme-surface-alt/50 transition active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-100/80 text-teal-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-theme-accent/10 border border-theme-accent/15 text-theme-accent flex items-center justify-center shadow-sm">
                 <Languages className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <h4 className="text-[13px] font-bold text-gray-800">Language &amp; Region</h4>
-                <p className="text-[11px] mt-0.5 text-gray-500">
+                <h4 className="text-[13px] font-bold text-text-primary">Language &amp; Region</h4>
+                <p className="text-[11px] mt-0.5 text-text-tertiary">
                   {getLanguageLabel(profile.language)}
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
 
           {/* Downloads Row */}
           <button
             type="button"
             onClick={() => onOpenScreen('downloads')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/90 transition active:scale-[0.99]"
+            className="w-full p-4 flex items-center justify-between hover:bg-theme-surface-alt/50 transition active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-purple-50 border border-purple-100/80 text-purple-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-theme-accent/10 border border-theme-accent/15 text-theme-accent flex items-center justify-center shadow-sm">
                 <Headphones className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <h4 className="text-[13px] font-bold text-gray-800">Offline Quran Audio</h4>
-                <p className="text-[11px] mt-0.5 text-gray-500">
+                <h4 className="text-[13px] font-bold text-text-primary">Offline Quran Audio</h4>
+                <p className="text-[11px] mt-0.5 text-text-tertiary">
                   Manage offline Quran audio
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              Ready
-            </span>
+            <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
         </div>
       </div>
@@ -156,7 +154,7 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
         <button
         type="button"
         onClick={onSupport}
-        className="w-full cursor-pointer group relative overflow-hidden rounded-[24px] p-5 text-white shadow-lg transition-transform duration-200 active:scale-[0.98] bg-gradient-to-r from-[#2B604A] to-[#D98A5B]"
+        className="w-full cursor-pointer group relative overflow-hidden rounded-[24px] p-5 text-white shadow-lg transition-transform duration-200 active:scale-[0.98] bg-gradient-to-r from-theme-accent to-theme-orange"
       >
         <div className="relative z-10 flex items-center justify-between">
           <div className="space-y-1 max-w-[75%] text-left">
@@ -172,7 +170,7 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
             </p>
           </div>
 
-          <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white group-hover:bg-white group-hover:text-emerald-800 transition">
+          <div className="w-10 h-10 rounded-2xl bg-theme-surface-card backdrop-blur-md flex items-center justify-center border border-theme-border text-white group-hover:bg-white group-hover:text-emerald-800 transition">
             <ArrowRight className="w-5 h-5" />
           </div>
         </div>
@@ -180,7 +178,7 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
       )}
 
       {/* Footer Attribution */}
-      <div className="text-center pt-5 pb-4 text-[11px] text-gray-400 space-y-0.5">
+      <div className="text-center pt-5 pb-4 text-[11px] text-text-muted space-y-0.5">
         <p className="font-medium">Al-Nisa • Version 3.4.0</p>
         <p className="text-[10px]">Crafted with love &amp; intention for the Ummah</p>
       </div>

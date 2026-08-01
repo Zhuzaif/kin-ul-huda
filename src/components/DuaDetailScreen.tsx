@@ -46,31 +46,31 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       return { bg: 'bg-muted-gold-light', text: 'text-muted-gold' };
     }
     if (normalizedTag.includes('morning')) {
-      return { bg: 'bg-soft-mint', text: 'text-[#2B604A]' };
+      return { bg: 'bg-theme-accent-soft', text: 'text-theme-accent' };
     }
-    return { bg: 'bg-gray-100', text: 'text-gray-500' };
+    return { bg: 'bg-theme-surface-input', text: 'text-text-tertiary' };
   };
 
   return (
     <div 
-      className="absolute inset-0 bg-warm-beige z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+      className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-warm-beige/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-gray-200/40">
+      <div className="sticky top-0 z-10 bg-theme-surface/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-theme-border">
         <button 
           onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 hover:bg-gray-50 active:scale-95 transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
+          <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex gap-2">
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 hover:bg-gray-50 active:scale-95 transition-all">
-            <Share2 className="w-4 h-4 text-gray-400" />
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all">
+            <Share2 className="w-4 h-4 text-text-muted" />
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 hover:bg-gray-50 active:scale-95 transition-all">
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all">
             <Heart className="w-4 h-4 text-gray-300 hover:text-soft-pink-dark transition-colors" />
           </button>
         </div>
@@ -78,10 +78,10 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-6 pb-32">
-        <div className="bg-white/50 backdrop-blur-sm rounded-[32px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 flex flex-col">
+        <div className="bg-theme-surface-card backdrop-blur-sm rounded-[32px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-theme-border flex flex-col">
           {/* Title and Tags */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 tracking-tight mb-3">{dua.title}</h2>
+            <h2 className="text-2xl font-bold text-text-primary tracking-tight mb-3">{dua.title}</h2>
             <div className="flex flex-wrap gap-2">
               {dua.tags?.map((tag, index) => {
                 const style = getTagStyle(tag);
@@ -98,8 +98,8 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
           </div>
 
           {/* Arabic Text */}
-          <div className="mb-10 bg-white/40 p-6 rounded-[24px] border border-gray-100/30">
-            <p className="font-arabic text-[28px] sm:text-[32px] leading-[2.2] text-gray-800 text-right" dir="rtl">
+          <div className="mb-10 bg-theme-surface-card p-6 rounded-[24px] border border-theme-border">
+            <p className="font-arabic text-[28px] sm:text-[32px] leading-[2.2] text-text-primary text-right" dir="rtl">
               {dua.arabic}
             </p>
           </div>
@@ -107,8 +107,8 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
           {/* Translation */}
           {dua.translation && (
             <div className="pt-2">
-              <h3 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">Translation</h3>
-              <p className="text-[15px] sm:text-base text-gray-600 leading-relaxed font-medium mb-6">
+              <h3 className="text-sm font-bold text-text-muted mb-3 uppercase tracking-wider">Translation</h3>
+              <p className="text-[15px] sm:text-base text-text-secondary leading-relaxed font-medium mb-6">
                 "{dua.translation}"
               </p>
             </div>
@@ -116,8 +116,8 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
 
           {/* Repetition */}
           {dua.repetition && (
-            <div className="pt-4 border-t border-gray-100/50 flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Read</span>
+            <div className="pt-4 border-t border-theme-border flex items-center justify-between">
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Read</span>
               <span className="text-sm font-bold text-soft-pink-dark bg-soft-pink/30 px-3 py-1.5 rounded-full">
                 {dua.repetition}
               </span>
@@ -127,21 +127,21 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       </div>
 
       {/* Swipe Navigation Bar */}
-      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between bg-white/80 backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-gray-100/50">
+      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between bg-theme-surface-card backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-theme-border">
         <button 
           onClick={onPrev}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center px-4">
+        <span className="text-xs font-bold text-text-muted uppercase tracking-widest text-center px-4">
           Swipe to navigate
         </span>
         
         <button 
           onClick={onNext}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
         >
           <ChevronRight className="w-5 h-5" />
         </button>

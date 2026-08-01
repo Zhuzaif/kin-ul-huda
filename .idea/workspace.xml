@@ -3,6 +3,130 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5105e00d-07e1-47e3-ab89-dfe2314698cf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/android/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.idea/AndroidProjectSystem.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.idea/migrations.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.idea/runConfigurations.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/postcss.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/App.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/components/Sidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/lib/supabase.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/main.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/pages/AalimaModeration.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/pages/Dashboard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/pages/Notifications.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/pages/UserActivity.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/pages/Users.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/src/utils/chatUtils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/tailwind.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/tsconfig.tsbuildinfo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-panel/vite.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AskAalimaFAB.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AskAalimaFAB.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AskAalimaScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AskAalimaScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AyatShareCards.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AyatShareCards.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/BottomNav.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomNav.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CreateDuaModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CreateDuaModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/DailyGoalWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/DailyGoalWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/DuaCategories.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/DuaCategories.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/DuaDetailScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/DuaDetailScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/DuaList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/DuaList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/FiqhTopicDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FiqhTopicDetail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/MobileLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/MobileLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PrayerWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PrayerWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ProfileHeader.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProfileHeader.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PurityTrackerCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PurityTrackerCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/QiblaFinder.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/QiblaFinder.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/QuickActions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/QuickActions.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/QuranLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/QuranLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/QuranReadingScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/QuranReadingScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SettingsList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SettingsList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SpiritualGoalCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SpiritualGoalCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SurahList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SurahList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/TasbeehCounterScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/TasbeehCounterScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/TasbeehFAB.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/TasbeehFAB.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/VerseCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/VerseCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/mushaf/MushafPageViewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/mushaf/MushafPageViewer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile/DownloadsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile/DownloadsScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile/PeriodSettingsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile/PeriodSettingsScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile/PreferencesScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile/PreferencesScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile/ProfileSubScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile/ProfileSubScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile/ThemeScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile/ThemeScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/usePrayerTimes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/usePrayerTimes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/audioCache.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/audioCache.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Zhuzaif&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Zhuzaif/kin-ul-huda.git&quot;,
+    &quot;accountId&quot;: &quot;5f996bac-7776-4520-a744-ceeac072c685&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3HCHy8ynbtR4UcE1lhPc301jRuC" />
-  <component name="PropertiesComponent">{}</component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Ai Apps/nisa---islamic-companion"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5105e00d-07e1-47e3-ab89-dfe2314698cf" name="Changes" comment="" />
+      <created>1785447831011</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1785447831011</updated>
+    </task>
+    <servers />
+  </component>
 </project>

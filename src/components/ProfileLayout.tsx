@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useBackHandler } from '../hooks/useBackHandler';
+import { BACK_PRIORITY } from '../lib/backButton';
 import ProfileHeader from './ProfileHeader';
 import SpiritualGoalCard from './SpiritualGoalCard';
 import SettingsList from './SettingsList';
@@ -20,6 +22,10 @@ export default function ProfileLayout({ onOverlayChange }: ProfileLayoutProps) {
   useEffect(() => {
     onOverlayChange?.(activeScreen !== null || showSupport);
   }, [activeScreen, showSupport, onOverlayChange]);
+
+  // Android back closes the open settings sub-screen / support modal first.
+  useBackHandler(activeScreen !== null, () => setActiveScreen(null));
+  useBackHandler(showSupport, () => setShowSupport(false), BACK_PRIORITY.modal);
 
   const renderScreen = () => {
     switch (activeScreen) {
@@ -53,22 +59,22 @@ export default function ProfileLayout({ onOverlayChange }: ProfileLayoutProps) {
 
       {showSupport && (
         <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center p-6 bg-black/20 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-white rounded-[28px] p-6 shadow-2xl border border-white/80 animate-in slide-in-from-bottom-4 duration-300">
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Support Nisa</h3>
-            <p className="text-[13px] text-gray-600 leading-relaxed mb-6">
+          <div className="w-full max-w-sm bg-theme-surface-elevated rounded-[28px] p-6 shadow-2xl border border-theme-border animate-in slide-in-from-bottom-4 duration-300">
+            <h3 className="text-xl font-bold text-text-primary mb-2">Support Nisa</h3>
+            <p className="text-[13px] text-text-secondary leading-relaxed mb-6">
               Your support helps us build better fiqh guidance, purity tracking, and Quran tools
               for sisters worldwide. JazakAllah khair.
             </p>
             <a
               href="mailto:support@nisa.app?subject=Support%20Nisa%20App"
-              className="block w-full text-center py-3.5 rounded-[20px] bg-gradient-to-r from-soft-pink-dark to-[#D98A5B] text-white font-bold text-[14px] mb-3"
+              className="block w-full text-center py-3.5 rounded-[20px] bg-gradient-to-r from-theme-rose to-theme-orange text-white font-bold text-[14px] mb-3"
             >
               Contact us
             </a>
             <button
               type="button"
               onClick={() => setShowSupport(false)}
-              className="w-full py-3 rounded-[20px] text-gray-600 font-semibold text-[14px] bg-gray-100 active:scale-[0.98]"
+              className="w-full py-3 rounded-[20px] text-text-secondary font-semibold text-[14px] bg-theme-surface-dark active:scale-[0.98]"
             >
               Close
             </button>

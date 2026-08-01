@@ -39,7 +39,7 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
 
   return (
     <ProfileSubScreen title="Language" subtitle="Interface language preference" onBack={onBack}>
-      <p className="text-[13px] text-gray-500 leading-relaxed mb-5">
+      <p className="text-[13px] text-text-tertiary leading-relaxed mb-5">
         Quran text remains in Arabic. This setting updates greetings and profile labels. Full Urdu
         translation of the app is coming soon.
       </p>
@@ -58,29 +58,29 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
                 isComingSoon ? 'opacity-60 cursor-not-allowed' : 'active:scale-[0.98]'
               } ${
                 selected
-                  ? 'bg-white shadow-md border-muted-gold/30 ring-2 ring-muted-gold/20'
-                  : 'bg-white/60 border-white/70'
+                  ? 'bg-theme-surface-card shadow-[var(--nisa-shadow-card)] border-theme-gold/30 ring-2 ring-theme-gold/20'
+                  : 'bg-theme-surface-card/60 border-theme-border'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[15px] font-bold text-gray-800">{lang.label}</p>
+                    <p className="text-[15px] font-bold text-text-primary">{lang.label}</p>
                     {isComingSoon && (
-                      <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                      <span className="text-[9px] font-bold uppercase tracking-wide bg-theme-gold/15 text-theme-gold px-2 py-0.5 rounded-full">
                         Coming Soon
                       </span>
                     )}
                   </div>
-                  <p className="text-[13px] font-arabic text-muted-gold">{lang.native}</p>
+                  <p className="text-[13px] font-arabic text-theme-gold">{lang.native}</p>
                 </div>
                 {selected && (
-                  <div className="w-8 h-8 rounded-full bg-muted-gold flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-theme-gold flex items-center justify-center">
                     <Check className="w-4 h-4 text-white stroke-[3]" />
                   </div>
                 )}
               </div>
-              <p className="text-[12px] text-gray-500 leading-relaxed">{lang.sample}</p>
+              <p className="text-[12px] text-text-tertiary leading-relaxed">{lang.sample}</p>
             </button>
           );
         })}

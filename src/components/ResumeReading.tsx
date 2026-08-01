@@ -26,9 +26,9 @@ export default function ResumeReading({
   return (
     <div className="px-6 mb-4">
       <div
-        className="relative rounded-[20px] px-5 py-4 overflow-hidden shadow-[0_10px_20px_rgba(11,77,60,0.25)]"
+        className="relative rounded-[20px] px-5 py-4 overflow-hidden shadow-[var(--nisa-shadow-accent)]"
         style={{
-          background: 'linear-gradient(135deg, #0B4D3C 0%, #135E4A 100%)',
+          background: 'linear-gradient(135deg, #1A6B55 0%, #228B6C 100%)',
         }}
       >
         {/* Decorative radial glows */}

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, Compass, AlertCircle, MapPin, CheckCircle2 } from 'lucide-react';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
+import { useProfile } from '../contexts/ProfileContext';
+import { supabase } from '../lib/supabase';
 
 const KAABA_LAT = 21.422487;
 const KAABA_LNG = 39.826206;
@@ -21,6 +23,7 @@ function calculateQibla(latitude: number, longitude: number) {
 
 export default function QiblaFinder({ onBack }: { onBack: () => void }) {
   const { isPeriodMode } = usePeriodMode();
+  const { profile, updateProfile } = useProfile();
   
   const [started, setStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,33 +35,56 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
     setError(null);
     setStarted(true);
 
-    // 1. Get Location
+    const handleLocationAcquired = async (lat: number, lng: number) => {
+      setLocation({ lat, lng });
+      const bearing = calculateQibla(lat, lng);
+      setQiblaBearing(bearing);
+      
+      updateProfile({ locationCoords: { lat, lng } });
+      if (profile.userId) {
+        try {
+          await supabase
+            .from('nisa_users')
+            .update({ country: `${lat},${lng}` })
+            .eq('id', profile.userId);
+        } catch (e) {
+          console.error('Failed to update location on server:', e);
+        }
+      }
+    };
+
     const fetchIPLocation = async (errMessage: string) => {
       try {
         const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
         if (res.ok) {
           const data = await res.json();
-          const lat = parseFloat(data.latitude);
-          const lng = parseFloat(data.longitude);
-          setLocation({ lat, lng });
-          const bearing = calculateQibla(lat, lng);
-          setQiblaBearing(bearing);
+          await handleLocationAcquired(parseFloat(data.latitude), parseFloat(data.longitude));
           return; // Success
         }
       } catch (e) {
-        console.error("IP fallback failed:", e);
+        console.error("geojs fallback failed:", e);
       }
+      
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.latitude && data.longitude) {
+            await handleLocationAcquired(parseFloat(data.latitude), parseFloat(data.longitude));
+            return; // Success
+          }
+        }
+      } catch (e) {
+        console.error("ipapi fallback failed:", e);
+      }
+      
       setError(`Location error: ${errMessage}. Please enable location services.`);
     };
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          setLocation({ lat, lng });
-          const bearing = calculateQibla(lat, lng);
-          setQiblaBearing(bearing);
+          handleLocationAcquired(pos.coords.latitude, pos.coords.longitude);
         },
         (err) => {
           fetchIPLocation(err.message);
@@ -126,15 +152,15 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
   }, [perfectlyAligned]);
 
   return (
-    <div className={`h-full flex flex-col ${isPeriodMode ? 'bg-[#FCF5F5]' : 'bg-warm-beige'}`}>
-      <div className="flex items-center justify-between px-6 pt-12 pb-6">
+    <div className={`h-full flex flex-col ${isPeriodMode ? 'bg-[#FCF5F5]' : 'bg-theme-surface'}`}>
+      <div className="flex items-center justify-between px-6 pt-3 pb-6">
         <button 
           onClick={onBack}
-          className="w-12 h-12 bg-white/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/80 transition-colors shadow-sm"
+          className="w-12 h-12 bg-theme-surface-card/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-theme-surface-card/80 transition-colors shadow-sm"
         >
-          <ChevronLeft className={`w-6 h-6 ${isPeriodMode ? 'text-soft-pink-dark' : 'text-[#2B604A]'}`} />
+          <ChevronLeft className={`w-6 h-6 ${isPeriodMode ? 'text-theme-rose' : 'text-theme-accent'}`} />
         </button>
-        <h1 className="text-xl font-bold text-gray-800">Qibla Finder</h1>
+        <h1 className="text-xl font-bold text-text-primary">Qibla Finder</h1>
         <div className="w-12 h-12" /> {/* Spacer */}
       </div>
 
@@ -146,10 +172,10 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
             className="flex flex-col items-center text-center max-w-sm"
           >
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg ${isPeriodMode ? 'bg-gradient-to-br from-[#FCE7D8] to-soft-pink' : 'bg-gradient-to-br from-soft-mint to-[#D1E6DA]'}`}>
-              <Compass className={`w-12 h-12 ${isPeriodMode ? 'text-soft-pink-dark' : 'text-[#2B604A]'}`} />
+              <Compass className={`w-12 h-12 ${isPeriodMode ? 'text-soft-pink-dark' : 'text-theme-accent'}`} />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Find Qibla Direction</h2>
-            <p className="text-gray-600 mb-8 leading-relaxed">
+            <h2 className="text-2xl font-bold text-text-primary mb-4">Find Qibla Direction</h2>
+            <p className="text-text-secondary mb-8 leading-relaxed">
               To accurately find the Qibla, we need access to your device's location and compass sensors. Please hold your phone flat.
             </p>
             <button 
@@ -183,7 +209,7 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
               
               {/* The Dial */}
               <motion.div 
-                className="absolute inset-0 rounded-full border-[8px] border-white/50 shadow-2xl flex items-center justify-center"
+                className="absolute inset-0 rounded-full border-[8px] border-theme-border shadow-2xl flex items-center justify-center"
                 style={{
                   background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)',
                   rotate: heading ? -heading : 0
@@ -191,10 +217,10 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
                 transition={{ type: "spring", damping: 30, stiffness: 100 }}
               >
                 {/* N, S, E, W Markers */}
-                <div className="absolute top-4 font-bold text-gray-400">N</div>
-                <div className="absolute bottom-4 font-bold text-gray-400">S</div>
-                <div className="absolute right-4 font-bold text-gray-400">E</div>
-                <div className="absolute left-4 font-bold text-gray-400">W</div>
+                <div className="absolute top-4 font-bold text-text-muted">N</div>
+                <div className="absolute bottom-4 font-bold text-text-muted">S</div>
+                <div className="absolute right-4 font-bold text-text-muted">E</div>
+                <div className="absolute left-4 font-bold text-text-muted">W</div>
 
                 {/* Qibla Marker (Kaaba) on the dial */}
                 {qiblaBearing !== null && (
@@ -219,44 +245,44 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
               <div className="absolute z-10 flex flex-col items-center">
                 <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-red-500" />
                 <div className="w-1 h-5 bg-red-500 mb-1 shadow-sm" />
-                <div className="w-12 h-20 border-4 border-gray-800 rounded-2xl relative flex items-center justify-center bg-white/50 backdrop-blur-sm">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full absolute top-2" />
+                <div className="w-12 h-20 border-4 border-text-primary rounded-2xl relative flex items-center justify-center bg-theme-surface-card/50 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-text-tertiary rounded-full absolute top-2" />
                 </div>
               </div>
             </div>
 
             {/* Status Information */}
-            <div className={`w-full p-6 rounded-[32px] transition-colors duration-500 ${perfectlyAligned ? (isPeriodMode ? 'bg-[#FCE7D8]' : 'bg-soft-mint') : 'bg-white/60'}`}>
+            <div className={`w-full p-6 rounded-[32px] transition-colors duration-500 ${perfectlyAligned ? (isPeriodMode ? 'bg-theme-orange/15' : 'bg-theme-accent-soft') : 'bg-theme-surface-card/60'}`}>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <MapPin className="w-5 h-5" />
                   <span className="font-semibold text-sm">Location</span>
                 </div>
                 {location ? (
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-sm font-medium text-text-primary">
                     {location.lat.toFixed(2)}°, {location.lng.toFixed(2)}°
                   </span>
                 ) : (
-                  <span className="text-sm font-medium text-gray-400 animate-pulse">Acquiring...</span>
+                  <span className="text-sm font-medium text-text-muted animate-pulse">Acquiring...</span>
                 )}
               </div>
               
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <Compass className="w-5 h-5" />
                   <span className="font-semibold text-sm">Heading</span>
                 </div>
                 {heading !== null ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold tabular-nums text-gray-800">
+                    <span className="text-xl font-bold tabular-nums text-text-primary">
                       {Math.round(heading)}°
                     </span>
                     {perfectlyAligned && (
-                      <CheckCircle2 className={`w-5 h-5 ${isPeriodMode ? 'text-soft-pink-dark' : 'text-[#1F4535]'}`} />
+                      <CheckCircle2 className={`w-5 h-5 ${isPeriodMode ? 'text-theme-rose' : 'text-theme-accent'}`} />
                     )}
                   </div>
                 ) : (
-                  <span className="text-sm font-medium text-gray-400 animate-pulse">Calibrating...</span>
+                  <span className="text-sm font-medium text-text-muted animate-pulse">Calibrating...</span>
                 )}
               </div>
 

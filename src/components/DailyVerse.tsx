@@ -87,13 +87,13 @@ export default function DailyVerse() {
 
   const content = isPeriodMode ? {
     title: "Dua of the Day",
-    icon: <Sparkles className="w-4 h-4 text-muted-gold" />,
+    icon: <Sparkles className="w-4 h-4 text-theme-gold" />,
     arabic: currentDua.arabic,
     english: currentDua.translation || "",
     reference: currentDua.tags && currentDua.tags.length > 0 ? currentDua.tags[0].toUpperCase() : "DUA"
   } : {
     title: "Ayat of the Day",
-    icon: <BookOpen className="w-4 h-4 text-muted-gold" />,
+    icon: <BookOpen className="w-4 h-4 text-theme-gold" />,
     arabic: arabicText,
     english: engText,
     reference: ayatReference
@@ -116,7 +116,7 @@ export default function DailyVerse() {
     <>
     <div className="px-6 mb-6" ref={containerRef}>
       <div
-        className="bg-muted-gold-light rounded-[32px] p-6 shadow-sm relative overflow-hidden group cursor-pointer"
+        className="bg-theme-gold/10 rounded-[32px] p-6 shadow-[var(--nisa-shadow-gold)] relative overflow-hidden group cursor-pointer border border-theme-gold/10"
         onClick={() => setShowShareCards(true)}
       >
         {/* Subtle geometric pattern with parallax */}
@@ -136,19 +136,19 @@ export default function DailyVerse() {
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2 mt-1">
               {content.icon}
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-gold">{content.title}</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-theme-gold">{content.title}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); handleShare(); }}
-                className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center text-muted-gold hover:bg-white/80 transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-theme-surface-card/60 flex items-center justify-center text-theme-gold hover:bg-theme-surface-card/80 transition-colors shadow-sm"
               >
                 <Share2 className="w-4 h-4" />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
-                className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center text-muted-gold hover:bg-white/80 transition-colors shadow-sm relative"
+                className="w-9 h-9 rounded-full bg-theme-surface-card/60 flex items-center justify-center text-theme-gold hover:bg-theme-surface-card/80 transition-colors shadow-sm relative"
               >
                 <AnimatePresence>
                   {isSaved && (
@@ -158,7 +158,7 @@ export default function DailyVerse() {
                       exit={{ scale: 0 }}
                       className="absolute inset-0 flex items-center justify-center"
                     >
-                      <Heart className="w-4 h-4 text-soft-pink-dark fill-current" />
+                      <Heart className="w-4 h-4 text-theme-rose fill-current" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -174,7 +174,7 @@ export default function DailyVerse() {
 
           <div className="text-center mb-6">
             <p
-              className="text-[26px] leading-[2] text-gray-800/90 py-2 font-normal"
+              className="text-[26px] leading-[2] text-text-primary/90 py-2 font-normal"
               style={{ fontFamily: '"Al Majeed Quranic", serif' }}
               dir="rtl"
             >
@@ -182,10 +182,10 @@ export default function DailyVerse() {
             </p>
           </div>
 
-          <p className="text-sm text-gray-600/90 text-center leading-relaxed font-medium">
+          <p className="text-sm text-text-secondary text-center leading-relaxed font-medium">
             {content.english}
           </p>
-          <p className="text-[10px] text-gray-400 text-center mt-3 uppercase tracking-wider font-semibold">
+          <p className="text-[10px] text-text-muted text-center mt-3 uppercase tracking-wider font-semibold">
             {content.reference}
           </p>
         </div>

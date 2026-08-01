@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useBackHandler } from '../hooks/useBackHandler';
 import { downloadAudioToCache, markSurahDownloaded } from '../utils/audioCache';
 import QuranHeader from './QuranHeader';
 import ResumeReading from './ResumeReading';
@@ -165,6 +166,10 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     setSelectedChapterId(null);
     setOpenMushafPage(null);
   };
+
+  // Android back closes the reading / mushaf screen before the app can exit.
+  useBackHandler(selectedChapterId !== null, () => setSelectedChapterId(null));
+  useBackHandler(openMushafPage !== null, () => setOpenMushafPage(null));
 
   const [lastRead, setLastRead] = useState<LastRead | null>(() => {
     if (typeof window === 'undefined') {
@@ -435,12 +440,27 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
       const surahData = await res.json();
       const entries = Object.entries(surahData).filter(([_, s]: any) => s.audio_url);
 
-      let downloaded = 0;
+      if (entries.length === 0) throw new Error('No audio available for this reciter');
+
+      let done = 0;
+      let failed = 0;
+      // Mark a surah only after its own download really landed in the cache, otherwise
+      // a mid-way network failure would advertise audio that cannot be played offline.
       for (const [surahId, s] of entries) {
-        await downloadAudioToCache((s as any).audio_url);
-        markSurahDownloaded(Number(surahId));
-        downloaded++;
-        setGlobalDownloadProgress(Math.round((downloaded / entries.length) * 100));
+        const ok = await downloadAudioToCache((s as any).audio_url);
+        if (ok) {
+          markSurahDownloaded(Number(surahId));
+        } else {
+          failed++;
+        }
+        done++;
+        setGlobalDownloadProgress(Math.round((done / entries.length) * 100));
+      }
+
+      if (failed > 0) {
+        alert(
+          `${failed} of ${entries.length} surahs could not be downloaded. The ones that succeeded are saved — check your connection and try again.`
+        );
       }
     } catch (e) {
       console.error("Failed to download all audio", e);
@@ -496,7 +516,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
       {activeFilter === 'bookmarks' ? (
         <div className="px-6 pb-28 flex flex-col gap-5">
           {savedVerseCards.length === 0 ? (
-            <div className="bg-white/70 border border-white/70 rounded-[22px] p-4 text-sm text-gray-500 text-center">
+            <div className="bg-theme-surface-card border border-theme-border rounded-[22px] p-4 text-sm text-text-tertiary text-center">
               {savedVerses.length === 0 ? (
                 'No saved verses yet.'
               ) : (
@@ -505,7 +525,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="text-[11px] font-semibold uppercase tracking-widest text-white bg-[#2B604A] px-4 py-2 rounded-full shadow-sm"
+                    className="text-[11px] font-semibold uppercase tracking-widest text-white bg-theme-accent px-4 py-2 rounded-full shadow-sm"
                   >
                     Clear Search
                   </button>
@@ -515,7 +535,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
           ) : (
             savedVerseCards.map((item) => (
               <div key={`${item.verse.chapter}-${item.verse.verse}`} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-[11px] text-gray-500 px-1">
+                <div className="flex items-center justify-between text-[11px] text-text-tertiary px-1">
                   <span>{item.chapter?.transliteration ?? 'Surah'}</span>
                   <span>Verse {item.verse.verse}</span>
                 </div>
@@ -543,7 +563,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
       ) : activeFilter === 'juz' ? (
         <div className="px-6 pb-28 flex flex-col">
           {filteredJuz.length === 0 ? (
-            <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
+            <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
               No juz match your search.
             </div>
           ) : (
@@ -554,7 +574,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                 tabIndex={0}
                 onClick={() => handleOpenJuz(item)}
                 aria-label={`Open Juz ${item.index}`}
-                className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
+                className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-theme-surface-alt text-left"
               >
                 {/* Left: octagon number + info */}
                 <div className="flex items-center gap-4 min-w-0">
@@ -567,23 +587,22 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                       }}
                     />
                     <div
-                      className="absolute inset-[2px] flex items-center justify-center"
+                      className="absolute inset-[2px] flex items-center justify-center bg-theme-surface-card"
                       style={{
                         clipPath: OCTAGON_CLIP,
-                        background: '#FFFFFF',
                       }}
                     >
-                      <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                      <span className="text-[14px] font-semibold text-theme-accent-strong relative z-10">
                         {item.index}
                       </span>
                     </div>
                   </div>
 
                   <div className="min-w-0">
-                    <h4 className="text-[15px] font-semibold text-gray-800 truncate">
+                    <h4 className="text-[15px] font-semibold text-text-primary truncate">
                       Juz {item.index} • {item.title}
                     </h4>
-                    <p className="text-[12px] text-gray-400 mt-0.5">
+                    <p className="text-[12px] text-text-muted mt-0.5">
                       Starts at {item.startName}
                     </p>
                   </div>
@@ -592,12 +611,12 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                 {/* Right: Arabic */}
                 <div className="text-right shrink-0">
                   <p
-                    className="text-[20px] leading-none text-[#0B4D3C]"
+                    className="text-[20px] leading-none text-theme-accent-strong"
                     style={{ fontFamily: "'Amiri', serif" }}
                   >
                     {item.arabicTitle || item.startArabic || item.startName}
                   </p>
-                  <p className="text-[11px] text-[#C9A24B] font-medium mt-1.5">
+                  <p className="text-[11px] text-theme-gold font-medium mt-1.5">
                     {item.startName}
                   </p>
                 </div>

@@ -31,17 +31,17 @@ export default function QuranHeader({
   };
 
   return (
-    <div className="pt-8 pb-3 px-6">
+    <div className="pt-3 pb-3 px-6">
       {/* Greeting row */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h1
-            className="text-[26px] font-bold text-gray-800 tracking-tight leading-tight"
+            className="text-[26px] font-bold text-text-primary tracking-tight leading-tight"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             Al-Quran
           </h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">
+          <p className="text-[13px] text-text-muted mt-0.5">
             Assalamu Alaikum, {displayName}
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function QuranHeader({
           <button
             type="button"
             onClick={onBookmarks}
-            className="w-11 h-11 bg-white rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.04)] text-[#0B4D3C] transition-colors hover:bg-gray-50"
+            className="w-11 h-11 bg-theme-surface-card rounded-[14px] flex items-center justify-center shadow-sm text-theme-accent transition-colors hover:bg-theme-surface-alt"
             aria-label="Bookmarks"
           >
             <Bookmark className="w-[18px] h-[18px]" strokeWidth={2} />
@@ -59,7 +59,7 @@ export default function QuranHeader({
             type="button"
             onClick={onDownload}
             disabled={isDownloading}
-            className="relative w-11 h-11 bg-white rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.04)] text-[#0B4D3C] transition-colors hover:bg-gray-50 overflow-hidden disabled:opacity-70"
+            className="relative w-11 h-11 bg-theme-surface-card rounded-[14px] flex items-center justify-center shadow-sm text-theme-accent transition-colors hover:bg-theme-surface-alt overflow-hidden disabled:opacity-70"
             aria-label="Download all audio"
           >
             {isDownloading ? (
@@ -80,7 +80,7 @@ export default function QuranHeader({
       {/* Search bar */}
       <div className="relative">
         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-          <Search className="w-[18px] h-[18px] text-gray-400" strokeWidth={2} />
+          <Search className="w-[18px] h-[18px] text-text-muted" strokeWidth={2} />
         </div>
         <input
           type="text"
@@ -88,7 +88,7 @@ export default function QuranHeader({
           value={searchQuery}
           onChange={(event) => onSearchChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-full bg-white pl-11 pr-4 py-3.5 rounded-[15px] text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B4D3C]/20 shadow-[0_4px_15px_rgba(0,0,0,0.03)] transition-all text-gray-800 placeholder:text-gray-400"
+          className="w-full bg-theme-surface-card pl-11 pr-4 py-3.5 rounded-[15px] text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-theme-accent/20 shadow-[var(--nisa-shadow-card)] transition-all text-text-primary placeholder:text-text-muted"
         />
       </div>
     </div>

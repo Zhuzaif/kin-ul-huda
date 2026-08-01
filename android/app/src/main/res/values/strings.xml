@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nisa Ul Huda</string>
+    <string name="title_activity_main">Nisa Ul Huda</string>
+    <string name="package_name">com.nisaulhuda.hudalabs</string>
+    <string name="custom_url_scheme">com.nisaulhuda.hudalabs</string>
+</resources>

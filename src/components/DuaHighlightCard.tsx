@@ -16,14 +16,14 @@ export default function DuaHighlightCard({ onAddDua }: DuaHighlightCardProps) {
         
         <div className="relative z-10">
           <h3 className="text-[10px] font-bold text-[#D98A5B] uppercase tracking-widest mb-1.5">Personal Space</h3>
-          <h2 className="text-2xl font-bold text-gray-800 tracking-tight mb-2">Your Dua Collection</h2>
-          <p className="text-sm font-medium text-gray-600 mb-6 max-w-[210px] leading-relaxed">
+          <h2 className="text-2xl font-bold text-text-primary tracking-tight mb-2">Your Dua Collection</h2>
+          <p className="text-sm font-medium text-text-secondary mb-6 max-w-[210px] leading-relaxed">
             Create and save your personal prayers for moments of need and reflection.
           </p>
           
           <button 
             onClick={onAddDua}
-            className="flex items-center gap-2 bg-white/90 hover:bg-white transition-colors text-[#D98A5B] text-[13px] font-bold px-6 py-3 rounded-full shadow-sm"
+            className="flex items-center gap-2 bg-theme-surface-card hover:bg-white transition-colors text-[#D98A5B] text-[13px] font-bold px-6 py-3 rounded-full shadow-sm"
           >
             <Heart className="w-4 h-4 fill-current transition-transform group-hover:scale-110" />
             Add your own dua

@@ -179,20 +179,20 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
   };
 
   return (
-    <div className="absolute inset-0 bg-warm-beige z-50 flex flex-col animate-in fade-in duration-300">
-      <div className="sticky top-0 z-10 bg-warm-beige/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-gray-200/40">
+    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
+      <div className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-theme-border">
         <button
           onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 active:scale-95 transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border active:scale-95 transition-all"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
+          <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="w-11 h-11 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-md flex-shrink-0">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-lg font-bold text-gray-800 tracking-tight leading-tight">Ask Aalima</h1>
+            <h1 className="text-lg font-bold text-text-primary tracking-tight leading-tight">Ask Aalima</h1>
             <p className="text-[11px] font-medium text-[#D98A5B]">Your trusted fiqh advisor</p>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
                   {/* Reply Button inside the app */}
                   <button 
                     onClick={() => setReplyingToMsg(msg)}
-                    className={`absolute top-1/2 -translate-y-1/2 p-2 bg-white/80 backdrop-blur shadow-sm rounded-full text-gray-500 active:scale-95 transition-all z-10 ${
+                    className={`absolute top-1/2 -translate-y-1/2 p-2 bg-theme-surface-card backdrop-blur shadow-sm rounded-full text-text-tertiary active:scale-95 transition-all z-10 ${
                       msg.role === 'user' ? '-left-12' : '-right-12'
                     }`}
                   >
@@ -231,7 +231,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
                     <div className={`text-[11px] px-2 py-1 mb-1 rounded-lg border-l-2 max-w-full truncate ${
                       msg.role === 'user' 
                         ? 'bg-[#1E4334] text-white/80 border-[#3D8566]' 
-                        : 'bg-white/50 text-gray-500 border-gray-300'
+                        : 'bg-theme-surface-card text-text-tertiary border-theme-border-strong'
                     }`}>
                       {quotedText.length > 40 ? quotedText.slice(0, 40) + '...' : quotedText}
                     </div>
@@ -239,8 +239,8 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
 
                   <div className={`rounded-2xl px-4 py-3 text-[13px] leading-relaxed relative ${
                     msg.role === 'user'
-                      ? 'bg-[#2B604A] text-white font-medium rounded-tr-sm shadow-md'
-                      : 'bg-white/85 border border-white/70 text-gray-700 shadow-sm rounded-tl-sm'
+                      ? 'bg-theme-accent text-white font-medium rounded-tr-sm shadow-md'
+                      : 'bg-theme-surface-card border border-theme-border text-text-secondary shadow-sm rounded-tl-sm'
                   }`}>
                     {msg.image && (
                       <img src={msg.image} alt="Attachment" className="max-w-full rounded-lg mb-2" />
@@ -254,7 +254,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
           
           {loading && (
             <div className="flex justify-end">
-              <div className="bg-[#2B604A]/70 text-white rounded-[22px] px-4 py-3 flex items-center gap-2 text-[13px]">
+              <div className="bg-theme-accent/70 text-white rounded-[22px] px-4 py-3 flex items-center gap-2 text-[13px]">
                 <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                 Sending...
               </div>
@@ -264,18 +264,18 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
         <div ref={bottomRef} className="h-4" />
       </div>
 
-      <div className="px-4 sm:px-6 pb-6 pt-3 border-t border-gray-200/30 bg-warm-beige/95 backdrop-blur-sm relative">
+      <div className="px-4 sm:px-6 pb-6 pt-3 border-t border-theme-border bg-theme-surface/95 backdrop-blur-sm relative">
         
         {/* Reply To Preview Box */}
         {replyingToMsg && (
-          <div className="absolute -top-12 left-4 right-4 bg-white/90 backdrop-blur-md rounded-t-xl px-4 py-2 shadow-sm border border-gray-100 flex items-center justify-between z-0">
+          <div className="absolute -top-12 left-4 right-4 bg-theme-surface-card backdrop-blur-md rounded-t-xl px-4 py-2 shadow-sm border border-theme-border flex items-center justify-between z-0">
             <div className="flex items-center gap-2 overflow-hidden">
               <Reply className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span className="text-xs text-gray-600 truncate">
+              <span className="text-xs text-text-secondary truncate">
                 {replyingToMsg.text ? (replyingToMsg.text.length > 40 ? replyingToMsg.text.slice(0,40)+'...' : replyingToMsg.text) : 'Image'}
               </span>
             </div>
-            <button onClick={() => setReplyingToMsg(null)} className="text-gray-400 hover:text-gray-700 p-1">
+            <button onClick={() => setReplyingToMsg(null)} className="text-text-muted hover:text-gray-700 p-1">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -283,7 +283,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
 
         {/* Image Preview Box */}
         {imagePreview && (
-          <div className="absolute bottom-[100%] left-4 mb-2 bg-white p-2 rounded-xl shadow-lg border border-gray-100 max-w-[120px]">
+          <div className="absolute bottom-[100%] left-4 mb-2 bg-theme-surface-card p-2 rounded-xl shadow-lg border border-theme-border max-w-[120px]">
             <button 
               onClick={() => { setImageFile(null); setImagePreview(null); }}
               className="absolute -top-2 -right-2 bg-gray-900 text-white p-1 rounded-full shadow-sm"
@@ -295,7 +295,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
         )}
 
         <div className="flex gap-2 items-end relative z-10">
-          <label className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 text-gray-400 hover:text-[#D98A5B] active:scale-95 transition-all cursor-pointer shrink-0">
+          <label className="w-12 h-12 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border text-text-muted hover:text-[#D98A5B] active:scale-95 transition-all cursor-pointer shrink-0">
             <ImageIcon className="w-5 h-5" />
             <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           </label>
@@ -305,7 +305,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
             onChange={(e) => setInput(e.target.value.slice(0, 1000))}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 bg-white/90 rounded-[20px] px-4 py-3.5 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-soft-pink-dark/30 border border-white/60 resize-none"
+            className="flex-1 bg-theme-surface-card rounded-[20px] px-4 py-3.5 text-[13px] text-text-secondary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-soft-pink-dark/30 border border-theme-border resize-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();

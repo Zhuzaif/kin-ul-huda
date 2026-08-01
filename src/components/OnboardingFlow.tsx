@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, MapPin, Check, Bell, BellRing } from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
@@ -217,26 +219,79 @@ function LocationStep({
 }) {
   const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
 
-  function handleAllow() {
+  const fetchIPLocation = async () => {
+    try {
+      const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+      if (res.ok) {
+        const data = await res.json();
+        return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+      }
+    } catch (e) {
+      console.error('geojs failed:', e);
+    }
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.latitude && data.longitude) {
+          return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+        }
+      }
+    } catch (e) {
+      console.error('ipapi failed:', e);
+    }
+    return null;
+  };
+
+  const handleSkip = async () => {
     setState('loading');
+    const ipCoords = await fetchIPLocation();
+    setState('done');
+    setTimeout(() => onAllow(ipCoords), 400); // use onAllow so it saves the coords instead of null
+  };
+
+  const handleAllow = async () => {
+    setState('loading');
+    
     if (navigator.geolocation) {
+      let resolved = false;
+      
+      const timeout = setTimeout(async () => {
+        if (!resolved) {
+          resolved = true;
+          const coords = await fetchIPLocation();
+          setState('done');
+          setTimeout(() => onAllow(coords), 400);
+        }
+      }, 5000); // 5 sec timeout for GPS
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
-          setState('done');
-          setTimeout(() => onAllow(coords), 600);
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timeout);
+            const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+            setState('done');
+            setTimeout(() => onAllow(coords), 600);
+          }
         },
-        () => {
-          // Permission denied or error — still proceed
-          setState('done');
-          setTimeout(() => onAllow(null), 600);
-        }
+        async () => {
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timeout);
+            const coords = await fetchIPLocation();
+            setState('done');
+            setTimeout(() => onAllow(coords), 600);
+          }
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
       );
     } else {
+      const coords = await fetchIPLocation();
       setState('done');
-      setTimeout(() => onAllow(null), 600);
+      setTimeout(() => onAllow(coords), 600);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-full px-8 pt-16 pb-10 justify-between">
@@ -308,7 +363,7 @@ function LocationStep({
             {state === 'done' && <><Check size={18} strokeWidth={2.5} /> Location Granted</>}
           </motion.button>
           <button
-            onClick={onSkip}
+            onClick={handleSkip}
             className="text-center py-3 text-sm transition-colors"
             style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, color: '#5A5A7A' }}
           >
@@ -364,8 +419,14 @@ function NotificationStep({
   async function handleEnable() {
     setRequesting(true);
     try {
-      if ('Notification' in window) await Notification.requestPermission();
-    } catch (_) { }
+      if (Capacitor.isNativePlatform()) {
+        await PushNotifications.requestPermissions();
+      } else if ('Notification' in window) {
+        await Notification.requestPermission();
+      }
+    } catch (e) { 
+      console.error('Error requesting notification permission:', e);
+    }
     const prefs = { adhan: enabled.has('adhan'), reminders: enabled.has('reminders') };
     setTimeout(() => onNext(prefs), 600);
   }
@@ -943,10 +1004,13 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
 
   return (
     <div
-      className="size-full min-h-screen flex items-center justify-center"
-      style={{ background: '#07070E' }}
+      className="fixed inset-0 bg-[#07070E]"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)'
+      }}
     >
-      <div className="relative w-full max-w-sm h-screen max-h-[820px] overflow-hidden flex flex-col">
+      <div className="relative w-full h-full overflow-hidden flex flex-col mx-auto sm:max-w-md">
         {/* Background pattern */}
         <GeometricPattern opacity={0.04} />
 

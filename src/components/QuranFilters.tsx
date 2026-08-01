@@ -26,8 +26,8 @@ export default function QuranFilters({ activeFilter, onChange }: QuranFiltersPro
               key={filter.id}
               onClick={() => onChange(filter.id)}
               className={`whitespace-nowrap px-[18px] py-2 rounded-[12px] text-[13px] font-medium transition-all border ${isActive
-                ? 'bg-[#0B4D3C] text-white border-[#0B4D3C]'
-                : 'bg-white text-gray-700 border-[#E0E0E0] hover:bg-gray-50'
+                ? 'bg-theme-accent text-white border-theme-accent'
+                : 'bg-theme-surface-card text-text-secondary border-theme-border hover:bg-theme-surface-alt'
                 }`}
             >
               {filter.label}

@@ -1,15 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { CloudDownload, Trash2, Loader2, Play, Pause, BookOpen } from 'lucide-react';
+import { CloudDownload, Trash2, Loader2, Play, Pause, BookOpen, AlertCircle } from 'lucide-react';
 import ProfileSubScreen from './ProfileSubScreen';
 import {
   clearAudioCache,
   downloadAudioToCache,
   getAudioCacheStats,
   getDownloadedSurahsFromStorage,
-  markAllSurahsDownloaded,
+  markSurahDownloaded,
+  replaceDownloadedSurahs,
   findCachedReciterForSurah,
   getCachedAudioUrl,
   checkCachedSurahs,
+  getSurahIdFromAudioUrl,
+  subscribeToDownloadedSurahs,
 } from '../../utils/audioCache';
 import chapters from '../../data/chapters-en.json';
 import { Chapter } from '../../data/quranConstants';
@@ -33,27 +36,41 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
   const [downloadedSurahs, setDownloadedSurahs] = useState<Record<number, boolean>>({});
   const [playingSurahId, setPlayingSurahId] = useState<number | null>(null);
   const [loadingSurahId, setLoadingSurahId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const refreshStats = async () => {
     const stats = await getAudioCacheStats();
     setCachedCount(stats.count);
     setSupported(stats.supported);
-    
-    // First grab fast optimistic state from localStorage
-    const stored = getDownloadedSurahsFromStorage();
-    setDownloadedSurahs(stored);
-    
-    // Then verify with actual Cache API
-    const surahIds = chapterList.map(ch => ch.id);
-    const verified = await checkCachedSurahs(surahIds);
-    if (Object.keys(verified).length > 0) {
-      setDownloadedSurahs(verified);
-    }
+
+    // Show the optimistic localStorage state immediately so the list is not empty on load
+    const before = getDownloadedSurahsFromStorage();
+    setDownloadedSurahs(before);
+
+    // Then replace it with what CacheStorage actually holds. An empty verified result
+    // is meaningful — it means nothing is cached — so stale entries must be dropped,
+    // in state and in localStorage.
+    const surahIds = chapterList.map((ch) => ch.id);
+    const { downloaded, verified } = await checkCachedSurahs(surahIds);
+    if (!verified) return;
+
+    // A download that landed while the cache was being read is missing from `downloaded`,
+    // so pruning now would drop a surah that really is cached. Leave the list alone
+    // in that case — the download's own refresh will reconcile it.
+    const grew = Object.keys(getDownloadedSurahsFromStorage()).some((key) => !before[Number(key)]);
+    if (grew) return;
+
+    setDownloadedSurahs(downloaded);
+    replaceDownloadedSurahs(Object.keys(downloaded).map(Number));
   };
 
   useEffect(() => {
+    // Live updates while a download is still running, so the list grows surah by surah
+    // instead of staying empty until the whole batch finishes.
+    const unsubscribe = subscribeToDownloadedSurahs(setDownloadedSurahs);
     refreshStats();
+    return unsubscribe;
   }, []);
 
   // Cleanup audio on unmount
@@ -79,6 +96,7 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
 
     setDownloading(true);
     setProgress(0);
+    setError(null);
 
     try {
       const res = await fetch('/recitations/yasser/surah.json');
@@ -86,19 +104,43 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
       const surahData = await res.json();
       const urls = Object.values(surahData)
         .map((s: { audio_url?: string }) => s.audio_url)
-        .filter(Boolean) as string[];
+        .filter((url): url is string => typeof url === 'string' && url.length > 0);
+
+      if (urls.length === 0) throw new Error('No audio available for this reciter');
 
       let done = 0;
+      let failed = 0;
+      // Mark each surah only after its own download actually succeeded, so a mid-way
+      // network failure can never report surahs as available offline.
       for (const url of urls) {
-        await downloadAudioToCache(url);
+        const ok = await downloadAudioToCache(url);
+        const surahId = getSurahIdFromAudioUrl(url);
+        if (ok && surahId !== null) {
+          markSurahDownloaded(surahId);
+        } else if (!ok) {
+          failed += 1;
+        }
         done += 1;
         setProgress(Math.round((done / urls.length) * 100));
+
+        // The cached-files counter is not part of the downloaded-surah store, so it needs
+        // its own refresh to move during the batch. Counting keys is cheap next to a download.
+        if (ok) {
+          const stats = await getAudioCacheStats();
+          setCachedCount(stats.count);
+        }
       }
-      markAllSurahsDownloaded(Array.from({ length: 114 }, (_, i) => i + 1));
+
       await refreshStats();
+      if (failed > 0) {
+        setError(
+          `${failed} of ${urls.length} surahs could not be downloaded. Check your connection and try again — the ones that succeeded are kept.`
+        );
+      }
     } catch (e) {
       console.error(e);
-      alert('Download failed. Check your connection and try again.');
+      await refreshStats();
+      setError('Download failed. Check your connection and try again.');
     } finally {
       setDownloading(false);
     }
@@ -106,6 +148,7 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
 
   const handleClear = async () => {
     if (!window.confirm('Remove all downloaded audio from this device?')) return;
+    setError(null);
     // Stop any playing audio
     if (audioRef.current) {
       audioRef.current.pause();
@@ -140,28 +183,60 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
     }
 
     setLoadingSurahId(surahId);
+    setError(null);
+    const surahName =
+      chapterList.find((ch) => ch.id === surahId)?.transliteration ?? `Surah ${surahId}`;
+
+    let blobUrl: string | null = null;
     try {
       const cached = await findCachedReciterForSurah(surahId);
-      if (cached?.cachedUrl) {
-        const blobUrl = await getCachedAudioUrl(cached.cachedUrl);
-        const audio = new Audio(blobUrl || cached.cachedUrl);
-        audioRef.current = audio;
-        audio.onended = () => {
-          setPlayingSurahId(null);
-          audioRef.current = null;
-          if (blobUrl) window.URL.revokeObjectURL(blobUrl);
-        };
-        audio.onerror = () => {
-          setPlayingSurahId(null);
-          setLoadingSurahId(null);
-          audioRef.current = null;
-          if (blobUrl) window.URL.revokeObjectURL(blobUrl);
-        };
-        await audio.play();
-        setPlayingSurahId(surahId);
+      if (!cached) {
+        // The row was showing as downloaded but the audio is gone from the cache.
+        // Tell the user instead of failing silently, and re-sync the list.
+        setError(`${surahName} is not available offline anymore. Please download it again.`);
+        await refreshStats();
+        return;
       }
+
+      blobUrl = await getCachedAudioUrl(cached.cachedUrl);
+      const audio = new Audio(blobUrl ?? cached.cachedUrl);
+      audioRef.current = audio;
+
+      const releaseBlob = () => {
+        if (blobUrl) {
+          window.URL.revokeObjectURL(blobUrl);
+          blobUrl = null;
+        }
+      };
+
+      audio.onended = () => {
+        setPlayingSurahId(null);
+        if (audioRef.current === audio) audioRef.current = null;
+        releaseBlob();
+      };
+      audio.onerror = () => {
+        setPlayingSurahId(null);
+        setLoadingSurahId(null);
+        if (audioRef.current === audio) audioRef.current = null;
+        releaseBlob();
+        setError(`Could not play ${surahName}. The downloaded audio may be corrupted.`);
+      };
+
+      await audio.play();
+      // A newer press may have replaced this audio while play() was pending
+      if (audioRef.current !== audio) {
+        audio.pause();
+        releaseBlob();
+        return;
+      }
+      setPlayingSurahId(surahId);
+      blobUrl = null; // ownership moves to the handlers above
     } catch (err) {
       console.error('Failed to play surah audio', err);
+      if (blobUrl) window.URL.revokeObjectURL(blobUrl);
+      audioRef.current = null;
+      setPlayingSurahId(null);
+      setError(`Could not play ${surahName}. Please try again.`);
     } finally {
       setLoadingSurahId(null);
     }
@@ -187,15 +262,25 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
           )}
         </section>
 
+        {error && (
+          <div
+            role="alert"
+            className="bg-[#FBEDE4] rounded-[20px] p-4 border border-[#D98A5B]/30 flex items-start gap-2"
+          >
+            <AlertCircle className="w-4 h-4 text-[#B4643A] shrink-0 mt-0.5" />
+            <p className="text-[12px] font-medium text-[#8A4A28] leading-relaxed">{error}</p>
+          </div>
+        )}
+
         {downloading && (
-          <div className="bg-soft-mint/50 rounded-[20px] p-4 border border-soft-mint-dark/20">
+          <div className="bg-theme-accent-soft/50 rounded-[20px] p-4 border border-theme-accent-soft-dark/20">
             <div className="flex items-center gap-2 mb-2">
-              <Loader2 className="w-4 h-4 animate-spin text-[#2B604A]" />
-              <span className="text-[13px] font-bold text-[#2B604A]">Downloading… {progress}%</span>
+              <Loader2 className="w-4 h-4 animate-spin text-theme-accent" />
+              <span className="text-[13px] font-bold text-theme-accent">Downloading… {progress}%</span>
             </div>
             <div className="h-2 bg-white/80 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#2B604A] transition-all duration-300"
+                className="h-full bg-theme-accent transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -255,10 +340,10 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
                       </div>
 
                       <div className="min-w-0">
-                        <h4 className="text-[14px] font-semibold text-gray-800 truncate">
+                        <h4 className="text-[14px] font-semibold text-text-primary truncate">
                           {ch.transliteration}
                         </h4>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
+                        <p className="text-[11px] text-text-muted mt-0.5">
                           {ch.total_verses} Verses • {ch.type === 'meccan' ? 'Meccan' : 'Medinan'}
                         </p>
                       </div>
@@ -305,13 +390,13 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
           type="button"
           onClick={handleClear}
           disabled={cachedCount === 0 || downloading}
-          className="w-full py-4 rounded-[20px] bg-white/80 border border-gray-200 text-gray-700 font-bold text-[14px] active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-[20px] bg-theme-surface-card/80 border border-theme-border text-text-secondary font-bold text-[14px] active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <Trash2 className="w-5 h-5" />
           Clear offline audio
         </button>
 
-        <p className="text-[12px] text-gray-400 text-center leading-relaxed px-2">
+        <p className="text-[12px] text-text-muted text-center leading-relaxed px-2">
           Saved verses and reading progress are stored separately on this device. Downloads use
           Yasser Al-Dosari recitation where available.
         </p>

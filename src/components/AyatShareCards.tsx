@@ -1,6 +1,19 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { X, Download, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { captureCardWithBanner, prewarmShareAssets } from '../utils/shareCardImage';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+};
 
 // ==========================================
 // Types
@@ -35,51 +48,7 @@ function getTextStyles(arabic: string, english: string) {
   return { aSize, aLH, tSize };
 }
 
-// Dynamically loads html2canvas from CDN (cached after first load)
-// ==========================================
-let html2canvasPromise: Promise<any> | null = null;
-function loadHtml2Canvas(): Promise<any> {
-  if (html2canvasPromise) return html2canvasPromise;
-  html2canvasPromise = new Promise((resolve, reject) => {
-    if ((window as any).html2canvas) {
-      resolve((window as any).html2canvas);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload = () => resolve((window as any).html2canvas);
-    script.onerror = () => reject(new Error('Failed to load html2canvas'));
-    document.head.appendChild(script);
-  });
-  return html2canvasPromise;
-}
-
-async function captureElementToBlob(element: HTMLElement): Promise<Blob | null> {
-  try {
-    const html2canvas = await loadHtml2Canvas();
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      logging: false,
-      // Ensure SVGs render properly
-      onclone: (clonedDoc: Document) => {
-        // Force all SVG elements to be visible in the clone
-        const svgs = clonedDoc.querySelectorAll('svg');
-        svgs.forEach(svg => {
-          svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        });
-      }
-    });
-    return new Promise<Blob | null>((resolve) => {
-      canvas.toBlob((blob: Blob | null) => resolve(blob), 'image/png', 1.0);
-    });
-  } catch (err) {
-    console.error('Capture failed:', err);
-    return null;
-  }
-}
+// Capture + promo-banner compositing lives in ../utils/shareCardImage.
 
 // ==========================================
 // CARD 1: THE KISWAH (Black & Gold)
@@ -464,6 +433,12 @@ export default function AyatShareCards({ arabicText, englishText, reference, onC
 
   const { aSize, aLH, tSize } = getTextStyles(arabicText, englishText);
 
+  // Fetch html2canvas and the promo banner while the user is still browsing
+  // designs, so the first Download/Share doesn't wait on the network.
+  useEffect(() => {
+    prewarmShareAssets();
+  }, []);
+
   // Track active slide on scroll
   const handleScroll = useCallback(() => {
     if (!carouselRef.current) return;
@@ -488,16 +463,30 @@ export default function AyatShareCards({ arabicText, englishText, reference, onC
     if (!el || isCapturing) return;
     setIsCapturing(true);
     try {
-      const blob = await captureElementToBlob(el);
+      const blob = await captureCardWithBanner(el);
       if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `ayat-card-${CARD_DESIGNS[activeIndex].name.toLowerCase()}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const fileName = `ayat-card-${CARD_DESIGNS[activeIndex].name.toLowerCase()}.png`;
+        if (Capacitor.isNativePlatform()) {
+          const base64Data = await blobToBase64(blob);
+          const savedFile = await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+          });
+          await Share.share({
+            url: savedFile.uri,
+            dialogTitle: 'Save or Share Image',
+          });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
       }
     } catch (err) {
       console.error('Download failed:', err);
@@ -511,24 +500,39 @@ export default function AyatShareCards({ arabicText, englishText, reference, onC
     if (!el || isCapturing) return;
     setIsCapturing(true);
     try {
-      const blob = await captureElementToBlob(el);
-      if (blob && navigator.share) {
-        const file = new File([blob], 'ayat-card.png', { type: 'image/png' });
-        await navigator.share({
-          title: 'Ayat of the Day',
-          text: `${englishText} — ${reference}`,
-          files: [file],
-        });
-      } else if (blob) {
-        // Fallback: download if share not supported
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'ayat-card.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      const blob = await captureCardWithBanner(el);
+      if (blob) {
+        if (Capacitor.isNativePlatform()) {
+          const fileName = `ayat-card-share.png`;
+          const base64Data = await blobToBase64(blob);
+          const savedFile = await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+          });
+          await Share.share({
+            title: 'Ayat of the Day',
+            text: `${englishText} — ${reference}`,
+            url: savedFile.uri,
+          });
+        } else if (navigator.share) {
+          const file = new File([blob], 'ayat-card.png', { type: 'image/png' });
+          await navigator.share({
+            title: 'Ayat of the Day',
+            text: `${englishText} — ${reference}`,
+            files: [file],
+          });
+        } else {
+          // Fallback: download if share not supported
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'ayat-card.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {

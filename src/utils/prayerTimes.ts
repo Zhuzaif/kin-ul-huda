@@ -22,49 +22,35 @@ export const MADHAB_OPTIONS: Array<{
   asrRule: string;
   description: string;
 }> = [
-  {
-    id: 'hanafi',
-    label: 'Hanafi',
-    shortLabel: 'Hanafi',
-    asrRule: 'Later Asr (shadow = 2×)',
-    description: 'Asr begins when shadow length equals twice the object height.',
-  },
-  {
-    id: 'shafi',
-    label: "Shafi'i",
-    shortLabel: "Shafi'i",
-    asrRule: 'Standard Asr (shadow = 1×)',
-    description: 'Asr begins when shadow equals object height — same rule as Maliki & Hanbali.',
-  },
-  {
-    id: 'maliki',
-    label: 'Maliki',
-    shortLabel: 'Maliki',
-    asrRule: 'Standard Asr (shadow = 1×)',
-    description: 'Earlier Asr time, aligned with Shafi\'i and Hanbali calculation.',
-  },
-  {
-    id: 'hanbali',
-    label: 'Hanbali',
-    shortLabel: 'Hanbali',
-    asrRule: 'Standard Asr (shadow = 1×)',
-    description: 'Earlier Asr time, aligned with Shafi\'i and Maliki calculation.',
-  },
-];
+    {
+      id: 'hanafi',
+      label: 'Hanafi',
+      shortLabel: 'Hanafi',
+      asrRule: 'Later Asr (shadow = 2×)',
+      description: 'Asr begins when shadow length equals twice the object height.',
+    },
+    {
+      id: 'shafi',
+      label: "Standard",
+      shortLabel: "Standard",
+      asrRule: 'Standard Asr (shadow = 1×)',
+      description: 'Asr begins when shadow equals object height.',
+    },
+  ];
 
 export const CALCULATION_METHOD_OPTIONS: Array<{
   id: CalculationMethodId;
   label: string;
   region: string;
 }> = [
-  { id: 'karachi', label: 'Karachi', region: 'Pakistan, India, South Asia' },
-  { id: 'muslimWorldLeague', label: 'Muslim World League', region: 'Europe, Far East' },
-  { id: 'ummAlQura', label: 'Umm al-Qura', region: 'Saudi Arabia, Gulf' },
-  { id: 'moonsightingCommittee', label: 'Moonsighting Committee', region: 'UK, North America' },
-  { id: 'egyptian', label: 'Egyptian', region: 'Egypt, Africa' },
-  { id: 'dubai', label: 'Dubai (UAE)', region: 'United Arab Emirates' },
-  { id: 'singapore', label: 'Singapore', region: 'Malaysia, Indonesia' },
-];
+    { id: 'karachi', label: 'Karachi', region: 'Pakistan, India, South Asia' },
+    { id: 'muslimWorldLeague', label: 'Muslim World League', region: 'Europe, Far East' },
+    { id: 'ummAlQura', label: 'Umm al-Qura', region: 'Saudi Arabia, Gulf' },
+    { id: 'moonsightingCommittee', label: 'Moonsighting Committee', region: 'UK, North America' },
+    { id: 'egyptian', label: 'Egyptian', region: 'Egypt, Africa' },
+    { id: 'dubai', label: 'Dubai (UAE)', region: 'United Arab Emirates' },
+    { id: 'singapore', label: 'Singapore', region: 'Malaysia, Indonesia' },
+  ];
 
 export function getMadhabLabel(madhab: ProfileMadhab): string {
   return MADHAB_OPTIONS.find((m) => m.id === madhab)?.shortLabel ?? madhab;

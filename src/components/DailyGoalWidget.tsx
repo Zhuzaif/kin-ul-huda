@@ -46,20 +46,20 @@ export default function DailyGoalWidget() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
-            className="bg-white/60 backdrop-blur-sm rounded-[24px] p-4 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-white/60"
+            className="bg-theme-surface-card backdrop-blur-sm rounded-[24px] p-4 shadow-[var(--nisa-shadow-card)] border border-theme-border"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <div className="p-2 rounded-xl bg-theme-accent-soft text-theme-accent border border-theme-accent/10">
                   <Sunrise className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-xs font-bold text-gray-800">{label}</span>
+                <span className="text-xs font-bold text-text-primary">{label}</span>
               </div>
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center active:scale-95 transition-all"
+                className="w-7 h-7 rounded-full bg-theme-surface-dark flex items-center justify-center active:scale-95 transition-all"
               >
-                <X className="w-3.5 h-3.5 text-gray-500" />
+                <X className="w-3.5 h-3.5 text-text-tertiary" />
               </button>
             </div>
 
@@ -70,7 +70,7 @@ export default function DailyGoalWidget() {
               value={profile.spiritualGoal}
               onChange={(e) => handleChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full text-[12px] bg-[#FAF8F5] rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-[#2B604A]/20 transition resize-none leading-relaxed border border-transparent text-gray-700 placeholder:text-gray-400"
+              className="w-full text-[12px] bg-theme-surface-dark rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-theme-accent/20 transition resize-none leading-relaxed border border-transparent text-text-secondary placeholder:text-text-muted"
               dir={isUrdu ? 'rtl' : 'ltr'}
             />
 
@@ -78,24 +78,24 @@ export default function DailyGoalWidget() {
               <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-[75%]">
                 <button
                   onClick={() => fillQuickGoal('Recite Surah Al-Kahf')}
-                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-theme-accent-soft text-theme-accent"
                 >
                   <BookMarked className="w-3 h-3" /> Read Kahf
                 </button>
                 <button
                   onClick={() => fillQuickGoal('100x Astaghfirullah after Asr')}
-                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-theme-accent-soft text-theme-accent"
                 >
                   <Sparkles className="w-3 h-3 text-amber-500" /> Istighfar
                 </button>
                 <button
                   onClick={() => fillQuickGoal('Learn 1 new Ayah of Quran')}
-                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-soft-mint text-[#2B604A]"
+                  className="px-2 py-0.5 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-theme-accent-soft text-theme-accent"
                 >
                   <BookOpenCheck className="w-3 h-3" /> Learn Ayah
                 </button>
               </div>
-              <span className="font-mono text-[10px] text-gray-400">
+              <span className="font-mono text-[10px] text-text-muted">
                 {profile.spiritualGoal.length}/200
               </span>
             </div>
@@ -108,34 +108,34 @@ export default function DailyGoalWidget() {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
             onClick={() => setIsEditing(true)}
-            className="w-full text-left bg-white/60 backdrop-blur-sm rounded-[24px] p-4 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-white/60 active:scale-[0.99] transition-all group"
+            className="w-full text-left bg-theme-surface-card backdrop-blur-sm rounded-[24px] p-4 shadow-[var(--nisa-shadow-card)] border border-theme-border active:scale-[0.99] transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+              <div className="p-2 rounded-xl bg-theme-accent-soft text-theme-accent border border-theme-accent/10 shrink-0">
                 <Sunrise className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700/70">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-theme-accent/70">
                   {label}
                 </span>
                 {hasGoal ? (
                   <p
-                    className="text-[13px] text-gray-700 leading-snug mt-0.5 line-clamp-2"
+                    className="text-[13px] text-text-secondary leading-snug mt-0.5 line-clamp-2"
                     dir={isUrdu ? 'rtl' : 'ltr'}
                   >
                     {profile.spiritualGoal}
                   </p>
                 ) : (
-                  <p className="text-[12px] text-gray-400 italic mt-0.5">
+                  <p className="text-[12px] text-text-muted italic mt-0.5">
                     {emptyPrompt}
                   </p>
                 )}
               </div>
               <div className="shrink-0">
                 {hasGoal ? (
-                  <Pencil className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-600 transition-colors" />
+                  <Pencil className="w-3.5 h-3.5 text-text-muted group-hover:text-theme-accent transition-colors" />
                 ) : (
-                  <span className="text-[11px] font-semibold text-emerald-600 whitespace-nowrap">
+                  <span className="text-[11px] font-semibold text-theme-accent whitespace-nowrap">
                     {setGoalLabel}
                   </span>
                 )}

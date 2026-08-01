@@ -410,9 +410,9 @@ export default function HaizDetailScreen({
       <style>{trackStyles}</style>
 
       {/* Frosted glass mobile container */}
-      <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-white/60 backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-white/80 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
+      <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-theme-surface-card backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-theme-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
         {/* Floating Arabic Header Block */}
-        <header className="bg-white rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-slate-50 flex flex-col items-center justify-center">
+        <header className="bg-theme-surface-card rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-slate-50 flex flex-col items-center justify-center">
           {/* Back button positioned absolutely on the left */}
           <button
             type="button"
@@ -456,7 +456,7 @@ export default function HaizDetailScreen({
                 key={topic.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className="haiz-topic-card bg-white rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
+                className="haiz-topic-card bg-theme-surface-card rounded-[16px] flex items-stretch h-[58px] w-full relative z-10 overflow-hidden cursor-pointer text-left"
               >
                 <div
                   className="haiz-number-block relative shrink-0 flex items-center justify-center"
@@ -469,7 +469,7 @@ export default function HaizDetailScreen({
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <div className="flex-1 px-4 flex flex-col justify-center bg-white min-w-0">
+                <div className="flex-1 px-4 flex flex-col justify-center bg-theme-surface-card min-w-0">
                   <h3 className="text-[13px] font-bold text-slate-800 leading-tight truncate">
                     {topic.title}
                   </h3>

@@ -11,10 +11,10 @@ export default function AskAalimaFAB({ onOpen }: AskAalimaFABProps) {
       <button
         type="button"
         onClick={onOpen}
-        className="nisa-fab-pulse flex items-center gap-2 bg-gradient-to-br from-[#2B604A] to-[#1D4535] pl-2.5 pr-4 py-2 rounded-full shadow-[0_4px_20px_rgba(43,96,74,0.3)] active:scale-95 transition-all"
+        className="nisa-fab-pulse flex items-center gap-2 bg-gradient-to-br from-theme-accent to-theme-accent-strong pl-2.5 pr-4 py-2 rounded-full shadow-lg shadow-theme-accent/30 active:scale-95 transition-all"
         aria-label="Open Ask Aalima AI chat"
       >
-        <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+        <div className="w-9 h-9 rounded-full bg-theme-surface-card backdrop-blur-sm flex items-center justify-center">
           <Bot className="w-4 h-4 text-white" />
         </div>
         <span className="text-[12px] font-semibold text-white/95 pr-0.5">Ask Aalima</span>

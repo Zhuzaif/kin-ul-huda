@@ -10,20 +10,20 @@ interface ProfileSubScreenProps {
 
 export default function ProfileSubScreen({ title, subtitle, onBack, children }: ProfileSubScreenProps) {
   return (
-    <div className="absolute inset-0 bg-warm-beige z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="sticky top-0 z-10 bg-warm-beige/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-gray-200/40">
+    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-theme-border">
         <button
           type="button"
           onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100/50 active:scale-95 transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-[var(--nisa-shadow-card)] border border-theme-border active:scale-95 transition-all"
           aria-label="Go back"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
+          <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-gray-800 tracking-tight truncate">{title}</h1>
+          <h1 className="text-lg font-bold text-text-primary tracking-tight truncate">{title}</h1>
           {subtitle && (
-            <p className="text-[12px] font-medium text-gray-500 truncate">{subtitle}</p>
+            <p className="text-[12px] font-medium text-text-tertiary truncate">{subtitle}</p>
           )}
         </div>
       </div>

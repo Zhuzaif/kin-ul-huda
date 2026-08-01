@@ -9,32 +9,32 @@ const defaultActions: ActionItem[] = [
     label: 'Quran Reading',
     icon: BookOpen,
     svg: '/icons/default/quran.svg',
-    bgClass: 'bg-light-peach',
-    colorClass: 'text-[#D98A5B]'
+    bgClass: 'bg-theme-orange/15',
+    colorClass: 'text-theme-orange'
   },
   {
     id: 'tasbeeh',
     label: 'Tasbeeh Counter',
     icon: CircleDashed,
     svg: '/icons/period/2.svg',
-    bgClass: 'bg-soft-mint',
-    colorClass: 'text-[#2B604A]'
+    bgClass: 'bg-theme-accent/15',
+    colorClass: 'text-theme-accent'
   },
   {
     id: 'adhkar',
     label: 'Morning Adhkar',
     icon: Sun,
     svg: '/icons/default/adhkar.svg',
-    bgClass: 'bg-muted-gold-light',
-    colorClass: 'text-muted-gold'
+    bgClass: 'bg-theme-gold/15',
+    colorClass: 'text-theme-gold'
   },
   {
     id: 'fiqh',
     label: 'Fiqh Guide',
     icon: Library,
     svg: '/icons/period/5.svg',
-    bgClass: 'bg-soft-pink',
-    colorClass: 'text-soft-pink-dark'
+    bgClass: 'bg-theme-rose/15',
+    colorClass: 'text-theme-rose'
   }
 ];
 
@@ -44,32 +44,32 @@ const periodActions: ActionItem[] = [
     label: 'Listen to Quran',
     icon: Headphones,
     svg: '/icons/period/1.svg',
-    bgClass: 'bg-light-peach',
-    colorClass: 'text-[#D98A5B]'
+    bgClass: 'bg-theme-orange/15',
+    colorClass: 'text-theme-orange'
   },
   {
     id: 'dhikr',
     label: 'Daily Dhikr',
     icon: CircleDashed,
     svg: '/icons/period/3.svg',
-    bgClass: 'bg-soft-pink',
-    colorClass: 'text-soft-pink-dark'
+    bgClass: 'bg-theme-rose/15',
+    colorClass: 'text-theme-rose'
   },
   {
     id: 'duas',
     label: 'Special Duas',
     icon: Heart,
     svg: '/icons/period/2.svg',
-    bgClass: 'bg-muted-gold-light',
-    colorClass: 'text-muted-gold'
+    bgClass: 'bg-theme-gold/15',
+    colorClass: 'text-theme-gold'
   },
   {
     id: 'fiqh',
     label: 'Fiqh Guide',
     icon: Library,
     svg: '/icons/period/5.svg',
-    bgClass: 'bg-gray-100',
-    colorClass: 'text-gray-600'
+    bgClass: 'bg-theme-surface-dark',
+    colorClass: 'text-text-tertiary'
   }
 ];
 
@@ -109,7 +109,7 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
 
   return (
     <div className="px-6 mb-28">
-      <h3 className="text-lg font-bold text-gray-800 tracking-tight mb-4 px-1">Daily Journey</h3>
+      <h3 className="text-lg font-bold text-text-primary tracking-tight mb-4 px-1">Daily Journey</h3>
       <div className="grid grid-cols-4 gap-4 animate-in fade-in duration-300">
         {actions.map((action) => {
           const IconInfo = action.icon;
@@ -133,7 +133,7 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
                   <IconInfo className={`w-6 h-6 stroke-[2.5] ${action.colorClass}`} />
                 )}
               </div>
-              <span className="text-[10px] font-semibold text-gray-600 text-center leading-tight w-16">
+              <span className="text-[10px] font-semibold text-text-tertiary text-center leading-tight w-16">
                 {action.label}
               </span>
             </button>

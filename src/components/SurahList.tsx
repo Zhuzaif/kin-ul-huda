@@ -6,7 +6,9 @@ import {
   downloadAudioToCache,
   getDownloadedSurahsFromStorage,
   markSurahDownloaded,
+  replaceDownloadedSurahs,
   checkCachedSurahs,
+  subscribeToDownloadedSurahs,
 } from '../utils/audioCache';
 import { RECITER_OPTIONS, Chapter } from '../data/quranConstants';
 
@@ -34,15 +36,36 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
   useEffect(() => {
     setPortalTarget(document.getElementById('mobile-frame-root'));
 
-    const initial = getDownloadedSurahsFromStorage();
-    setDownloadedSurahs(initial);
+    // Live updates: a download finishing anywhere (this list, the Quran header's
+    // "download all", the Downloads screen) must tick here right away, without a remount.
+    const unsubscribe = subscribeToDownloadedSurahs(setDownloadedSurahs);
 
+    const before = getDownloadedSurahsFromStorage();
+    setDownloadedSurahs(before);
+
+    // Replace the optimistic state with what CacheStorage actually holds. An empty
+    // verified result means nothing is cached, so stale ticks must disappear too.
+    let cancelled = false;
     const surahIds = list.map((s) => s.id);
-    checkCachedSurahs(surahIds).then((cachedMap) => {
-      if (Object.keys(cachedMap).length > 0) {
-        setDownloadedSurahs(cachedMap);
-      }
+    checkCachedSurahs(surahIds).then(({ downloaded, verified }) => {
+      if (cancelled || !verified) return;
+
+      // A download that landed while the cache was being read is not in `downloaded`,
+      // so pruning now would wipe a surah that is genuinely cached. Skip this round;
+      // the next mount verifies again.
+      const grew = Object.keys(getDownloadedSurahsFromStorage()).some(
+        (key) => !before[Number(key)]
+      );
+      if (grew) return;
+
+      setDownloadedSurahs(downloaded);
+      replaceDownloadedSurahs(Object.keys(downloaded).map(Number));
     });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, [list]);
 
   const handleDownloadClick = (e: React.MouseEvent, surahId: number) => {
@@ -64,24 +87,38 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
       const surahData = await res.json();
       const surahInfo = surahData[String(surahId)];
 
-      if (surahInfo && surahInfo.audio_url) {
-        const interval = setInterval(() => {
-          setDownloadProgress((prev) => ({
-            ...prev,
-            [surahId]: Math.min((prev[surahId] || 0) + 10, 90),
-          }));
-        }, 300);
-
-        await downloadAudioToCache(surahInfo.audio_url);
-        markSurahDownloaded(surahId);
-        clearInterval(interval);
-
-        setDownloadProgress((prev) => ({ ...prev, [surahId]: 100 }));
-        setDownloadedSurahs((prev) => ({ ...prev, [surahId]: true }));
+      if (!surahInfo?.audio_url) {
+        throw new Error('This reciter has no audio for this surah');
       }
+
+      const interval = setInterval(() => {
+        setDownloadProgress((prev) => ({
+          ...prev,
+          [surahId]: Math.min((prev[surahId] || 0) + 10, 90),
+        }));
+      }, 300);
+
+      let ok = false;
+      try {
+        ok = await downloadAudioToCache(surahInfo.audio_url);
+      } finally {
+        clearInterval(interval);
+      }
+
+      // Only mark it downloaded once the audio is really in the cache
+      if (!ok) throw new Error('Audio download failed');
+
+      markSurahDownloaded(surahId);
+      setDownloadProgress((prev) => ({ ...prev, [surahId]: 100 }));
+      setDownloadedSurahs((prev) => ({ ...prev, [surahId]: true }));
     } catch (e) {
       console.error('Failed to download audio', e);
-      alert('Failed to download audio. Please check your connection.');
+      setDownloadProgress((prev) => ({ ...prev, [surahId]: 0 }));
+      alert(
+        e instanceof Error && e.message === 'This reciter has no audio for this surah'
+          ? 'This reciter does not have audio for this surah yet. Please pick another reciter.'
+          : 'Failed to download audio. Please check your connection.'
+      );
     } finally {
       setTimeout(() => {
         setDownloadingSurahs((prev) => ({ ...prev, [surahId]: false }));
@@ -92,7 +129,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
   if (list.length === 0) {
     return (
       <div className="px-6 pb-28">
-        <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
+        <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
           {emptyLabel ?? 'No results found.'}
         </div>
       </div>
@@ -113,7 +150,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
               tabIndex={0}
               onClick={() => onSelect?.(surah.id)}
               aria-label={`Open ${surah.transliteration}`}
-              className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
+              className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
             >
               {/* Left: octagon number + info */}
               <div className="flex items-center gap-4 min-w-0">
@@ -141,10 +178,10 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                 </div>
 
                 <div className="min-w-0">
-                  <h4 className="text-[15px] font-semibold text-gray-800 truncate">
+                  <h4 className="text-[15px] font-semibold text-text-primary truncate">
                     {surah.transliteration}
                   </h4>
-                  <p className="text-[12px] text-gray-400 mt-0.5">
+                  <p className="text-[12px] text-text-muted mt-0.5">
                     {surah.total_verses} Verses • {surah.type === 'meccan' ? 'Meccan' : 'Medinan'}
                   </p>
                 </div>
@@ -165,13 +202,13 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                   <button
                     onClick={(e) => handleDownloadClick(e, surah.id)}
                     disabled={isDownloading || isDownloaded}
-                    className="text-gray-400 hover:text-[#0B4D3C] transition-colors flex items-center justify-center"
+                    className="text-text-muted hover:text-theme-accent transition-colors flex items-center justify-center"
                     aria-label="Download audio"
                   >
                     {isDownloaded ? (
-                      <CheckCircle className="w-4 h-4 text-[#0B4D3C]" />
+                      <CheckCircle className="w-4 h-4 text-theme-accent-strong" />
                     ) : isDownloading ? (
-                      <div className="w-4 h-4 rounded-full border-2 border-gray-200 border-t-[#0B4D3C] animate-spin" />
+                      <div className="w-4 h-4 rounded-full border-2 border-theme-border border-t-theme-accent-strong animate-spin" />
                     ) : (
                       <DownloadCloud className="w-[18px] h-[18px]" />
                     )}
@@ -186,13 +223,13 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
       {portalTarget &&
         downloadModalSurah &&
         createPortal(
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/30 backdrop-blur-sm">
-            <div className="bg-white rounded-[32px] w-full max-w-[320px] p-6 shadow-2xl relative overflow-hidden">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-theme-surface-card rounded-[32px] w-full max-w-[320px] p-6 shadow-2xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-800">Select Reciter</h3>
+                <h3 className="text-xl font-bold text-text-primary">Select Reciter</h3>
                 <button
                   onClick={() => setDownloadModalSurah(null)}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-theme-surface-dark rounded-full text-text-tertiary hover:bg-theme-surface-dark/80 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -203,7 +240,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                   <button
                     key={reciter.id}
                     onClick={() => startDownload(reciter.id)}
-                    className="w-full py-4 px-5 text-left bg-gray-50 rounded-[20px] font-bold text-gray-700 hover:bg-[#0B4D3C]/5 hover:text-[#0B4D3C] hover:shadow-sm transition-all flex items-center justify-between"
+                    className="w-full py-4 px-5 text-left bg-theme-surface-dark/50 rounded-[20px] font-bold text-text-secondary hover:bg-theme-accent/5 hover:text-theme-accent hover:shadow-sm transition-all flex items-center justify-between"
                   >
                     <span>{reciter.label}</span>
                     <DownloadCloud className="w-5 h-5 opacity-50" />

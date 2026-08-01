@@ -61,10 +61,11 @@ export function saveProfile(profile: UserProfile): void {
 }
 
 export function getThemeLabel(theme: UserProfile['theme']): string {
-  const labels = {
+  const labels: Record<string, string> = {
     serenity: 'Serenity (Warm & Bright)',
     bloom: 'Bloom (Soft Pink)',
     meadow: 'Meadow (Fresh Mint)',
+    'oled-vibrant': 'Dark OLED (Vibrant)',
   };
   return labels[theme] ?? theme;
 }

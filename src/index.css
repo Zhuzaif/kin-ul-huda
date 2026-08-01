@@ -10,24 +10,242 @@
 }
 
 @theme {
-  --color-warm-beige: #FAF8F5;
-  --color-warm-beige-dark: #F0EAE1;
-  --color-soft-mint: #E2F0EA;
-  --color-soft-mint-dark: #B9DBCB;
-  --color-light-peach: #FFF0E6;
-  --color-light-peach-dark: #FFDCC3;
-  --color-soft-pink: #F9E5E6;
-  --color-soft-pink-dark: #EBB6BA;
+  --color-warm-beige: #FFFFFF;
+  --color-warm-beige-dark: #F2F3F5;
+  --color-soft-mint: #E8F5EE;
+  --color-soft-mint-dark: #C8E6D5;
+  --color-light-peach: #FFF2E8;
+  --color-light-peach-dark: #FFE0C8;
+  --color-soft-pink: #FBE8E9;
+  --color-soft-pink-dark: #E8919A;
   --color-muted-gold: #C9A66B;
-  --color-muted-gold-light: #F8F1E3;
+  --color-muted-gold-light: #FBF5EA;
+
+  /* ── Theme-aware tokens ──────────────────────────────────────────────
+     These resolve through the --nisa-* custom properties set below on
+     #mobile-frame-root[data-theme]. Any utility built from them
+     (bg-theme-surface, text-theme-accent, …) follows the user's chosen
+     theme automatically. */
+  --color-theme-surface: var(--color-theme-surface);
+  --color-theme-surface-dark: var(--color-theme-surface-dark);
+  --color-theme-surface-alt: var(--color-theme-surface-alt);
+  --color-theme-surface-card: var(--color-theme-surface-card);
+  --color-theme-surface: var(--color-theme-surface);
+  --color-theme-surface-dark: var(--color-theme-surface-dark);
+  --color-theme-surface-alt: var(--color-theme-surface-alt);
+  --color-theme-surface-card: var(--color-theme-surface-card);
+  --color-theme-surface-input: var(--color-theme-surface-input);
+  --color-theme-surface-elevated: var(--color-theme-surface-elevated);
+  --color-theme-accent: var(--color-theme-accent);
+  --color-theme-accent-strong: var(--color-theme-accent-strong);
+  --color-theme-accent-soft: var(--color-theme-accent-soft);
+  --color-theme-accent-soft-dark: var(--color-theme-accent-soft-dark);
+  --color-theme-border: var(--color-theme-border);
+  --color-theme-border-strong: var(--color-theme-border-strong);
+  --color-theme-divider: var(--color-theme-divider);
+  --color-theme-gold: var(--color-theme-gold);
+  --color-theme-rose: var(--color-theme-rose);
+  --color-theme-cyan: var(--color-theme-cyan);
+  --color-theme-purple: var(--color-theme-purple);
+  --color-theme-orange: var(--color-theme-orange);
+
+  /* ── 60/30/10 Text hierarchy (opacity-based) ── */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-text-muted: var(--color-text-muted);
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-arabic: 'Amiri', serif;
 }
 
-body {
-  background-color: #E5E7EB;
-  /* Gray background outside the mobile preview */
+/* Fallback palette (Serenity) so theme utilities still resolve outside
+   the mobile frame — e.g. the onboarding flow. */
+:root {
+  --color-theme-surface: #FFFFFF;
+  --color-theme-surface-dark: #F2F3F5;
+  --color-theme-surface-alt: #F7F7F8;
+  --color-theme-surface-card: #FFFFFF;
+  --color-theme-surface-input: #F2F3F5;
+  --color-theme-surface-elevated: #FFFFFF;
+  --color-theme-accent: #2B8A6E;
+  --color-theme-accent-strong: #1A6B55;
+  --color-theme-accent-soft: #E8F5EE;
+  --color-theme-accent-soft-dark: #D4EADC;
+  --color-text-primary: rgba(26, 29, 38, 1);
+  --color-text-secondary: rgba(26, 29, 38, 0.78);
+  --color-text-tertiary: rgba(26, 29, 38, 0.55);
+  --color-text-muted: rgba(26, 29, 38, 0.40);
+  --color-theme-border: rgba(0, 0, 0, 0.06);
+  --color-theme-border-strong: rgba(0, 0, 0, 0.12);
+  --color-theme-divider: rgba(0, 0, 0, 0.05);
+  --color-theme-gold: #C9A66B;
+  --color-theme-rose: #E8919A;
+  --color-theme-cyan: #3AAFB9;
+  --color-theme-purple: #9B8EC4;
+  --color-theme-orange: #D98A5B;
+  --nisa-shadow-card: 0 2px 12px rgba(43, 138, 110, 0.06);
+  --nisa-shadow-accent: 0 4px 16px rgba(43, 138, 110, 0.14);
+  --nisa-shadow-gold: 0 4px 14px rgba(201, 166, 107, 0.14);
+  --nisa-shadow-rose: 0 2px 12px rgba(232, 145, 154, 0.12);
+}
+
+/* ── Serenity — clean white + vivid teal-green ── */
+#mobile-frame-root[data-theme='serenity'] {
+  --color-theme-surface: #FFFFFF;
+  --color-theme-surface-dark: #F2F3F5;
+  --color-theme-surface-alt: #F7F7F8;
+  --color-theme-surface-card: #FFFFFF;
+  --color-theme-surface-input: #F2F3F5;
+  --color-theme-surface-elevated: #FFFFFF;
+  --color-theme-accent: #2B8A6E;
+  --color-theme-accent-strong: #1A6B55;
+  --color-theme-accent-soft: #E8F5EE;
+  --color-theme-accent-soft-dark: #D4EADC;
+  --color-text-primary: rgba(26, 29, 38, 1);
+  --color-text-secondary: rgba(26, 29, 38, 0.78);
+  --color-text-tertiary: rgba(26, 29, 38, 0.55);
+  --color-text-muted: rgba(26, 29, 38, 0.40);
+  --color-theme-border: rgba(0, 0, 0, 0.06);
+  --color-theme-border-strong: rgba(0, 0, 0, 0.12);
+  --color-theme-divider: rgba(0, 0, 0, 0.05);
+  --color-theme-gold: #C9A66B;
+  --color-theme-rose: #E8919A;
+  --color-theme-cyan: #3AAFB9;
+  --color-theme-purple: #9B8EC4;
+  --color-theme-orange: #D98A5B;
+  --nisa-shadow-card: 0 2px 12px rgba(43, 138, 110, 0.06);
+  --nisa-shadow-accent: 0 4px 16px rgba(43, 138, 110, 0.14);
+}
+
+/* ── Bloom — crisp white + vivid rose ── */
+#mobile-frame-root[data-theme='bloom'] {
+  --color-theme-surface: #FFFBFB;
+  --color-theme-surface-dark: #F5EAEB;
+  --color-theme-surface-alt: #FBF5F5;
+  --color-theme-surface-card: #FFFFFF;
+  --color-theme-surface-input: #F5EAEB;
+  --color-theme-surface-elevated: #FFFFFF;
+  --color-theme-accent: #C4506A;
+  --color-theme-accent-strong: #A33E55;
+  --color-theme-accent-soft: #FBE8EC;
+  --color-theme-accent-soft-dark: #F2D2D8;
+  --color-text-primary: rgba(38, 26, 30, 1);
+  --color-text-secondary: rgba(38, 26, 30, 0.78);
+  --color-text-tertiary: rgba(38, 26, 30, 0.55);
+  --color-text-muted: rgba(38, 26, 30, 0.40);
+  --color-theme-border: rgba(0, 0, 0, 0.06);
+  --color-theme-border-strong: rgba(0, 0, 0, 0.12);
+  --color-theme-divider: rgba(0, 0, 0, 0.05);
+  --color-theme-gold: #C9A66B;
+  --color-theme-rose: #C4506A;
+  --color-theme-cyan: #3AAFB9;
+  --color-theme-purple: #9B8EC4;
+  --color-theme-orange: #D98A5B;
+  --nisa-shadow-card: 0 2px 12px rgba(196, 80, 106, 0.06);
+  --nisa-shadow-accent: 0 4px 16px rgba(196, 80, 106, 0.14);
+}
+
+/* ── Meadow — fresh white + vivid teal ── */
+#mobile-frame-root[data-theme='meadow'] {
+  --color-theme-surface: #FBFEFC;
+  --color-theme-surface-dark: #E8F2EB;
+  --color-theme-surface-alt: #F2F8F4;
+  --color-theme-surface-card: #FFFFFF;
+  --color-theme-surface-input: #E8F2EB;
+  --color-theme-surface-elevated: #FFFFFF;
+  --color-theme-accent: #1A8A80;
+  --color-theme-accent-strong: #126B63;
+  --color-theme-accent-soft: #E2F5F2;
+  --color-theme-accent-soft-dark: #CCE9E5;
+  --color-text-primary: rgba(22, 33, 30, 1);
+  --color-text-secondary: rgba(22, 33, 30, 0.78);
+  --color-text-tertiary: rgba(22, 33, 30, 0.55);
+  --color-text-muted: rgba(22, 33, 30, 0.40);
+  --color-theme-border: rgba(0, 0, 0, 0.06);
+  --color-theme-border-strong: rgba(0, 0, 0, 0.12);
+  --color-theme-divider: rgba(0, 0, 0, 0.05);
+  --color-theme-gold: #C9A66B;
+  --color-theme-rose: #E8919A;
+  --color-theme-cyan: #1A8A80;
+  --color-theme-purple: #9B8EC4;
+  --color-theme-orange: #D98A5B;
+  --nisa-shadow-card: 0 2px 12px rgba(26, 138, 128, 0.06);
+  --nisa-shadow-accent: 0 4px 16px rgba(26, 138, 128, 0.14);
+}
+
+/* ── Dark OLED + Vibrant Block UI ──────────────────────────────────── */
+#mobile-frame-root[data-theme='oled-vibrant'] {
+  --color-theme-surface: #000000;
+  --color-theme-surface-dark: #0A0A0A;
+  --color-theme-surface-alt: #0A0A0A;
+  --color-theme-surface-card: #111111;
+  --color-theme-surface-input: #141414;
+  --color-theme-surface-elevated: #1A1A1A;
+  --color-theme-accent: #10B981;
+  --color-theme-accent-strong: #34D399;
+  --color-theme-accent-soft: rgba(16, 185, 129, 0.12);
+  --color-theme-accent-soft-dark: rgba(16, 185, 129, 0.18);
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.72);
+  --color-text-tertiary: rgba(255, 255, 255, 0.48);
+  --color-text-muted: rgba(255, 255, 255, 0.28);
+  --color-theme-border: rgba(255, 255, 255, 0.08);
+  --color-theme-border-strong: rgba(255, 255, 255, 0.14);
+  --color-theme-divider: rgba(255, 255, 255, 0.06);
+  --color-theme-gold: #F59E0B;
+  --color-theme-rose: #F472B6;
+  --color-theme-cyan: #22D3EE;
+  --color-theme-purple: #A78BFA;
+  --color-theme-orange: #FB923C;
+  --nisa-shadow-card: 0 2px 16px rgba(0, 0, 0, 0.5);
+  --nisa-shadow-accent: 0 4px 20px rgba(16, 185, 129, 0.2);
+  --nisa-shadow-gold: 0 4px 14px rgba(245, 158, 11, 0.15);
+  --nisa-shadow-rose: 0 2px 12px rgba(244, 114, 182, 0.15);
+}
+
+/* Period mode surface tinting per theme */
+#mobile-frame-root[data-theme='serenity'][data-period='on'] {
+  --color-theme-surface: #FFF6F4;
+  --color-theme-surface-dark: #F5E8E5;
+}
+
+#mobile-frame-root[data-theme='bloom'][data-period='on'] {
+  --color-theme-surface: #FFF0F2;
+  --color-theme-surface-dark: #F2DCDF;
+}
+
+#mobile-frame-root[data-theme='meadow'][data-period='on'] {
+  --color-theme-surface: #FDF6F5;
+  --color-theme-surface-dark: #F0E8E6;
+}
+
+#mobile-frame-root[data-theme='oled-vibrant'][data-period='on'] {
+  --color-theme-surface: #0A0404;
+  --color-theme-surface-dark: #140808;
+  --color-theme-surface-card: #1A0A0A;
+}
+
+body,
+html,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-theme-surface, #FAF8F5);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
 }
 
 /* Hide scrollbar for a cleaner mobile feel */
@@ -129,7 +347,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 8px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-right: 20px;
+  padding-bottom: 8px;
+  padding-left: 20px;
   flex-shrink: 0;
 }
 

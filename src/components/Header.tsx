@@ -40,10 +40,10 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between pt-8 pb-6 px-6">
+      <header className="flex items-center justify-between pt-3 pb-6 px-6">
         <div>
           <h1
-            className={`text-2xl font-semibold text-gray-800 tracking-tight ${
+            className={`text-2xl font-semibold text-text-primary tracking-tight ${
               profile.language === 'ur' ? 'font-arabic' : ''
             }`}
             dir={profile.language === 'ur' ? 'rtl' : 'ltr'}
@@ -51,7 +51,7 @@ export default function Header() {
             {salam}
           </h1>
           <h2
-            className={`text-2xl font-medium text-gray-600 ${profile.language === 'ur' ? 'font-arabic' : ''}`}
+            className={`text-2xl font-medium text-text-secondary ${profile.language === 'ur' ? 'font-arabic' : ''}`}
             dir={profile.language === 'ur' ? 'rtl' : 'ltr'}
           >
             {profile.name}
@@ -62,23 +62,23 @@ export default function Header() {
           <button
             onClick={handleToggle}
             className={`relative w-14 h-8 rounded-full transition-colors duration-300 ease-in-out flex items-center px-1 ${
-              isPeriodMode ? 'bg-soft-pink-dark' : 'bg-gray-200'
+              isPeriodMode ? 'bg-theme-rose' : 'bg-theme-surface-dark'
             }`}
             aria-label="Toggle Period Mode"
           >
             <motion.div
               animate={{ x: isPeriodMode ? 24 : 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="w-6 h-6 bg-white rounded-full shadow-sm flex items-center justify-center p-[4px]"
+              className="w-6 h-6 bg-theme-surface-card rounded-full shadow-sm flex items-center justify-center p-[4px]"
             >
               {isPeriodMode ? (
-                <Flower2 className="w-full h-full text-soft-pink-dark" />
+                <Flower2 className="w-full h-full text-theme-rose" />
               ) : (
-                <Moon className="w-full h-full text-gray-400" />
+                <Moon className="w-full h-full text-text-muted" />
               )}
             </motion.div>
           </button>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-gray-400">
+          <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted">
             Period Mode
           </span>
         </div>
@@ -100,80 +100,80 @@ export default function Header() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className="w-full max-w-[340px] bg-white rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden"
+              className="w-full max-w-[340px] bg-theme-surface-elevated rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-theme-border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="px-6 pt-6 pb-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-[17px] font-bold text-gray-800 tracking-tight">
+                  <h3 className="text-[17px] font-bold text-text-primary tracking-tight">
                     Start Period Mode
                   </h3>
-                  <p className="text-[12px] text-gray-400 mt-0.5">
+                  <p className="text-[12px] text-text-muted mt-0.5">
                     Configure your cycle settings
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowPeriodPopup(false)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:scale-95 transition-all"
+                  className="w-8 h-8 rounded-full bg-theme-surface-dark flex items-center justify-center active:scale-95 transition-all"
                 >
-                  <X className="w-4 h-4 text-gray-500" />
+                  <X className="w-4 h-4 text-text-tertiary" />
                 </button>
               </div>
 
               {/* Settings */}
               <div className="px-6 pb-2 flex flex-col gap-4">
                 {/* Haiz Days */}
-                <div className="flex items-center justify-between bg-[#FDF5F5] rounded-2xl px-4 py-3 border border-[#F5DCDE]">
+                <div className="flex items-center justify-between bg-theme-rose/10 rounded-2xl px-4 py-3 border border-theme-rose/15">
                   <div>
-                    <p className="text-[13px] font-semibold text-gray-800">Haiz Duration</p>
-                    <p className="text-[11px] text-gray-400">Period length in days</p>
+                    <p className="text-[13px] font-semibold text-text-primary">Haiz Duration</p>
+                    <p className="text-[11px] text-text-muted">Period length in days</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setTempPeriodDays((p) => Math.max(3, p - 1))}
-                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                      className="w-8 h-8 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center active:scale-95 transition-all shadow-sm"
                     >
-                      <Minus className="w-3.5 h-3.5 text-gray-600" />
+                      <Minus className="w-3.5 h-3.5 text-text-secondary" />
                     </button>
-                    <span className="text-[18px] font-bold text-gray-800 w-8 text-center tabular-nums">
+                    <span className="text-[18px] font-bold text-text-primary w-8 text-center tabular-nums">
                       {tempPeriodDays}
                     </span>
                     <button
                       type="button"
                       onClick={() => setTempPeriodDays((p) => Math.min(15, p + 1))}
-                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                      className="w-8 h-8 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center active:scale-95 transition-all shadow-sm"
                     >
-                      <Plus className="w-3.5 h-3.5 text-gray-600" />
+                      <Plus className="w-3.5 h-3.5 text-text-secondary" />
                     </button>
                   </div>
                 </div>
 
                 {/* Cycle Days */}
-                <div className="flex items-center justify-between bg-[#F0F9F4] rounded-2xl px-4 py-3 border border-[#D5EDE1]">
+                <div className="flex items-center justify-between bg-theme-accent/10 rounded-2xl px-4 py-3 border border-theme-accent/15">
                   <div>
-                    <p className="text-[13px] font-semibold text-gray-800">Cycle Length</p>
-                    <p className="text-[11px] text-gray-400">Full cycle in days</p>
+                    <p className="text-[13px] font-semibold text-text-primary">Cycle Length</p>
+                    <p className="text-[11px] text-text-muted">Full cycle in days</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setTempCycleDays((p) => Math.max(21, p - 1))}
-                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                      className="w-8 h-8 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center active:scale-95 transition-all shadow-sm"
                     >
-                      <Minus className="w-3.5 h-3.5 text-gray-600" />
+                      <Minus className="w-3.5 h-3.5 text-text-secondary" />
                     </button>
-                    <span className="text-[18px] font-bold text-gray-800 w-8 text-center tabular-nums">
+                    <span className="text-[18px] font-bold text-text-primary w-8 text-center tabular-nums">
                       {tempCycleDays}
                     </span>
                     <button
                       type="button"
                       onClick={() => setTempCycleDays((p) => Math.min(40, p + 1))}
-                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                      className="w-8 h-8 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center active:scale-95 transition-all shadow-sm"
                     >
-                      <Plus className="w-3.5 h-3.5 text-gray-600" />
+                      <Plus className="w-3.5 h-3.5 text-text-secondary" />
                     </button>
                   </div>
                 </div>
@@ -184,14 +184,14 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setShowPeriodPopup(false)}
-                  className="flex-1 py-3 rounded-2xl bg-gray-100 text-[13px] font-semibold text-gray-600 active:scale-[0.98] transition-all"
+                  className="flex-1 py-3 rounded-2xl bg-theme-surface-dark text-[13px] font-semibold text-text-secondary active:scale-[0.98] transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmPeriod}
-                  className="flex-1 py-3 rounded-2xl bg-[#E8919A] text-[13px] font-bold text-white active:scale-[0.98] transition-all shadow-sm"
+                  className="flex-1 py-3 rounded-2xl bg-theme-rose text-[13px] font-bold text-white active:scale-[0.98] transition-all shadow-sm"
                 >
                   Start Haiz
                 </button>

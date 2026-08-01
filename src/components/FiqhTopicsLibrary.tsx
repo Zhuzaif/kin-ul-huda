@@ -50,10 +50,10 @@ export default function FiqhTopicsLibrary({
     <div className="px-5 pb-36 nisa-slide-up-delay-1">
       {/* Section header */}
       <div className="mb-4">
-        <h3 className="text-[17px] font-bold text-gray-800 tracking-tight">
+        <h3 className="text-[17px] font-bold text-text-primary tracking-tight">
           Fiqh Library
         </h3>
-        <p className="text-[12px] font-medium text-gray-400 mt-0.5">
+        <p className="text-[12px] font-medium text-text-muted mt-0.5">
           Trusted summaries — read at your own pace
         </p>
       </div>
@@ -79,8 +79,8 @@ export default function FiqhTopicsLibrary({
                   isComingSoon ? 'opacity-60 cursor-not-allowed' : 'active:scale-[0.98]'
                 } ${
                   isExpanded
-                    ? 'bg-white border-gray-100 rounded-t-[20px] rounded-b-none shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
-                    : 'bg-white border-gray-100 rounded-[20px] hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
+                    ? 'bg-theme-surface-card border-theme-border rounded-t-[20px] rounded-b-none shadow-[var(--nisa-shadow-card)]'
+                    : 'bg-theme-surface-card border-theme-border rounded-[20px] hover:shadow-[var(--nisa-shadow-card)]'
                 }`}
                 style={{
                   borderLeftWidth: '3px',
@@ -97,7 +97,7 @@ export default function FiqhTopicsLibrary({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-[14px] font-bold text-gray-800 tracking-tight">
+                      <h4 className="text-[14px] font-bold text-text-primary tracking-tight">
                         {topic.title}
                       </h4>
                       {isComingSoon ? (
@@ -105,18 +105,18 @@ export default function FiqhTopicsLibrary({
                           Coming Soon
                         </span>
                       ) : hasSubTopics && (
-                        <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-semibold text-text-muted bg-theme-surface-dark px-2 py-0.5 rounded-full">
                           {topic.subTopics.length}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-medium text-gray-400 mt-0.5">
+                    <p className="text-[11px] font-medium text-text-muted mt-0.5">
                       {topic.subtitle}
                     </p>
                   </div>
                   {!isComingSoon && (
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-text-muted flex-shrink-0 transition-transform duration-200 ${
                         isExpanded ? 'rotate-180' : ''
                       }`}
                     />
@@ -126,38 +126,43 @@ export default function FiqhTopicsLibrary({
 
               {/* Expandable Sub-Topics */}
               <div
-                className={`overflow-hidden transition-all duration-300 ease-out ${
-                  isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isExpanded ? 'opacity-100 mt-0' : 'max-h-0 opacity-0'
                 }`}
               >
                 <div
-                  className="bg-white border border-t-0 border-gray-100 rounded-b-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
-                  style={{ borderLeftWidth: '3px', borderLeftColor: accentColor }}
+                  className="bg-theme-surface-card border border-t-0 border-theme-border rounded-b-[20px] px-2 pb-2"
+                  style={{
+                    borderLeftWidth: '3px',
+                    borderLeftColor: accentColor,
+                  }}
                 >
                   {hasSubTopics ? (
-                    <div className="py-2 px-2">
+                    <div className="pt-2 flex flex-col">
                       {topic.subTopics.map((sub) => (
                         <button
                           key={sub.id}
                           type="button"
                           onClick={() => handleSubTopicClick(sub, topic)}
-                          className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 group/sub"
+                          className="w-full text-left flex items-center justify-between p-3 rounded-2xl hover:bg-theme-surface-alt transition-colors group/item"
                         >
-                          <div className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0" />
-                          <span className="text-[13px] font-medium text-gray-700 flex-1 min-w-0 truncate group-hover/sub:text-gray-900 transition-colors">
-                            {sub.title}
-                          </span>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover/sub:text-[#D98A5B] flex-shrink-0 transition-all group-hover/sub:translate-x-0.5" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-1 h-1 rounded-full bg-text-muted flex-shrink-0" />
+                            <span className="text-[13px] font-medium text-text-secondary flex-1 min-w-0 truncate group-hover/item:text-text-primary transition-colors">
+                              {sub.title}
+                            </span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover/item:text-theme-accent flex-shrink-0 transition-all group-hover/item:translate-x-0.5" />
                         </button>
                       ))}
                     </div>
                   ) : (
                     <div className="px-5 py-5 flex flex-col items-center text-center">
-                      <Clock className="w-5 h-5 text-gray-300 mb-2" />
-                      <p className="text-[12px] font-semibold text-gray-500">
+                      <Clock className="w-5 h-5 text-text-muted mb-2" />
+                      <p className="text-[12px] font-semibold text-text-tertiary">
                         Coming soon
                       </p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">
+                      <p className="text-[11px] text-text-muted mt-0.5">
                         Sub-topics will be added shortly
                       </p>
                     </div>

@@ -68,27 +68,27 @@ export default function VerseCard({
 
   const cardClasses = `rounded-[24px] p-5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] border transition-colors ${
     isActive
-      ? 'bg-soft-mint/60 border-soft-mint-dark/40'
-      : 'bg-white/80 border-white/70'
+      ? 'bg-theme-accent-soft/60 border-theme-accent-soft-dark/40'
+      : 'bg-theme-surface-card border-theme-border'
   }`;
 
   return (
     <div className={cardClasses} onClick={onSelect} role={onSelect ? 'button' : undefined} id={id}>
       <div className="flex items-start gap-4">
-        <div className="w-9 h-9 rounded-full bg-soft-mint text-[#2B604A] flex items-center justify-center text-[12px] font-bold shadow-inner">
+        <div className="w-9 h-9 rounded-full bg-theme-accent-soft text-theme-accent flex items-center justify-center text-[12px] font-bold shadow-inner">
           {verseNumber}
         </div>
         <div className="flex-1">
-          <p className="font-arabic text-[26px] leading-[2.1] text-gray-800 text-right" dir="rtl">
+          <p className="font-arabic text-[26px] leading-[2.1] text-text-primary text-right" dir="rtl">
             {arabicText}
           </p>
-          <p className="text-[13.5px] text-gray-600 leading-relaxed mt-3">
+          <p className="text-[13.5px] text-text-secondary leading-relaxed mt-3">
             {translationText}
           </p>
         </div>
       </div>
 
-      <div className="border-t border-gray-100/80 mt-4 pt-3 flex items-center gap-3 text-gray-500">
+      <div className="border-t border-theme-border mt-4 pt-3 flex items-center gap-3 text-text-tertiary">
         {onPlay && (
           <button
             type="button"
@@ -96,7 +96,7 @@ export default function VerseCard({
               event.stopPropagation();
               onPlay();
             }}
-            className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
+            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors"
             aria-label={isActive ? "Pause verse audio" : "Play verse audio"}
           >
             {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
@@ -109,7 +109,7 @@ export default function VerseCard({
               event.stopPropagation();
               onShare();
             }}
-            className="w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors"
+            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors"
             aria-label="Share verse"
           >
             <Share2 className="w-4 h-4" />
@@ -121,7 +121,7 @@ export default function VerseCard({
             event.stopPropagation();
             handleSave();
           }}
-          className={`w-9 h-9 rounded-full bg-white/70 border border-white/70 flex items-center justify-center hover:bg-white transition-colors ${
+          className={`w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors ${
             isAnimating ? 'save-pop' : ''
           }`}
           aria-label={currentSaved ? 'Remove from favorites' : 'Save to favorites'}
@@ -131,7 +131,7 @@ export default function VerseCard({
             className={`w-4 h-4 transition-colors ${
               currentSaved
                 ? 'fill-soft-pink-dark text-soft-pink-dark'
-                : 'text-gray-400'
+                : 'text-text-muted'
             }`}
           />
         </button>

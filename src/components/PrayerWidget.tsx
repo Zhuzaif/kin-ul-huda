@@ -105,34 +105,34 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
           role="button"
           tabIndex={0}
           onClick={() => !isPeriodMode && setIsModalOpen(true)}
-          className={`w-full text-left rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer ${
+          className={`w-full text-left rounded-[32px] p-6 shadow-[var(--nisa-shadow-accent)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer ${
             isPeriodMode
-              ? 'bg-gradient-to-br from-[#FCE7D8] to-soft-pink cursor-default'
-              : 'bg-gradient-to-br from-soft-mint to-[#D1E6DA]'
+              ? 'bg-gradient-to-br from-theme-rose/20 to-theme-rose/10 cursor-default'
+              : 'bg-gradient-to-br from-theme-accent-soft to-theme-accent-soft-dark'
           }`}
         >
-          <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -right-12 -top-12 w-48 h-48 bg-theme-surface-card/20 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-5">
               <div>
                 <p
-                  className={`text-sm font-medium uppercase tracking-wide ${isPeriodMode ? 'text-[#D98A5B]/80' : 'text-[#2B604A]/70'}`}
+                  className={`text-sm font-medium uppercase tracking-wide ${isPeriodMode ? 'text-theme-orange/80' : 'text-theme-accent/70'}`}
                 >
                   {dates.gregorian || '...'}
                 </p>
                 <p
-                  className={`text-xs font-semibold mt-0.5 ${isPeriodMode ? 'text-[#D98A5B]/70' : 'text-[#2B604A]/60'}`}
+                  className={`text-xs font-semibold mt-0.5 ${isPeriodMode ? 'text-theme-orange/70' : 'text-theme-accent/60'}`}
                 >
                   {dates.islamic || '...'}
                 </p>
               </div>
               {isPeriodMode ? (
                 <div
-                  className="w-10 h-10 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs"
+                  className="w-10 h-10 bg-theme-surface-card/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs"
                   title="Period Mode Active"
                 >
-                  <Heart className="w-5 h-5 text-soft-pink-dark fill-current" />
+                  <Heart className="w-5 h-5 text-theme-rose fill-current" />
                 </div>
               ) : (
                 <button
@@ -142,9 +142,9 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     onNavigate?.('qibla');
                   }}
                   title="Find Qibla Direction"
-                  className="w-10 h-10 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs hover:bg-white/70 active:scale-95 transition-all group"
+                  className="w-10 h-10 bg-theme-surface-card/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs hover:bg-theme-surface-card/70 active:scale-95 transition-all group"
                 >
-                  <QiblaIcon className="w-5 h-5 text-[#1F4535] group-hover:scale-110 transition-transform" />
+                  <QiblaIcon className="w-5 h-5 text-theme-accent-strong group-hover:scale-110 transition-transform" />
                 </button>
               )}
             </div>
@@ -160,8 +160,8 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <p className="text-sm font-medium text-[#D98A5B]/80 mb-1">Current Focus</p>
-                      <h3 className="text-3xl font-bold text-gray-800 tracking-tight">Dhikr Time</h3>
+                      <p className="text-sm font-medium text-theme-orange/80 mb-1">Current Focus</p>
+                      <h3 className="text-3xl font-bold text-text-primary tracking-tight">Dhikr Time</h3>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -171,13 +171,13 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <p className="text-sm font-medium text-[#2B604A]/80 mb-1">Next Prayer</p>
+                      <p className="text-sm font-medium text-theme-accent/80 mb-1">Next Prayer</p>
                       <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl sm:text-4xl font-bold text-[#1F4535] tracking-tight">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-theme-accent-strong tracking-tight">
                           {loading ? '...' : nextPrayerName}
                         </h3>
                         {activePrayerTime && !loading && (
-                          <span className="text-xs font-bold text-[#1F4535] bg-white/50 px-2 py-0.5 rounded-lg shadow-2xs">
+                          <span className="text-xs font-bold text-theme-accent-strong bg-theme-surface-card/50 px-2 py-0.5 rounded-lg shadow-2xs">
                             {activePrayerTime}
                           </span>
                         )}
@@ -193,7 +193,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className={`flex items-center gap-1.5 bg-white/60 backdrop-blur-sm px-3 pt-1.5 pb-1 rounded-xl shadow-sm ${isPeriodMode ? 'text-[#D98A5B]' : 'text-[#1F4535]'}`}
+                  className={`flex items-center gap-1.5 bg-theme-surface-card/60 backdrop-blur-sm px-3 pt-1.5 pb-1 rounded-xl shadow-sm ${isPeriodMode ? 'text-theme-orange' : 'text-theme-accent-strong'}`}
                 >
                   {isPeriodMode ? (
                     <span className="text-sm font-semibold tracking-tight pb-0.5 px-2">
@@ -201,8 +201,8 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     </span>
                   ) : (
                     <>
-                      <Clock className="w-4 h-4 mb-0.5 opacity-80 text-[#1F4535]" />
-                      <span className="text-base sm:text-lg font-bold tabular-nums tracking-tight font-mono text-[#1F4535]">
+                      <Clock className="w-4 h-4 mb-0.5 opacity-80 text-theme-accent-strong" />
+                      <span className="text-base sm:text-lg font-bold tabular-nums tracking-tight font-mono text-theme-accent-strong">
                         {formatCountdown(timeLeft)}
                       </span>
                     </>
@@ -212,20 +212,20 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
             </div>
 
             {!isPeriodMode && (
-              <div className="mt-4 pt-3.5 border-t border-[#1F4535]/10 flex items-center justify-between">
+              <div className="mt-4 pt-3.5 border-t border-theme-accent/10 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onNavigate?.('qibla');
                   }}
-                  className="flex items-center gap-2 bg-white/70 hover:bg-white text-[#1F4535] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs active:scale-95 border border-white/60"
+                  className="flex items-center gap-2 bg-theme-surface-card/70 hover:bg-theme-surface-card text-theme-accent-strong px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs active:scale-95 border border-theme-border"
                 >
-                  <QiblaIcon className="w-4 h-4 text-[#D4AF37]" />
+                  <QiblaIcon className="w-4 h-4 text-theme-gold" />
                   <span>Qibla Direction</span>
                 </button>
 
-                <span className="text-[11px] font-semibold text-[#2B604A]/70">
+                <span className="text-[11px] font-semibold text-theme-accent/70">
                   Tap card for timetable
                 </span>
               </div>
@@ -251,54 +251,54 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                   animate={{ y: 0 }}
                   exit={{ y: '100%' }}
                   transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                  className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] pt-4 pb-8 px-6 z-50 shadow-2xl"
+                  className="absolute bottom-0 left-0 right-0 bg-theme-surface-elevated rounded-t-[32px] pt-4 pb-8 px-6 z-50 shadow-2xl border-t border-theme-border"
                 >
                   <div className="flex justify-center mb-6">
-                    <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                    <div className="w-12 h-1.5 bg-theme-surface-dark rounded-full" />
                   </div>
 
                   <div className="flex justify-between items-center mb-2">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
+                      <h2 className="text-2xl font-bold text-text-primary tracking-tight">
                         Prayer Times
                       </h2>
-                      <p className="text-sm text-gray-500 font-medium">{dates.islamic || '...'}</p>
+                      <p className="text-sm text-text-tertiary font-medium">{dates.islamic || '...'}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
+                      className="w-8 h-8 bg-theme-surface-dark rounded-full flex items-center justify-center text-text-tertiary hover:bg-theme-surface-dark/80 transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <p className="text-[11px] text-muted-gold font-semibold mb-4">{madhabNote}</p>
+                  <p className="text-[11px] text-theme-gold font-semibold mb-4">{madhabNote}</p>
 
-                  <div className="flex flex-col mb-6 bg-gray-50/80 rounded-[24px] p-2 border border-gray-100/80">
+                  <div className="flex flex-col mb-6 bg-theme-surface-dark/50 rounded-[24px] p-2 border border-theme-border">
                     {widgetPrayers.map((prayer, i) => (
                       <div
                         key={i}
                         className={`flex items-center justify-between p-3.5 rounded-[18px] transition-all duration-300 ${
                           prayer.active
-                            ? 'bg-soft-mint shadow-sm scale-[1.02] border border-[#2B604A]/10'
+                            ? 'bg-theme-accent-soft shadow-sm scale-[1.02] border border-theme-accent/10'
                             : prayer.passed
                               ? 'opacity-40 grayscale-[50%]'
-                              : 'bg-transparent hover:bg-gray-100/50'
+                              : 'bg-transparent hover:bg-theme-surface-alt/50'
                         }`}
                       >
                         <span
-                          className={`text-[15px] font-bold ${prayer.active ? 'text-[#1F4535]' : 'text-gray-700'}`}
+                          className={`text-[15px] font-bold ${prayer.active ? 'text-theme-accent-strong' : 'text-text-primary'}`}
                         >
                           {prayer.name}
                           {prayer.name === 'Asr' && (
-                            <span className="text-[10px] font-medium text-gray-400 ml-1">
+                            <span className="text-[10px] font-medium text-text-muted ml-1">
                               ({getMadhabLabel(profile.madhab)})
                             </span>
                           )}
                         </span>
                         <span
-                          className={`text-[14px] font-bold tabular-nums ${prayer.active ? 'text-[#1F4535]' : 'text-gray-500'}`}
+                          className={`text-[14px] font-bold tabular-nums ${prayer.active ? 'text-theme-accent-strong' : 'text-text-tertiary'}`}
                         >
                           {prayer.time}
                         </span>
@@ -312,7 +312,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       setIsModalOpen(false);
                       onNavigate?.('profile');
                     }}
-                    className="w-full mb-3 py-3 rounded-[18px] bg-muted-gold-light text-[13px] font-bold text-muted-gold active:scale-[0.98] transition-transform"
+                    className="w-full mb-3 py-3 rounded-[18px] bg-theme-gold/10 text-[13px] font-bold text-theme-gold active:scale-[0.98] transition-transform"
                   >
                     Adjust madhab & calculation in Profile
                   </button>
@@ -323,9 +323,9 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                       setIsModalOpen(false);
                       onNavigate?.('qibla');
                     }}
-                    className="w-full bg-[#1F4535] text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[0_4px_15px_rgba(31,69,53,0.3)] active:scale-[0.98] transition-transform"
+                    className="w-full bg-theme-accent-strong text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[var(--nisa-shadow-accent)] active:scale-[0.98] transition-transform"
                   >
-                    <QiblaIcon className="w-5 h-5 text-[#FFD700]" />
+                    <QiblaIcon className="w-5 h-5 text-theme-gold" />
                     Open Qibla Compass
                   </button>
                 </motion.div>
