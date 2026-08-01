@@ -160,7 +160,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                     className="absolute inset-0"
                     style={{
                       clipPath: OCTAGON_CLIP,
-                      background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                      background: 'linear-gradient(135deg, var(--color-theme-gold), var(--color-theme-accent-strong))',
                     }}
                   />
                   {/* Inner octagon (white fill) */}
@@ -168,10 +168,10 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                     className="absolute inset-[2px] flex items-center justify-center"
                     style={{
                       clipPath: OCTAGON_CLIP,
-                      background: '#FFFFFF',
+                      background: 'var(--color-theme-surface-card)',
                     }}
                   >
-                    <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                    <span className="text-[14px] font-semibold text-theme-accent-strong relative z-10">
                       {surah.id}
                     </span>
                   </div>
@@ -190,13 +190,13 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
               {/* Right: Arabic + download */}
               <div className="flex flex-col items-end justify-center shrink-0">
                 <p
-                  className="text-[22px] leading-none text-[#0B4D3C] font-bold text-right"
+                  className="text-[22px] leading-none text-theme-accent font-bold text-right"
                   style={{ fontFamily: "'Amiri', serif" }}
                 >
                   {surah.name}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                  <p className="text-[10px] text-[#C9A24B] font-medium">
+                  <p className="text-[10px] text-theme-gold font-medium">
                     {surah.translation}
                   </p>
                   <button

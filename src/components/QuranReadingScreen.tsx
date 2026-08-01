@@ -585,13 +585,13 @@ export default function QuranReadingScreen({
             onClick={onBack}
             disabled={!onBack}
             aria-label="Back to surah list"
-            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
           <div className="text-center">
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-muted-gold uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-theme-gold uppercase">
               Surah
             </p>
             <h1 className="text-[18px] font-bold text-text-primary tracking-tight">
@@ -605,7 +605,7 @@ export default function QuranReadingScreen({
           <button
             type="button"
             aria-label="Typography settings"
-            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-white transition-colors"
+            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors"
           >
             <Type className="w-5 h-5" />
           </button>
@@ -616,7 +616,7 @@ export default function QuranReadingScreen({
 
       {chapterId !== 9 && (
         <div className="px-6">
-          <div className="bg-theme-accent-soft/70 border border-theme-border rounded-[20px] px-5 py-4 text-center shadow-[0_6px_16px_rgba(0,0,0,0.04)]">
+          <div className="bg-theme-surface-card border border-theme-border/50 rounded-[20px] px-5 py-4 text-center shadow-[var(--nisa-shadow-card)]">
             <p className="font-arabic text-[22px] text-theme-accent leading-[2]" dir="rtl">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </p>

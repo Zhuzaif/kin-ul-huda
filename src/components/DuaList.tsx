@@ -50,7 +50,7 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
   const getTagStyle = (tag: string) => {
     const normalizedTag = tag.toLowerCase();
     if (normalizedTag.includes('quran')) {
-      return { bg: 'bg-muted-gold-light', text: 'text-muted-gold' };
+      return { bg: 'bg-theme-accent-soft', text: 'text-theme-gold' };
     }
     if (normalizedTag.includes('morning')) {
       return { bg: 'bg-theme-accent-soft', text: 'text-theme-accent' };
@@ -88,7 +88,7 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
                   );
                 })}
                 {dua.repetition && (
-                    <span className="text-[9.5px] uppercase font-bold tracking-wider text-soft-pink-dark bg-soft-pink/30 px-2.5 py-1 rounded-full shadow-sm">
+                    <span className="text-[9.5px] uppercase font-bold tracking-wider text-theme-rose bg-theme-surface-input px-2.5 py-1 rounded-full shadow-sm">
                       {dua.repetition}
                     </span>
                 )}
@@ -101,15 +101,15 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
                       if (!window.confirm('Delete this dua from My Prayers?')) return;
                       onDeleteDua(dua.id);
                     }}
-                    className="h-10 px-4 rounded-full bg-theme-surface-card flex items-center justify-center gap-2 shadow-sm border border-theme-border hover:bg-red-50 transition-colors"
+                    className="h-10 px-4 rounded-full bg-theme-surface-card flex items-center justify-center gap-2 shadow-sm border border-theme-border hover:bg-red-500/10 transition-colors"
                     aria-label="Delete dua"
                   >
-                    <Trash2 className="w-4 h-4 text-gray-300 hover:text-red-500 transition-colors" />
+                    <Trash2 className="w-4 h-4 text-text-muted hover:text-red-500 transition-colors" />
                     <span className="text-xs font-bold text-text-muted hover:text-red-500 transition-colors">Delete</span>
                   </button>
                 )}
-                <button className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-gray-50 transition-colors">
-                  <Heart className="w-4 h-4 text-gray-300 hover:text-soft-pink-dark transition-colors" />
+                <button className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-theme-surface-input transition-colors">
+                  <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
                 </button>
               </div>
           </div>
@@ -123,7 +123,7 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
           <div className="border-t border-theme-border pt-4 flex justify-center">
             <button 
               onClick={() => onSelectDua && onSelectDua(dua, index, filteredDuas)}
-              className="flex items-center gap-1.5 text-xs font-bold text-text-muted group-hover:text-[#D98A5B] transition-colors"
+              className="flex items-center gap-1.5 text-xs font-bold text-text-muted group-hover:text-theme-orange transition-colors"
             >
               Read more
               <ChevronRight className="w-4 h-4" />

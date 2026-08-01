@@ -105,10 +105,10 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
           role="button"
           tabIndex={0}
           onClick={() => !isPeriodMode && setIsModalOpen(true)}
-          className={`w-full text-left rounded-[32px] p-6 shadow-[var(--nisa-shadow-accent)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer ${
+          className={`w-full text-left rounded-[32px] p-6 shadow-[var(--nisa-shadow-accent)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer border ${
             isPeriodMode
-              ? 'bg-gradient-to-br from-theme-rose/20 to-theme-rose/10 cursor-default'
-              : 'bg-gradient-to-br from-theme-accent-soft to-theme-accent-soft-dark'
+              ? 'bg-gradient-to-br from-theme-rose/20 to-theme-rose/10 cursor-default border-theme-rose/20'
+              : 'bg-gradient-to-br from-theme-accent-soft to-theme-accent-soft-dark border-theme-border/50 hover:border-theme-accent/30'
           }`}
         >
           <div className="absolute -right-12 -top-12 w-48 h-48 bg-theme-surface-card/20 rounded-full blur-2xl pointer-events-none" />

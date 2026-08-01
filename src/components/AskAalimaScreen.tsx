@@ -188,12 +188,12 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
           <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-md flex-shrink-0">
+          <div className="w-11 h-11 rounded-full bg-theme-accent flex items-center justify-center shadow-md flex-shrink-0">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
             <h1 className="text-lg font-bold text-text-primary tracking-tight leading-tight">Ask Aalima</h1>
-            <p className="text-[11px] font-medium text-[#D98A5B]">Your trusted fiqh advisor</p>
+            <p className="text-[11px] font-medium text-theme-orange">Your trusted fiqh advisor</p>
           </div>
         </div>
       </div>
@@ -229,8 +229,8 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
                   {/* Quoted Reply box */}
                   {msg.replyToId && quotedText && (
                     <div className={`text-[11px] px-2 py-1 mb-1 rounded-lg border-l-2 max-w-full truncate ${
-                      msg.role === 'user' 
-                        ? 'bg-[#1E4334] text-white/80 border-[#3D8566]' 
+                      msg.role === 'user'
+                        ? 'bg-theme-accent-strong text-white/80 border-white/40'
                         : 'bg-theme-surface-card text-text-tertiary border-theme-border-strong'
                     }`}>
                       {quotedText.length > 40 ? quotedText.slice(0, 40) + '...' : quotedText}
@@ -270,12 +270,12 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
         {replyingToMsg && (
           <div className="absolute -top-12 left-4 right-4 bg-theme-surface-card backdrop-blur-md rounded-t-xl px-4 py-2 shadow-sm border border-theme-border flex items-center justify-between z-0">
             <div className="flex items-center gap-2 overflow-hidden">
-              <Reply className="w-4 h-4 text-emerald-600 shrink-0" />
+              <Reply className="w-4 h-4 text-theme-accent shrink-0" />
               <span className="text-xs text-text-secondary truncate">
                 {replyingToMsg.text ? (replyingToMsg.text.length > 40 ? replyingToMsg.text.slice(0,40)+'...' : replyingToMsg.text) : 'Image'}
               </span>
             </div>
-            <button onClick={() => setReplyingToMsg(null)} className="text-text-muted hover:text-gray-700 p-1">
+            <button onClick={() => setReplyingToMsg(null)} className="text-text-muted hover:text-text-secondary p-1">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -286,7 +286,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
           <div className="absolute bottom-[100%] left-4 mb-2 bg-theme-surface-card p-2 rounded-xl shadow-lg border border-theme-border max-w-[120px]">
             <button 
               onClick={() => { setImageFile(null); setImagePreview(null); }}
-              className="absolute -top-2 -right-2 bg-gray-900 text-white p-1 rounded-full shadow-sm"
+              className="absolute -top-2 -right-2 bg-theme-surface-elevated text-text-primary p-1 rounded-full shadow-sm border border-theme-border"
             >
               <X className="w-3 h-3" />
             </button>
@@ -295,7 +295,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
         )}
 
         <div className="flex gap-2 items-end relative z-10">
-          <label className="w-12 h-12 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border text-text-muted hover:text-[#D98A5B] active:scale-95 transition-all cursor-pointer shrink-0">
+          <label className="w-12 h-12 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border text-text-muted hover:text-theme-accent active:scale-95 transition-all cursor-pointer shrink-0">
             <ImageIcon className="w-5 h-5" />
             <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           </label>
@@ -305,7 +305,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
             onChange={(e) => setInput(e.target.value.slice(0, 1000))}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 bg-theme-surface-card rounded-[20px] px-4 py-3.5 text-[13px] text-text-secondary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-soft-pink-dark/30 border border-theme-border resize-none"
+            className="flex-1 bg-theme-surface-card rounded-[20px] px-4 py-3.5 text-[13px] text-text-secondary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-theme-accent/30 border border-theme-border resize-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -316,7 +316,7 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
           <button
             onClick={sendMessage}
             disabled={(!input.trim() && !imageFile) || loading}
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-soft-pink-dark to-[#D98A5B] flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-40 shrink-0"
+            className="w-12 h-12 rounded-full bg-theme-accent flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-40 shrink-0"
           >
             <Send className="w-5 h-5 text-white" />
           </button>

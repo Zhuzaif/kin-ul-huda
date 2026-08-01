@@ -17,8 +17,8 @@ export default function DuasHeader({ activeTab, onTabChange }: DuasHeaderProps) 
           onClick={() => onTabChange('All Duas')}
           className={`flex-1 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
             activeTab === 'All Duas' 
-              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]' 
-              : 'text-text-muted hover:text-gray-600'
+              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]'
+              : 'text-text-muted hover:text-text-secondary'
           }`}
         >
           All Duas
@@ -27,8 +27,8 @@ export default function DuasHeader({ activeTab, onTabChange }: DuasHeaderProps) 
           onClick={() => onTabChange('My Prayers')}
           className={`flex-1 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
             activeTab === 'My Prayers' 
-              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]' 
-              : 'text-text-muted hover:text-gray-600'
+              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]'
+              : 'text-text-muted hover:text-text-secondary'
           }`}
         >
           My Prayers

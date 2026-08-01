@@ -116,7 +116,7 @@ export default function DailyVerse() {
     <>
     <div className="px-6 mb-6" ref={containerRef}>
       <div
-        className="bg-theme-gold/10 rounded-[32px] p-6 shadow-[var(--nisa-shadow-gold)] relative overflow-hidden group cursor-pointer border border-theme-gold/10"
+        className="bg-theme-gold/10 rounded-[32px] p-6 shadow-[var(--nisa-shadow-gold)] relative overflow-hidden group cursor-pointer border border-theme-gold/20 hover:border-theme-gold/40"
         onClick={() => setShowShareCards(true)}
       >
         {/* Subtle geometric pattern with parallax */}

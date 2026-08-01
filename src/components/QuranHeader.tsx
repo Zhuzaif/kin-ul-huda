@@ -63,11 +63,11 @@ export default function QuranHeader({
             aria-label="Download all audio"
           >
             {isDownloading ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0B4D3C]/10 text-[10px] font-bold text-[#0B4D3C]">
+              <div className="absolute inset-0 flex items-center justify-center bg-theme-accent-soft text-[10px] font-bold text-theme-accent-strong">
                 {downloadProgress}%
                 <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 44 44">
-                  <circle cx="22" cy="22" r="20" fill="none" stroke="rgba(11,77,60,0.1)" strokeWidth="2.5" />
-                  <circle cx="22" cy="22" r="20" fill="none" stroke="#0B4D3C" strokeWidth="2.5" strokeDasharray="125.6" strokeDashoffset={125.6 - (125.6 * downloadProgress) / 100} className="transition-all duration-300" />
+                  <circle cx="22" cy="22" r="20" fill="none" stroke="var(--color-theme-accent-soft-dark)" strokeWidth="2.5" />
+                  <circle cx="22" cy="22" r="20" fill="none" stroke="var(--color-theme-accent-strong)" strokeWidth="2.5" strokeDasharray="125.6" strokeDashoffset={125.6 - (125.6 * downloadProgress) / 100} className="transition-all duration-300" />
                 </svg>
               </div>
             ) : (

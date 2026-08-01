@@ -66,6 +66,7 @@ export function getThemeLabel(theme: UserProfile['theme']): string {
     bloom: 'Bloom (Soft Pink)',
     meadow: 'Meadow (Fresh Mint)',
     'oled-vibrant': 'Dark OLED (Vibrant)',
+    'black-gold': 'Black & Gold Elegance',
   };
   return labels[theme] ?? theme;
 }

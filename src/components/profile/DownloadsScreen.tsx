@@ -249,14 +249,14 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
       onBack={onBack}
     >
       <div className="flex flex-col gap-5">
-        <section className="bg-white/70 rounded-[24px] p-5 border border-white/60 shadow-sm text-center">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <CloudDownload className="w-8 h-8 text-gray-500" />
+        <section className="bg-theme-surface-card rounded-[24px] p-5 border border-theme-border shadow-sm text-center">
+          <div className="w-16 h-16 rounded-full bg-theme-surface-input flex items-center justify-center mx-auto mb-4">
+            <CloudDownload className="w-8 h-8 text-text-muted" />
           </div>
-          <p className="text-3xl font-bold text-gray-800 tabular-nums">{cachedCount}</p>
-          <p className="text-[13px] font-medium text-gray-500 mt-1">audio files cached</p>
+          <p className="text-3xl font-bold text-text-primary tabular-nums">{cachedCount}</p>
+          <p className="text-[13px] font-medium text-text-muted mt-1">audio files cached</p>
           {!supported && (
-            <p className="text-[12px] text-[#D98A5B] mt-3">
+            <p className="text-[12px] text-theme-orange mt-3">
               Your browser does not support offline cache storage.
             </p>
           )}
@@ -265,20 +265,20 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
         {error && (
           <div
             role="alert"
-            className="bg-[#FBEDE4] rounded-[20px] p-4 border border-[#D98A5B]/30 flex items-start gap-2"
+            className="bg-theme-accent-soft rounded-[20px] p-4 border border-theme-border flex items-start gap-2"
           >
-            <AlertCircle className="w-4 h-4 text-[#B4643A] shrink-0 mt-0.5" />
-            <p className="text-[12px] font-medium text-[#8A4A28] leading-relaxed">{error}</p>
+            <AlertCircle className="w-4 h-4 text-theme-orange shrink-0 mt-0.5" />
+            <p className="text-[12px] font-medium text-text-secondary leading-relaxed">{error}</p>
           </div>
         )}
 
         {downloading && (
-          <div className="bg-theme-accent-soft/50 rounded-[20px] p-4 border border-theme-accent-soft-dark/20">
+          <div className="bg-theme-accent-soft rounded-[20px] p-4 border border-theme-border">
             <div className="flex items-center gap-2 mb-2">
               <Loader2 className="w-4 h-4 animate-spin text-theme-accent" />
               <span className="text-[13px] font-bold text-theme-accent">Downloading… {progress}%</span>
             </div>
-            <div className="h-2 bg-white/80 rounded-full overflow-hidden">
+            <div className="h-2 bg-theme-surface-input rounded-full overflow-hidden">
               <div
                 className="h-full bg-theme-accent transition-all duration-300"
                 style={{ width: `${progress}%` }}
@@ -291,7 +291,7 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
           type="button"
           onClick={handleDownloadAll}
           disabled={downloading || !supported}
-          className="w-full py-4 rounded-[20px] bg-[#1F4535] text-white font-bold text-[14px] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-[20px] bg-theme-accent-strong text-white font-bold text-[14px] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
         >
           <CloudDownload className="w-5 h-5" />
           Download all surahs
@@ -301,20 +301,20 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
         {downloadedList.length > 0 && (
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2 px-1">
-              <BookOpen className="w-4 h-4 text-[#0B4D3C]" />
-              <h3 className="text-[14px] font-bold text-gray-800">
+              <BookOpen className="w-4 h-4 text-theme-accent" />
+              <h3 className="text-[14px] font-bold text-text-primary">
                 Downloaded Surahs ({downloadedList.length})
               </h3>
             </div>
 
-            <div className="flex flex-col bg-white/70 rounded-[20px] border border-white/60 overflow-hidden">
+            <div className="flex flex-col bg-theme-surface-card rounded-[20px] border border-theme-border overflow-hidden">
               {downloadedList.map((ch) => {
                 const isPlaying = playingSurahId === ch.id;
                 const isLoading = loadingSurahId === ch.id;
                 return (
                   <div
                     key={ch.id}
-                    className="flex items-center justify-between py-3 px-4 border-b border-black/5 last:border-b-0"
+                    className="flex items-center justify-between py-3 px-4 border-b border-theme-border last:border-b-0"
                   >
                     {/* Left: octagon number + info */}
                     <div className="flex items-center gap-3 min-w-0">
@@ -323,17 +323,17 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
                           className="absolute inset-0"
                           style={{
                             clipPath: OCTAGON_CLIP,
-                            background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                            background: 'linear-gradient(135deg, var(--color-theme-gold), var(--color-theme-accent-strong))',
                           }}
                         />
                         <div
                           className="absolute inset-[2px] flex items-center justify-center"
                           style={{
                             clipPath: OCTAGON_CLIP,
-                            background: '#FFFFFF',
+                            background: 'var(--color-theme-surface-card)',
                           }}
                         >
-                          <span className="text-[12px] font-semibold text-[#0B4D3C] relative z-10">
+                          <span className="text-[12px] font-semibold text-theme-accent-strong relative z-10">
                             {ch.id}
                           </span>
                         </div>
@@ -353,7 +353,7 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
                     <div className="flex items-center gap-2 shrink-0">
                       <div
                         className="rounded-[8px] px-2.5 py-1 flex items-center justify-center"
-                        style={{ background: '#0B4D3C' }}
+                        style={{ background: 'var(--color-theme-accent-strong)' }}
                       >
                         <span
                           className="text-[18px] leading-none text-white"
@@ -367,15 +367,22 @@ export default function DownloadsScreen({ onBack, onOpenSurah }: DownloadsScreen
                         onClick={() => handlePlayPause(ch.id)}
                         disabled={isLoading}
                         className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-                        style={{ background: isPlaying ? '#C9A24B' : 'rgba(11,77,60,0.1)' }}
+                        style={{
+                          background: isPlaying
+                            ? 'var(--color-theme-gold)'
+                            : 'var(--color-theme-accent-soft)',
+                          color: isPlaying
+                            ? 'var(--color-theme-surface)'
+                            : 'var(--color-theme-accent-strong)',
+                        }}
                         aria-label={isPlaying ? 'Pause' : 'Play'}
                       >
                         {isLoading ? (
-                          <Loader2 className="w-4 h-4 text-[#0B4D3C] animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : isPlaying ? (
-                          <Pause className="w-4 h-4 text-[#0B4D3C]" fill="currentColor" />
+                          <Pause className="w-4 h-4" fill="currentColor" />
                         ) : (
-                          <Play className="w-4 h-4 text-[#0B4D3C]" fill="currentColor" />
+                          <Play className="w-4 h-4" fill="currentColor" />
                         )}
                       </button>
                     </div>

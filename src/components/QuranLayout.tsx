@@ -583,7 +583,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                       className="absolute inset-0"
                       style={{
                         clipPath: OCTAGON_CLIP,
-                        background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                        background: 'linear-gradient(135deg, var(--color-theme-gold), var(--color-theme-accent-strong))',
                       }}
                     />
                     <div

@@ -23,7 +23,7 @@ export default function FiqhSubTopicDetail({ subTopic, parentTopic, onBack }: Fi
           <ChevronLeft className="w-5 h-5 text-text-primary" />
         </button>
         <div className="flex-1 min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#D98A5B]">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-theme-orange">
             {parentTopic.title}
           </span>
           <h1 className="text-lg font-bold text-text-primary tracking-tight truncate">{subTopic.title}</h1>

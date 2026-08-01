@@ -102,15 +102,15 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
             onClick={onBack}
             disabled={!onBack}
             aria-label="Back"
-            className="w-10 h-10 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-50"
+            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors disabled:opacity-50"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="text-center flex-1 mx-2">
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-muted-gold uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-theme-gold uppercase">
               Mushaf • Page {currentPage}
             </p>
-            <h1 className="text-[15px] font-bold text-gray-800 tracking-tight truncate">
+            <h1 className="text-[15px] font-bold text-text-primary tracking-tight truncate">
               {pageTitle}
             </h1>
           </div>
@@ -119,18 +119,18 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={!canPrev}
-              className="w-9 h-9 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-40"
+              className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors disabled:opacity-40"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-[11px] font-bold text-gray-600 min-w-[44px] text-center">
+            <span className="text-[11px] font-bold text-text-secondary min-w-[44px] text-center">
               {currentPage}/{totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={!canNext}
-              className="w-9 h-9 rounded-full bg-white/70 border border-white/70 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors disabled:opacity-40"
+              className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors disabled:opacity-40"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -144,7 +144,7 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
 
       <div className="flex-1 overflow-y-auto px-3 pb-28 flex flex-col">
         <div
-          className="bg-[#FFFDF8] border border-amber-100/60 rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.06)] px-2 py-4 flex-1 flex flex-col justify-between"
+          className="bg-theme-surface-card border border-theme-border rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.06)] px-2 py-4 flex-1 flex flex-col justify-between"
           dir="rtl"
         >
           {!fontLoaded ? (
@@ -161,20 +161,20 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
                 const surahNameStr = line.text?.replace('سورة', '').trim() || `سورة ${line.surah}`;
                 return (
                   <div key={`line-${index}`} className="w-full flex justify-center my-5 px-2">
-                    <div className="relative w-[95%] max-w-[480px] overflow-hidden rounded-[16px] bg-gradient-to-r from-[#112E20] via-[#1C4433] to-[#112E20] shadow-[0_10px_25px_rgba(28,68,51,0.3)] border border-[#D4AF37]/50 flex items-center justify-between py-4 px-6 group transition-all hover:shadow-[0_12px_30px_rgba(212,175,55,0.2)]">
+                    <div className="relative w-[95%] max-w-[480px] overflow-hidden rounded-[16px] shadow-[0_10px_25px_rgba(28,68,51,0.3)] flex items-center justify-between py-4 px-6 group transition-all hover:shadow-[0_12px_30px_rgba(212,175,55,0.2)]" style={{ background: 'linear-gradient(to right, var(--color-theme-accent-strong), var(--color-theme-accent), var(--color-theme-accent-strong))', borderWidth: '1px', borderColor: 'var(--color-theme-gold)' }}>
                       
                       {/* Left Ornate Element */}
                       <div className="hidden sm:flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
-                        <div className="w-10 h-10 rounded-full border-[1.5px] border-[#D4AF37]/70 flex items-center justify-center bg-[#D4AF37]/10 relative before:absolute before:inset-1 before:border before:border-[#D4AF37]/40 before:rounded-full">
-                          <div className="w-2.5 h-2.5 rotate-45 bg-[#D4AF37]"></div>
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center relative before:absolute before:inset-1 before:border before:rounded-full" style={{ borderWidth: '1.5px', borderColor: 'color-mix(in srgb, var(--color-theme-gold) 70%, transparent)', background: 'color-mix(in srgb, var(--color-theme-gold) 10%, transparent)' }}>
+                          <div className="w-2.5 h-2.5 rotate-45" style={{ background: 'var(--color-theme-gold)' }}></div>
                         </div>
-                        <div className="w-8 h-[1.5px] bg-gradient-to-r from-[#D4AF37]/70 to-transparent ml-3"></div>
+                        <div className="w-8 h-[1.5px] ml-3" style={{ background: 'linear-gradient(to right, color-mix(in srgb, var(--color-theme-gold) 70%, transparent), transparent)' }}></div>
                       </div>
                       
                       {/* Center Text */}
                       <div className="text-center z-10 flex-1 flex flex-col items-center">
                         <div className="flex items-center justify-center gap-3" dir="rtl">
-                          <span className="font-arabic text-[26px] sm:text-[30px] text-[#D4AF37] font-bold leading-none drop-shadow-md">
+                          <span className="font-arabic text-[26px] sm:text-[30px] font-bold leading-none drop-shadow-md" style={{ color: 'var(--color-theme-gold)' }}>
                             سورة
                           </span>
                           <span className="font-arabic text-[36px] sm:text-[42px] font-bold text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.6)] leading-none" style={{ fontFamily: 'IndopakNastaleeq, serif' }}>
@@ -185,17 +185,17 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
 
                       {/* Right Ornate Element */}
                       <div className="hidden sm:flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
-                        <div className="w-8 h-[1.5px] bg-gradient-to-l from-[#D4AF37]/70 to-transparent mr-3"></div>
-                        <div className="w-10 h-10 rounded-full border-[1.5px] border-[#D4AF37]/70 flex items-center justify-center bg-[#D4AF37]/10 relative before:absolute before:inset-1 before:border before:border-[#D4AF37]/40 before:rounded-full">
-                          <div className="w-2.5 h-2.5 rotate-45 bg-[#D4AF37]"></div>
+                        <div className="w-8 h-[1.5px] mr-3" style={{ background: 'linear-gradient(to left, color-mix(in srgb, var(--color-theme-gold) 70%, transparent), transparent)' }}></div>
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center relative before:absolute before:inset-1 before:border before:rounded-full" style={{ borderWidth: '1.5px', borderColor: 'color-mix(in srgb, var(--color-theme-gold) 70%, transparent)', background: 'color-mix(in srgb, var(--color-theme-gold) 10%, transparent)' }}>
+                          <div className="w-2.5 h-2.5 rotate-45" style={{ background: 'var(--color-theme-gold)' }}></div>
                         </div>
                       </div>
 
                       {/* Subtle Overlay Pattern */}
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.15] pointer-events-none mix-blend-overlay"></div>
                       {/* Top/Bottom Golden Glow */}
-                      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent"></div>
-                      <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent"></div>
+                      <div className="absolute top-0 inset-x-0 h-[1px]" style={{ background: 'linear-gradient(to right, transparent, color-mix(in srgb, var(--color-theme-gold) 40%, transparent), transparent)' }}></div>
+                      <div className="absolute bottom-0 inset-x-0 h-[1px]" style={{ background: 'linear-gradient(to right, transparent, color-mix(in srgb, var(--color-theme-gold) 40%, transparent), transparent)' }}></div>
                     </div>
                   </div>
                 );
@@ -220,7 +220,7 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
                       fontFamily: 'IndopakNastaleeq, serif',
                       fontSize: 'clamp(14px, 4.8vw, 26px)',
                       lineHeight: '1.8',
-                      color: '#1a1a1a',
+                      color: 'var(--color-text-primary)',
                       textAlign: line.centered ? 'center' : 'justify',
                       textAlignLast: line.centered ? 'center' : 'justify',
                       whiteSpace: 'nowrap',

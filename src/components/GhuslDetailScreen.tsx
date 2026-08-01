@@ -53,14 +53,14 @@ function GhuslTopicView({
             const [, num, heading, body] = numberedMatch;
             return (
               <div key={i} className="flex flex-col gap-1">
-                <p className="text-[14px] font-semibold leading-[1.7]" style={{ color: 'rgba(43,43,40,0.95)' }}>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold mr-2" style={{ background: 'rgba(15,92,74,0.1)', color: '#0f5c4a' }}>
+                <p className="text-[14px] font-semibold leading-[1.7]" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold mr-2" style={{ background: 'var(--color-theme-accent-soft)', color: 'var(--color-theme-accent-strong)' }}>
                     {num}
                   </span>
                   {heading}
                 </p>
                 {body && (
-                  <p className="text-[13.5px] leading-[1.85] pl-7" style={{ color: 'rgba(43,43,40,0.75)' }}>
+                  <p className="text-[13.5px] leading-[1.85] pl-7" style={{ color: 'var(--color-text-secondary)' }}>
                     {body}
                   </p>
                 )}
@@ -68,7 +68,7 @@ function GhuslTopicView({
             );
           }
           return (
-            <p key={i} className="text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.8)' }}>
+            <p key={i} className="text-[14px] leading-[1.9]" style={{ color: 'var(--color-text-secondary)' }}>
               {trimmed}
             </p>
           );
@@ -79,21 +79,21 @@ function GhuslTopicView({
 
   /* Spiritual design inline CSS variables */
   const spiritualStyles = `
-    .spiritual-bg { background-color: #f9f9f6; color: #2b2b28; }
-    .spiritual-header { border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(249,249,246,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .spiritual-gold { color: #b08d35; }
-    .spiritual-emerald { color: #0f5c4a; }
-    .spiritual-secondary { background: #f0efe9; }
-    .spiritual-muted { color: #8a897f; }
-    .spiritual-border { border-color: rgba(0,0,0,0.05); }
+    .spiritual-bg { background-color: var(--color-theme-surface); color: var(--color-text-primary); }
+    .spiritual-header { border-bottom: 1px solid var(--color-theme-border); background: var(--color-theme-surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .spiritual-gold { color: var(--color-theme-gold); }
+    .spiritual-emerald { color: var(--color-theme-accent-strong); }
+    .spiritual-secondary { background: var(--color-theme-surface-alt); }
+    .spiritual-muted { color: var(--color-text-tertiary); }
+    .spiritual-border { border-color: var(--color-theme-border); }
 
-    .tab-pill-container { background: #f0efe9; border-radius: 9999px; padding: 4px; display: flex; }
-    .tab-pill { flex: 1; border-radius: 9999px; padding: 8px 16px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: #2b2b28; }
-    .tab-pill.active { background: #ffffff; color: #0f5c4a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .tab-pill-container { background: var(--color-theme-surface-alt); border-radius: 9999px; padding: 4px; display: flex; }
+    .tab-pill { flex: 1; border-radius: 9999px; padding: 8px 16px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--color-text-primary); }
+    .tab-pill.active { background: var(--color-theme-surface-card); color: var(--color-theme-accent-strong); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 
-    .accordion-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 0; font-size: 14px; font-weight: 500; color: #2b2b28; text-align: left; cursor: pointer; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.2s; }
+    .accordion-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 0; font-size: 14px; font-weight: 500; color: var(--color-text-primary); text-align: left; cursor: pointer; background: none; border: none; border-bottom: 1px solid var(--color-theme-border); transition: all 0.2s; }
     .accordion-trigger:last-child { border-bottom: none; }
-    .accordion-chevron { width: 16px; height: 16px; color: #8a897f; transition: transform 0.2s; flex-shrink: 0; }
+    .accordion-chevron { width: 16px; height: 16px; color: var(--color-text-tertiary); transition: transform 0.2s; flex-shrink: 0; }
     .accordion-chevron.open { transform: rotate(180deg); }
     .accordion-content { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
     .accordion-content.closed { max-height: 0; opacity: 0; }
@@ -101,22 +101,22 @@ function GhuslTopicView({
   `;
 
   return (
-    <div className="absolute inset-0 z-[60] flex flex-col animate-in fade-in duration-300 spiritual-bg" style={{ backgroundColor: '#f9f9f6', color: '#2b2b28' }}>
+    <div className="absolute inset-0 z-[60] flex flex-col animate-in fade-in duration-300 spiritual-bg" style={{ backgroundColor: 'var(--color-theme-surface)', color: 'var(--color-text-primary)' }}>
       <style>{spiritualStyles}</style>
 
       {/* ── Sticky Header ── */}
-      <header className="sticky top-0 z-10 spiritual-header" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(249,249,246,0.8)', backdropFilter: 'blur(12px)' }}>
+      <header className="sticky top-0 z-10 spiritual-header" style={{ borderBottom: '1px solid var(--color-theme-border)', background: 'var(--color-theme-surface)', backdropFilter: 'blur(12px)' }}>
         <div className="flex items-center justify-between px-5 py-3.5 max-w-2xl mx-auto">
           <button
             type="button"
             onClick={onBack}
-            className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9] active:scale-95"
+            className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-theme-surface-alt active:scale-95"
             aria-label="Back"
           >
-            <ChevronLeft className="w-5 h-5" style={{ color: '#2b2b28', opacity: 0.7 }} strokeWidth={1.75} />
+            <ChevronLeft className="w-5 h-5" style={{ color: 'var(--color-text-primary)', opacity: 0.7 }} strokeWidth={1.75} />
           </button>
 
-          <h2 className="text-center text-[15px] font-medium" style={{ color: 'rgba(43,43,40,0.9)' }}>
+          <h2 className="text-center text-[15px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
             {topic.tagLabel}
           </h2>
 
@@ -124,23 +124,23 @@ function GhuslTopicView({
             <button
               type="button"
               onClick={() => setBookmarked((v) => !v)}
-              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9]"
+              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-theme-surface-alt"
               aria-label="Bookmark"
             >
               <BookMarked
                 className="w-5 h-5"
                 strokeWidth={1.75}
-                fill={bookmarked ? '#b08d35' : 'none'}
-                stroke={bookmarked ? '#b08d35' : 'currentColor'}
-                style={{ color: 'rgba(43,43,40,0.7)' }}
+                fill={bookmarked ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                style={{ color: bookmarked ? 'var(--color-theme-gold)' : 'var(--color-text-tertiary)' }}
               />
             </button>
             <button
               type="button"
-              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-[#f0efe9]"
+              className="w-9 h-9 grid place-items-center rounded-full transition-colors hover:bg-theme-surface-alt"
               aria-label="Share"
             >
-              <ArrowRight className="w-5 h-5 rotate-[-45deg]" strokeWidth={1.75} style={{ color: 'rgba(43,43,40,0.7)' }} />
+              <ArrowRight className="w-5 h-5 rotate-[-45deg]" strokeWidth={1.75} style={{ color: 'var(--color-text-tertiary)' }} />
             </button>
           </div>
         </div>
@@ -156,22 +156,22 @@ function GhuslTopicView({
                 dir="rtl"
                 lang="ar"
                 className="font-arabic text-center text-[28px] leading-[2.4]"
-                style={{ color: '#2b2b28' }}
+                style={{ color: 'var(--color-text-primary)' }}
               >
                 {topic.hadith.arabic}
               </p>
             ) : (
               /* If no hadith, show the summary as main content */
-              <p className="text-center text-[16px] leading-[1.9] font-medium" style={{ color: 'rgba(43,43,40,0.9)' }}>
+              <p className="text-center text-[16px] leading-[1.9] font-medium" style={{ color: 'var(--color-text-primary)' }}>
                 {topic.summary}
               </p>
             )}
 
             {/* Ornamental Divider */}
             <div className="my-8 flex items-center justify-center gap-3">
-              <span className="h-px w-16" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.1))' }} />
-              <span style={{ color: '#b08d35' }}>۞</span>
-              <span className="h-px w-16" style={{ background: 'linear-gradient(to left, transparent, rgba(0,0,0,0.1))' }} />
+              <span className="h-px w-16" style={{ background: 'linear-gradient(to right, transparent, var(--color-theme-border-strong))' }} />
+              <span style={{ color: 'var(--color-theme-gold)' }}>۞</span>
+              <span className="h-px w-16" style={{ background: 'linear-gradient(to left, transparent, var(--color-theme-border-strong))' }} />
             </div>
 
             {/* Tabs — Translation / Explanation */}
@@ -198,18 +198,18 @@ function GhuslTopicView({
                 <div className="animate-in fade-in duration-200">
                   {topic.hadith ? (
                     <>
-                      <p className="text-left text-[14px] leading-[1.9]" style={{ color: 'rgba(43,43,40,0.9)' }}>
+                      <p className="text-left text-[14px] leading-[1.9]" style={{ color: 'var(--color-text-primary)' }}>
                         {topic.hadith.translation}
                       </p>
                       {/* Meta Pills */}
-                      <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                      <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--color-theme-border)' }}>
                         <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: '#f0efe9', color: '#8a897f' }}>
-                            <User className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: '#0f5c4a' }} />
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: 'var(--color-theme-surface-alt)', color: 'var(--color-text-tertiary)' }}>
+                            <User className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: 'var(--color-theme-accent-strong)' }} />
                             <span className="text-[13px]">Narrated by {topic.hadith.narrator}</span>
                           </span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: '#f0efe9', color: '#8a897f' }}>
-                            <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: '#b08d35' }} />
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: 'var(--color-theme-surface-alt)', color: 'var(--color-text-tertiary)' }}>
+                            <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} style={{ color: 'var(--color-theme-gold)' }} />
                             <span className="text-[13px]">{topic.hadith.reference.split('\n')[0]}</span>
                           </span>
                         </div>
@@ -227,7 +227,7 @@ function GhuslTopicView({
               {activeTab === 'explanation' && (
                 <div className="animate-in fade-in duration-200">
                   {/* Simple Explanation Accordion */}
-                  <div style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                  <div style={{ borderBottom: '1px solid var(--color-theme-border)' }}>
                     <button
                       type="button"
                       className="accordion-trigger"
@@ -246,7 +246,7 @@ function GhuslTopicView({
 
                   {/* Key Takeaways Accordion */}
                   {topic.keyPoints && topic.keyPoints.length > 0 && (
-                    <div style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div style={{ borderBottom: '1px solid var(--color-theme-border)' }}>
                       <button
                         type="button"
                         className="accordion-trigger"
@@ -262,11 +262,11 @@ function GhuslTopicView({
                               <li key={i} className="flex items-start gap-3">
                                 <span
                                   className="mt-0.5 w-5 h-5 shrink-0 grid place-items-center rounded-full"
-                                  style={{ background: 'rgba(15,92,74,0.1)' }}
+                                  style={{ background: 'var(--color-theme-accent-soft)' }}
                                 >
-                                  <Sparkles className="w-3 h-3" strokeWidth={2.5} style={{ color: '#0f5c4a' }} />
+                                  <Sparkles className="w-3 h-3" strokeWidth={2.5} style={{ color: 'var(--color-theme-accent-strong)' }} />
                                 </span>
-                                <span className="text-[14px] leading-[1.7]" style={{ color: 'rgba(43,43,40,0.8)' }}>
+                                <span className="text-[14px] leading-[1.7]" style={{ color: 'var(--color-text-secondary)' }}>
                                   {point}
                                 </span>
                               </li>
@@ -282,7 +282,7 @@ function GhuslTopicView({
           </section>
 
           {/* Footer Disclaimer */}
-          <p className="mx-auto max-w-md text-center text-[11px] leading-relaxed" style={{ color: 'rgba(138,137,127,0.7)' }}>
+          <p className="mx-auto max-w-md text-center text-[11px] leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
             General guidance only. For rulings specific to your situation, please
             consult a qualified scholar.
           </p>
@@ -290,20 +290,20 @@ function GhuslTopicView({
       </div>
 
       {/* ── Bottom Navigation Bar ── */}
-      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between px-5 py-3.5 rounded-full shadow-lg" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.05)' }}>
+      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between px-5 py-3.5 rounded-full shadow-lg" style={{ background: 'var(--color-theme-surface-card)', backdropFilter: 'blur(12px)', border: '1px solid var(--color-theme-border)' }}>
         <button
           type="button"
           onClick={onPrev}
           disabled={!onPrev}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onPrev
-            ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
-            : 'text-[#2b2b28]/15 cursor-not-allowed'
+            ? 'text-text-tertiary hover:bg-theme-surface-alt hover:text-text-primary'
+            : 'text-text-muted/50 cursor-not-allowed'
             }`}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <span className="text-[13px] font-medium" style={{ color: 'rgba(43,43,40,0.7)' }}>
+        <span className="text-[13px] font-medium" style={{ color: 'var(--color-text-tertiary)' }}>
           {currentIndex + 1} of {totalCount}
         </span>
 
@@ -312,8 +312,8 @@ function GhuslTopicView({
           onClick={onNext}
           disabled={!onNext}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${onNext
-            ? 'text-[#2b2b28]/60 hover:bg-[#f0efe9] hover:text-[#2b2b28]'
-            : 'text-[#2b2b28]/15 cursor-not-allowed'
+            ? 'text-text-tertiary hover:bg-theme-surface-alt hover:text-text-primary'
+            : 'text-text-muted/50 cursor-not-allowed'
             }`}
         >
           <ChevronRight className="w-5 h-5" />
@@ -391,7 +391,7 @@ export default function GhuslDetailScreen({
       top: 20%;
       bottom: 20%;
       width: 1px;
-      background: #e2e8f0;
+      background: var(--color-theme-border);
     }
   `;
 
@@ -399,7 +399,7 @@ export default function GhuslDetailScreen({
     <div
       className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden animate-in fade-in duration-300"
       style={{
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'var(--color-theme-surface)',
         backgroundImage:
           "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23cbd5e1' fill-opacity='0.15'%3E%3Cpath d='M40 80c22.091 0 40-17.909 40-40S62.091 0 40 0 0 17.909 0 40s17.909 40 40 40zm0-2c20.987 0 38-17.013 38-38S60.987 2 40 2 2 19.013 2 40s17.013 38 38 38zm0-38c0-11.046 8.954-20 20-20s20 8.954 20 20-8.954 20-20 20-20-8.954-20-20zm0 0c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
         backgroundSize: '100px 100px',
@@ -411,25 +411,25 @@ export default function GhuslDetailScreen({
       {/* Frosted glass mobile container */}
       <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-theme-surface-card backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-theme-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
         {/* Floating Arabic Header Block */}
-        <header className="bg-theme-surface-card rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-slate-50 flex flex-col items-center justify-center">
+        <header className="bg-theme-surface-card rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-theme-border flex flex-col items-center justify-center">
           {/* Back button positioned absolutely on the left */}
           <button
             type="button"
             onClick={onBack}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-theme-surface-alt hover:bg-theme-surface-input active:scale-95 transition-all"
             aria-label="Go back"
           >
-            <ChevronLeft className="w-4 h-4 text-slate-600" />
+            <ChevronLeft className="w-4 h-4 text-text-secondary" />
           </button>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight text-center leading-tight font-arabic">
+          <h1 className="text-lg sm:text-xl font-bold text-text-primary tracking-tight text-center leading-tight font-arabic">
             وَإِن كُنتُمْ جُنُبًا فَاطَّهَّرُوا
           </h1>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
-            <span className="text-[10px] font-bold tracking-[0.15em] text-[#35b09f] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-theme-accent" />
+            <span className="text-[10px] font-bold tracking-[0.15em] text-theme-accent uppercase">
               Taharah &amp; Ghusl
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#35b09f]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-theme-accent" />
           </div>
         </header>
 
@@ -459,7 +459,7 @@ export default function GhuslDetailScreen({
               >
                 <div
                   className="ghusl-number-block relative shrink-0 flex items-center justify-center"
-                  style={{ width: '60px', backgroundColor: '#f4f6f8' }}
+                  style={{ width: '60px', backgroundColor: 'var(--color-theme-surface-input)' }}
                 >
                   <span
                     className="font-numbers-sg text-xl font-bold"
@@ -469,10 +469,10 @@ export default function GhuslDetailScreen({
                   </span>
                 </div>
                 <div className="flex-1 px-4 flex flex-col justify-center bg-theme-surface-card min-w-0">
-                  <h3 className="text-[13px] font-bold text-slate-800 leading-tight truncate">
+                  <h3 className="text-[13px] font-bold text-text-primary leading-tight truncate">
                     {topic.title}
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
+                  <p className="text-[10px] text-text-muted font-medium mt-0.5 truncate">
                     {cardMeta.subtitle}
                   </p>
                 </div>
@@ -483,7 +483,7 @@ export default function GhuslDetailScreen({
 
         {/* Footer */}
         <footer className="mt-4 text-center z-20">
-          <p className="text-[9px] text-slate-400 font-semibold tracking-wide">
+          <p className="text-[9px] text-text-muted font-semibold tracking-wide">
             CONSULT A SCHOLAR FOR PERSONAL RULINGS
           </p>
         </footer>

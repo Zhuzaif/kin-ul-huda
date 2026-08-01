@@ -103,6 +103,37 @@ function AppContent() {
     };
   }, [profile.onboardingCompleted, profile.userId]);
 
+  // Keep the status bar and the backdrop behind the safe-area insets in sync
+  // with the active theme so dark themes don't flash a light strip.
+  useEffect(() => {
+    const DARK_THEMES = new Set(['black-gold', 'oled-vibrant']);
+    const BASE_SURFACE: Record<string, string> = {
+      serenity: '#FFFFFF',
+      bloom: '#FFFBFB',
+      meadow: '#FBFEFC',
+      'oled-vibrant': '#000000',
+      'black-gold': '#000000',
+    };
+    const isDark = DARK_THEMES.has(profile.theme);
+    const baseSurface = BASE_SURFACE[profile.theme] ?? '#FFFFFF';
+
+    document.body.style.backgroundColor = baseSurface;
+
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'theme-color');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', baseSurface);
+
+    if (Capacitor.isNativePlatform()) {
+      StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light }).catch((e) => {
+        console.error('StatusBar style error:', e);
+      });
+    }
+  }, [profile.theme]);
+
   if (showOnboarding) {
     return (
       <OnboardingFlow

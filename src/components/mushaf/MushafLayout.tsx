@@ -127,7 +127,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
             onClick={() => onOpenPage(lastReadPage)}
             className="relative w-full rounded-[20px] px-5 py-4 overflow-hidden shadow-[0_10px_20px_rgba(11,77,60,0.25)] flex items-center justify-between"
             style={{
-              background: 'linear-gradient(135deg, #0B4D3C 0%, #135E4A 100%)',
+              background: 'linear-gradient(135deg, var(--color-theme-accent-strong) 0%, var(--color-theme-accent) 100%)',
             }}
           >
             <div
@@ -158,7 +158,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
             </div>
             <span
               className="relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold"
-              style={{ background: '#C9A24B', color: '#0B4D3C' }}
+              style={{ background: 'var(--color-theme-gold)', color: 'var(--color-theme-accent-strong)' }}
             >
               Continue
             </span>
@@ -176,8 +176,8 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`whitespace-nowrap px-[18px] py-2 rounded-[12px] text-[13px] font-medium transition-all border ${isActive
-                  ? 'bg-[#0B4D3C] text-white border-[#0B4D3C]'
-                  : 'bg-white text-gray-700 border-[#E0E0E0] hover:bg-gray-50'
+                  ? 'bg-theme-accent text-white border-theme-accent'
+                  : 'bg-theme-surface-card text-text-secondary border-theme-border hover:bg-theme-surface-alt'
                   }`}
               >
                 {tab === 'surahs' ? 'Surahs' : 'Juz'}
@@ -192,7 +192,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
         {activeTab === 'surahs' ? (
           <div className="flex flex-col">
             {filteredSurahs.length === 0 ? (
-              <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
+              <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
                 No surahs match your search.
               </div>
             ) : (
@@ -205,7 +205,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                     tabIndex={0}
                     onClick={() => handleOpenSurah(ch.id)}
                     aria-label={`Open ${ch.transliteration} in Mushaf`}
-                    className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
+                    className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-theme-surface-alt text-left"
                   >
                     {/* Left: octagon number + info */}
                     <div className="flex items-center gap-4 min-w-0">
@@ -214,27 +214,26 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                           className="absolute inset-0"
                           style={{
                             clipPath: OCTAGON_CLIP,
-                            background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                            background: 'linear-gradient(135deg, var(--color-theme-gold), var(--color-theme-accent-strong))',
                           }}
                         />
                         <div
-                          className="absolute inset-[2px] flex items-center justify-center"
+                          className="absolute inset-[2px] flex items-center justify-center bg-theme-surface-card"
                           style={{
                             clipPath: OCTAGON_CLIP,
-                            background: '#FFFFFF',
                           }}
                         >
-                          <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                          <span className="text-[14px] font-semibold text-theme-accent-strong relative z-10">
                             {ch.id}
                           </span>
                         </div>
                       </div>
 
                       <div className="min-w-0">
-                        <h4 className="text-[15px] font-semibold text-gray-800 truncate">
+                        <h4 className="text-[15px] font-semibold text-text-primary truncate">
                           {ch.transliteration}
                         </h4>
-                        <p className="text-[12px] text-gray-400 mt-0.5">
+                        <p className="text-[12px] text-text-muted mt-0.5">
                           {ch.translation} • {ch.total_verses} Verses
                         </p>
                       </div>
@@ -243,13 +242,13 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                     {/* Right: Arabic + page */}
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <span
-                        className="text-[22px] leading-none text-[#0B4D3C]"
+                        className="text-[22px] leading-none text-theme-accent-strong"
                         style={{ fontFamily: "'Amiri', serif" }}
                       >
                         {ch.name}
                       </span>
                       {startPage && (
-                        <span className="text-[11px] text-[#C9A24B] font-medium">
+                        <span className="text-[11px] text-theme-gold font-medium">
                           P{startPage}
                         </span>
                       )}
@@ -262,7 +261,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
         ) : (
           <div className="flex flex-col">
             {filteredJuz.length === 0 ? (
-              <div className="bg-white border border-[#E0E0E0] rounded-[16px] p-4 text-sm text-gray-500 text-center">
+              <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
                 No juz match your search.
               </div>
             ) : (
@@ -273,7 +272,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                   tabIndex={0}
                   onClick={() => handleOpenJuz(item.startPage)}
                   aria-label={`Open Juz ${item.index} in Mushaf`}
-                  className="flex items-center justify-between py-3.5 border-b border-black/5 cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
+                  className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-theme-surface-alt text-left"
                 >
                   {/* Left: octagon number + info */}
                   <div className="flex items-center gap-4 min-w-0">
@@ -282,27 +281,26 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                         className="absolute inset-0"
                         style={{
                           clipPath: OCTAGON_CLIP,
-                          background: 'linear-gradient(135deg, #C9A24B, #0B4D3C)',
+                          background: 'linear-gradient(135deg, var(--color-theme-gold), var(--color-theme-accent-strong))',
                         }}
                       />
                       <div
-                        className="absolute inset-[2px] flex items-center justify-center"
+                        className="absolute inset-[2px] flex items-center justify-center bg-theme-surface-card"
                         style={{
                           clipPath: OCTAGON_CLIP,
-                          background: '#FFFFFF',
                         }}
                       >
-                        <span className="text-[14px] font-semibold text-[#0B4D3C] relative z-10">
+                        <span className="text-[14px] font-semibold text-theme-accent-strong relative z-10">
                           {item.index}
                         </span>
                       </div>
                     </div>
 
                     <div className="min-w-0">
-                      <h4 className="text-[15px] font-semibold text-gray-800 truncate">
+                      <h4 className="text-[15px] font-semibold text-text-primary truncate">
                         Juz {item.index} • {item.title}
                       </h4>
-                      <p className="text-[12px] text-gray-400 mt-0.5">
+                      <p className="text-[12px] text-text-muted mt-0.5">
                         Starts: {item.startSurah}
                       </p>
                     </div>
@@ -312,7 +310,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                   <div className="text-right shrink-0">
                     {item.titleAr && (
                       <span
-                        className="text-[20px] leading-none text-[#0B4D3C]"
+                        className="text-[20px] leading-none text-theme-accent-strong"
                         style={{ fontFamily: "'Amiri', serif" }}
                       >
                         {item.titleAr}

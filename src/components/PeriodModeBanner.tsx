@@ -19,14 +19,14 @@ export default function PeriodModeBanner({ message = defaultMessage }: PeriodMod
 
   return (
     <div className="px-6 mt-2">
-      <div className="bg-soft-pink/60 border border-theme-border rounded-[18px] px-4 py-3 shadow-[0_6px_14px_rgba(0,0,0,0.04)] flex items-start gap-3">
+      <div className="bg-theme-accent-soft border border-theme-border rounded-[18px] px-4 py-3 shadow-[var(--nisa-shadow-card)] flex items-start gap-3">
         <p className="text-[12.5px] text-text-secondary leading-relaxed font-medium">
           {message}
         </p>
         <button
           type="button"
           onClick={() => setIsVisible(false)}
-          className="w-7 h-7 rounded-full bg-theme-surface-card flex items-center justify-center text-text-tertiary hover:bg-white transition-colors"
+          className="w-7 h-7 rounded-full bg-theme-surface-card flex items-center justify-center text-text-tertiary hover:bg-theme-surface-elevated transition-colors"
           aria-label="Dismiss period mode message"
         >
           <X className="w-4 h-4" />

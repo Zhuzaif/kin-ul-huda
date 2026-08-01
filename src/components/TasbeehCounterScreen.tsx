@@ -38,7 +38,7 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
   };
 
   return (
-    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-[#C9A66B]/30 animate-in fade-in duration-300">
+    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-theme-gold/30 animate-in fade-in duration-300">
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
         .font-arabic { font-family: 'Amiri', serif; }

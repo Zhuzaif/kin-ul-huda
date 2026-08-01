@@ -96,7 +96,7 @@ export default function VerseCard({
               event.stopPropagation();
               onPlay();
             }}
-            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors"
+            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-theme-surface-elevated transition-colors"
             aria-label={isActive ? "Pause verse audio" : "Play verse audio"}
           >
             {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
@@ -109,7 +109,7 @@ export default function VerseCard({
               event.stopPropagation();
               onShare();
             }}
-            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors"
+            className="w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-theme-surface-elevated transition-colors"
             aria-label="Share verse"
           >
             <Share2 className="w-4 h-4" />
@@ -121,7 +121,7 @@ export default function VerseCard({
             event.stopPropagation();
             handleSave();
           }}
-          className={`w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-white transition-colors ${
+          className={`w-9 h-9 rounded-full bg-theme-surface-card border border-theme-border flex items-center justify-center hover:bg-theme-surface-elevated transition-colors ${
             isAnimating ? 'save-pop' : ''
           }`}
           aria-label={currentSaved ? 'Remove from favorites' : 'Save to favorites'}
@@ -130,7 +130,7 @@ export default function VerseCard({
           <Heart
             className={`w-4 h-4 transition-colors ${
               currentSaved
-                ? 'fill-soft-pink-dark text-soft-pink-dark'
+                ? 'fill-theme-rose text-theme-rose'
                 : 'text-text-muted'
             }`}
           />

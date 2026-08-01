@@ -17,6 +17,14 @@ const THEMES: Array<{
   isDark?: boolean;
 }> = [
     {
+      id: 'black-gold',
+      name: 'Black & Gold Elegance',
+      description: 'Luxury black + gold — elegant and timeless',
+      colors: ['#000000', '#1B1B1B', '#FCA311'],
+      isNew: true,
+      isDark: true,
+    },
+    {
       id: 'oled-vibrant',
       name: 'Dark OLED',
       description: 'Pure black + vibrant accents — premium feel',

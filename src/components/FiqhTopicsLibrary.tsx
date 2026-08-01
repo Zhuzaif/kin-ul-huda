@@ -101,7 +101,7 @@ export default function FiqhTopicsLibrary({
                         {topic.title}
                       </h4>
                       {isComingSoon ? (
-                        <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                        <span className="text-[9px] font-bold uppercase tracking-wide bg-theme-accent-soft text-theme-gold px-2 py-0.5 rounded-full">
                           Coming Soon
                         </span>
                       ) : hasSubTopics && (

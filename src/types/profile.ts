@@ -1,4 +1,4 @@
-export type AppTheme = 'serenity' | 'bloom' | 'meadow' | 'oled-vibrant';
+export type AppTheme = 'serenity' | 'bloom' | 'meadow' | 'oled-vibrant' | 'black-gold';
 export type AppLanguage = 'en' | 'ur' | 'ar';
 
 /** Affects Asr calculation: Hanafi uses later Asr; others use standard (earlier) Asr. */

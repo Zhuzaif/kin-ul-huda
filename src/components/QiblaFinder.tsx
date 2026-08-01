@@ -152,7 +152,7 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
   }, [perfectlyAligned]);
 
   return (
-    <div className={`h-full flex flex-col ${isPeriodMode ? 'bg-[#FCF5F5]' : 'bg-theme-surface'}`}>
+    <div className="h-full flex flex-col bg-theme-surface">
       <div className="flex items-center justify-between px-6 pt-3 pb-6">
         <button 
           onClick={onBack}
@@ -171,8 +171,8 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center text-center max-w-sm"
           >
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg ${isPeriodMode ? 'bg-gradient-to-br from-[#FCE7D8] to-soft-pink' : 'bg-gradient-to-br from-soft-mint to-[#D1E6DA]'}`}>
-              <Compass className={`w-12 h-12 ${isPeriodMode ? 'text-soft-pink-dark' : 'text-theme-accent'}`} />
+            <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg bg-theme-accent-soft">
+              <Compass className={`w-12 h-12 ${isPeriodMode ? 'text-theme-rose' : 'text-theme-accent'}`} />
             </div>
             <h2 className="text-2xl font-bold text-text-primary mb-4">Find Qibla Direction</h2>
             <p className="text-text-secondary mb-8 leading-relaxed">
@@ -180,7 +180,7 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
             </p>
             <button 
               onClick={requestPermissionsAndStart}
-              className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg active:scale-[0.98] transition-transform ${isPeriodMode ? 'bg-soft-pink-dark' : 'bg-[#1F4535]'}`}
+              className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg active:scale-[0.98] transition-transform ${isPeriodMode ? 'bg-theme-rose' : 'bg-theme-accent-strong'}`}
             >
               Start Calibration
             </button>
@@ -189,14 +189,14 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-red-50 p-6 rounded-[32px] flex flex-col items-center text-center"
+            className="bg-red-500/10 p-6 rounded-[32px] flex flex-col items-center text-center border border-red-500/20"
           >
-            <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-            <h3 className="text-lg font-bold text-red-900 mb-2">Calibration Error</h3>
-            <p className="text-red-700 text-sm">{error}</p>
-            <button 
+            <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
+            <h3 className="text-lg font-bold text-text-primary mb-2">Calibration Error</h3>
+            <p className="text-text-secondary text-sm">{error}</p>
+            <button
               onClick={requestPermissionsAndStart}
-              className="mt-6 px-6 py-2 bg-red-100 text-red-800 rounded-full font-semibold hover:bg-red-200 transition-colors"
+              className="mt-6 px-6 py-2 bg-red-500/15 text-red-400 rounded-full font-semibold hover:bg-red-500/25 transition-colors"
             >
               Try Again
             </button>
@@ -211,7 +211,7 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
               <motion.div 
                 className="absolute inset-0 rounded-full border-[8px] border-theme-border shadow-2xl flex items-center justify-center"
                 style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)',
+                  background: 'radial-gradient(circle, var(--color-theme-surface-elevated) 0%, var(--color-theme-surface-card) 100%)',
                   rotate: heading ? -heading : 0
                 }}
                 transition={{ type: "spring", damping: 30, stiffness: 100 }}
@@ -290,7 +290,7 @@ export default function QiblaFinder({ onBack }: { onBack: () => void }) {
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 text-center font-bold ${isPeriodMode ? 'text-[#D98A5B]' : 'text-[#1F4535]'}`}
+                  className={`mt-4 text-center font-bold ${isPeriodMode ? 'text-theme-orange' : 'text-theme-accent'}`}
                 >
                   You are facing the Qibla
                 </motion.div>

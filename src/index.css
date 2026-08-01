@@ -184,8 +184,8 @@
   --color-theme-surface-elevated: #1A1A1A;
   --color-theme-accent: #10B981;
   --color-theme-accent-strong: #34D399;
-  --color-theme-accent-soft: rgba(16, 185, 129, 0.12);
-  --color-theme-accent-soft-dark: rgba(16, 185, 129, 0.18);
+  --color-theme-accent-soft: #111111;
+  --color-theme-accent-soft-dark: #0A0A0A;
   --color-text-primary: rgba(255, 255, 255, 0.95);
   --color-text-secondary: rgba(255, 255, 255, 0.72);
   --color-text-tertiary: rgba(255, 255, 255, 0.48);
@@ -202,6 +202,36 @@
   --nisa-shadow-accent: 0 4px 20px rgba(16, 185, 129, 0.2);
   --nisa-shadow-gold: 0 4px 14px rgba(245, 158, 11, 0.15);
   --nisa-shadow-rose: 0 2px 12px rgba(244, 114, 182, 0.15);
+}
+
+/* ── Black & Gold Elegance — luxury dark + gold accent ─────────────── */
+#mobile-frame-root[data-theme='black-gold'] {
+  --color-theme-surface: #000000;
+  --color-theme-surface-dark: #141414;
+  --color-theme-surface-alt: #14213D;
+  --color-theme-surface-card: #1B1B1B;
+  --color-theme-surface-input: #202020;
+  --color-theme-surface-elevated: #262626;
+  --color-theme-accent: #FCA311;
+  --color-theme-accent-strong: #FFB733;
+  --color-theme-accent-soft: #1B1B1B;
+  --color-theme-accent-soft-dark: #141414;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #E5E5E5;
+  --color-text-tertiary: rgba(255, 255, 255, 0.65);
+  --color-text-muted: rgba(255, 255, 255, 0.35);
+  --color-theme-border: rgba(255, 255, 255, 0.08);
+  --color-theme-border-strong: rgba(255, 255, 255, 0.14);
+  --color-theme-divider: rgba(255, 255, 255, 0.05);
+  --color-theme-gold: #FCA311;
+  --color-theme-rose: #E8919A;
+  --color-theme-cyan: #6FB6C9;
+  --color-theme-purple: #B0A4D4;
+  --color-theme-orange: #E0995B;
+  --nisa-shadow-card: 0 2px 20px rgba(0, 0, 0, 0.6);
+  --nisa-shadow-accent: 0 4px 20px rgba(252, 163, 17, 0.18);
+  --nisa-shadow-gold: 0 4px 16px rgba(252, 163, 17, 0.20);
+  --nisa-shadow-rose: 0 2px 12px rgba(232, 145, 154, 0.14);
 }
 
 /* Period mode surface tinting per theme */
@@ -224,6 +254,12 @@
   --color-theme-surface: #0A0404;
   --color-theme-surface-dark: #140808;
   --color-theme-surface-card: #1A0A0A;
+}
+
+#mobile-frame-root[data-theme='black-gold'][data-period='on'] {
+  --color-theme-surface: #0C0606;
+  --color-theme-surface-dark: #1A1010;
+  --color-theme-surface-card: #221515;
 }
 
 body,
@@ -574,4 +610,28 @@ textarea {
   color: #C4A15E;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
+}
+/* ── Liquid Glass Navigation Bar ────────────────────────────── */
+#mobile-frame-root[data-theme='black-gold'] .liquid-glass-nav,
+#mobile-frame-root[data-theme='oled-vibrant'] .liquid-glass-nav {
+  background: rgba(18, 18, 18, 0.4) !important;
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.2) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 20px rgba(255, 255, 255, 0.05) !important;
+}
+
+#mobile-frame-root[data-theme='black-gold'] .nav-item-active-bg,
+#mobile-frame-root[data-theme='oled-vibrant'] .nav-item-active-bg {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 
+    -4px -4px 10px rgba(255, 255, 255, 0.03),
+    4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px;
 }

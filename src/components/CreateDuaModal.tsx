@@ -46,7 +46,7 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
           <h2 className="text-xl font-bold text-text-primary tracking-tight">Add Your Own Dua</h2>
           <button 
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-theme-surface-alt hover:bg-gray-200 text-text-tertiary transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-theme-surface-alt hover:bg-theme-surface-input text-text-tertiary transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -60,30 +60,30 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. My Morning Prayer"
-              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-muted-gold focus:ring-2 focus:ring-muted-gold/20 outline-none transition-all text-sm font-medium text-text-secondary"
+              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-theme-accent focus:ring-2 focus:ring-theme-accent-soft outline-none transition-all text-sm font-medium text-text-secondary"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Arabic Text</label>
-            <textarea 
+            <textarea
               value={arabic}
               onChange={(e) => setArabic(e.target.value)}
               placeholder="Enter dua in Arabic"
               dir="rtl"
               rows={4}
-              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-muted-gold focus:ring-2 focus:ring-muted-gold/20 outline-none transition-all font-arabic text-lg text-right text-text-primary"
+              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-theme-accent focus:ring-2 focus:ring-theme-accent-soft outline-none transition-all font-arabic text-lg text-right text-text-primary"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Translation (Optional)</label>
-            <textarea 
+            <textarea
               value={translation}
               onChange={(e) => setTranslation(e.target.value)}
               placeholder="Meaning in English"
               rows={3}
-              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-muted-gold focus:ring-2 focus:ring-muted-gold/20 outline-none transition-all text-sm font-medium text-text-secondary"
+              className="w-full bg-theme-surface-card px-4 py-3 rounded-xl border border-theme-border focus:border-theme-accent focus:ring-2 focus:ring-theme-accent-soft outline-none transition-all text-sm font-medium text-text-secondary"
             />
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
           <button 
             onClick={handleSave}
             disabled={!title || !arabic}
-            className="w-full bg-muted-gold hover:bg-muted-gold/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full bg-theme-accent hover:bg-theme-accent-strong disabled:bg-theme-surface-input disabled:text-text-muted disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
           >
             <Check className="w-5 h-5" />
             Save Dua

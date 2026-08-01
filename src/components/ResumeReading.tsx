@@ -80,7 +80,7 @@ export default function ResumeReading({
               type="button"
               onClick={onContinue}
               className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold transition-transform active:scale-95"
-              style={{ background: '#C9A24B', color: '#0B4D3C' }}
+              style={{ background: 'var(--color-theme-gold)', color: 'var(--color-theme-accent-strong)' }}
             >
               {btnLabel}
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />

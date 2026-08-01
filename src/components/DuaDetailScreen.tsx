@@ -43,7 +43,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
   const getTagStyle = (tag: string) => {
     const normalizedTag = tag.toLowerCase();
     if (normalizedTag.includes('quran')) {
-      return { bg: 'bg-muted-gold-light', text: 'text-muted-gold' };
+      return { bg: 'bg-theme-accent-soft', text: 'text-theme-gold' };
     }
     if (normalizedTag.includes('morning')) {
       return { bg: 'bg-theme-accent-soft', text: 'text-theme-accent' };
@@ -62,16 +62,16 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       <div className="sticky top-0 z-10 bg-theme-surface/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-theme-border">
         <button 
           onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all"
         >
           <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex gap-2">
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all">
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all">
             <Share2 className="w-4 h-4 text-text-muted" />
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-gray-50 active:scale-95 transition-all">
-            <Heart className="w-4 h-4 text-gray-300 hover:text-soft-pink-dark transition-colors" />
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all">
+            <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
           {dua.repetition && (
             <div className="pt-4 border-t border-theme-border flex items-center justify-between">
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Read</span>
-              <span className="text-sm font-bold text-soft-pink-dark bg-soft-pink/30 px-3 py-1.5 rounded-full">
+              <span className="text-sm font-bold text-theme-rose bg-theme-surface-input px-3 py-1.5 rounded-full">
                 {dua.repetition}
               </span>
             </div>
@@ -130,7 +130,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between bg-theme-surface-card backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-theme-border">
         <button 
           onClick={onPrev}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-theme-surface-input hover:text-text-primary transition-colors active:scale-95"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -141,7 +141,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
         
         <button 
           onClick={onNext}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-gray-100 hover:text-gray-800 transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-theme-surface-input hover:text-text-primary transition-colors active:scale-95"
         >
           <ChevronRight className="w-5 h-5" />
         </button>

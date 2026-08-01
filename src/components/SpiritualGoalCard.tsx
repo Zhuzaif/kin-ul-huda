@@ -35,7 +35,7 @@ export default function SpiritualGoalCard() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-theme-accent-soft text-theme-accent border border-theme-border shadow-sm">
               <Sunrise className="w-4 h-4" />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function SpiritualGoalCard() {
                 onClick={() => fillQuickGoal('100x Astaghfirullah after Asr')}
                 className="px-2.5 py-1 rounded-xl text-[10px] font-medium whitespace-nowrap transition opacity-90 hover:opacity-100 flex items-center gap-1 bg-theme-accent-soft text-theme-accent"
               >
-                <Sparkles className="w-3 h-3 text-amber-500" /> 100x Istighfar
+                <Sparkles className="w-3 h-3 text-theme-gold" /> 100x Istighfar
               </button>
               <button
                 onClick={() => fillQuickGoal('Learn 1 new Ayah of Quran')}
@@ -91,11 +91,11 @@ export default function SpiritualGoalCard() {
         {/* Save row */}
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-1.5 text-[11px] text-text-tertiary">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <ShieldCheck className="w-3.5 h-3.5 text-theme-accent" />
             <span>Private to you</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px] text-emerald-600">
+          <div className="flex items-center gap-1.5 text-[11px] text-theme-accent">
             <Check className="w-3.5 h-3.5" />
             <span className="font-medium">Auto-saved</span>
           </div>

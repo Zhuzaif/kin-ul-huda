@@ -143,11 +143,11 @@ export default function FloatingAudioPlayer({
     <div
       className={`w-full flex flex-col gap-2.5 px-4 py-3 ${className ?? ''}`}
       style={{
-        background: '#C4D6C3',
+        background: 'var(--color-theme-surface-card)',
         borderRadius: '2rem',
-        boxShadow:
-          '8px 8px 16px rgba(160,185,159,0.4), -8px -8px 16px rgba(255,255,255,0.8), inset 1px 1px 2px rgba(255,255,255,0.9), inset -1px -1px 2px rgba(160,185,159,0.2)',
+        boxShadow: 'var(--nisa-shadow-card), 0 4px 20px rgba(0,0,0,0.15)',
         fontFamily: "'Inter', sans-serif",
+        border: '1px solid var(--color-theme-border)',
       }}
     >
       {/* Main row */}
@@ -156,11 +156,9 @@ export default function FloatingAudioPlayer({
         <div
           className="h-8 px-2.5 rounded-full flex items-center justify-center font-semibold text-[11px] shrink-0 select-none whitespace-nowrap"
           style={{
-            background: '#C4D6C3',
-            border: '2px solid #CCA08A',
-            color: '#3A4A38',
-            boxShadow:
-              'inset 2px 2px 4px rgba(255,255,255,0.7), inset -2px -2px 4px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.05)',
+            background: 'var(--color-theme-surface-alt)',
+            border: '1px solid var(--color-theme-border)',
+            color: 'var(--color-theme-accent)',
           }}
         >
           {label}
@@ -174,7 +172,7 @@ export default function FloatingAudioPlayer({
             disabled={isPreviousDisabled || isDisabled}
             aria-label="Previous verse"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
           </NeoBtn>
@@ -186,11 +184,11 @@ export default function FloatingAudioPlayer({
             aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
           >
             {isPlaying ? (
-              <svg className="w-5 h-5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             ) : (
-              <svg className="w-5 h-5 ml-0.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -203,14 +201,14 @@ export default function FloatingAudioPlayer({
             disabled={isNextDisabled || isDisabled}
             aria-label="Next verse"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="#3A4A38" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
             </svg>
           </NeoBtn>
         </div>
 
         {/* Divider */}
-        <div className="w-px h-4 shrink-0" style={{ background: 'rgba(58,74,56,0.2)' }} />
+        <div className="w-px h-4 shrink-0 bg-theme-border/70" />
 
         {/* Reciter dropdown */}
         <div ref={reciterMenuRef} className="relative shrink-0 flex justify-end min-w-0">
@@ -220,11 +218,11 @@ export default function FloatingAudioPlayer({
             disabled={isLoading}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80 disabled:opacity-50 min-w-0"
             style={{
-              color: '#3A4A38',
+              color: 'var(--color-text-primary)',
               fontSize: 12,
               fontWeight: 600,
-              background: 'rgba(255,255,255,0.3)',
-              border: '1px solid rgba(255,255,255,0.4)',
+              background: 'var(--color-theme-surface-alt)',
+              border: '1px solid var(--color-theme-border)',
             }}
           >
             <span className="truncate max-w-[75px] sm:max-w-[110px]" style={{ fontWeight: 600, fontSize: 12 }}>
@@ -235,7 +233,7 @@ export default function FloatingAudioPlayer({
               strokeWidth={2.5}
               className="shrink-0"
               style={{
-                color: '#CCA08A',
+                color: 'currentColor',
                 transform: isReciterOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.2s ease',
               }}
@@ -248,12 +246,11 @@ export default function FloatingAudioPlayer({
               aria-label="Reciter options"
               className="absolute right-0 bottom-full mb-2 z-50 overflow-hidden"
               style={{
-                background: '#C4D6C3',
+                background: 'var(--color-theme-surface-elevated)',
                 borderRadius: '1rem',
-                boxShadow:
-                  '8px 8px 20px rgba(160,185,159,0.5), -4px -4px 12px rgba(255,255,255,0.8)',
+                boxShadow: 'var(--nisa-shadow-elevated)',
                 minWidth: 140,
-                border: '1px solid rgba(255,255,255,0.4)',
+                border: '1px solid var(--color-theme-border)',
               }}
             >
               {reciterOptions.map((r) => {
@@ -269,7 +266,7 @@ export default function FloatingAudioPlayer({
                     style={{
                       fontSize: 12,
                       fontWeight: isSelected ? 600 : 400,
-                      color: isSelected ? '#CCA08A' : '#3A4A38',
+                      color: isSelected ? 'var(--color-theme-accent)' : 'var(--color-text-primary)',
                       background: 'transparent',
                       fontFamily: "'Inter', sans-serif",
                     }}
@@ -287,38 +284,38 @@ export default function FloatingAudioPlayer({
       <div
         className="relative cursor-pointer select-none mx-1"
         style={{
-          background: '#A9BEA7',
+          background: 'var(--color-theme-surface-input)',
           borderRadius: 10,
           height: 4,
-          boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.1), inset -2px -2px 4px rgba(255,255,255,0.4)',
+          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
         }}
       >
         <div
           ref={fillRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: '100%',
-            width: `${progressPercent}%`,
-            background: 'linear-gradient(90deg, #E2C2B3, #CCA08A)',
-            borderRadius: 10,
-            pointerEvents: 'none',
-            willChange: 'width',
-          }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              height: '100%',
+              width: `${progressPercent}%`,
+              background: 'var(--color-theme-accent)',
+              borderRadius: 10,
+              pointerEvents: 'none',
+              willChange: 'width',
+            }}
         />
         <div
           ref={thumbRef}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: `${progressPercent}%`,
-            transform: 'translate(-50%, -50%)',
-            color: '#CCA08A',
-            filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2)) drop-shadow(0px -1px 2px rgba(255,255,255,0.6))',
-            pointerEvents: 'none',
-            willChange: 'left',
-          }}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: `${progressPercent}%`,
+              transform: 'translate(-50%, -50%)',
+              color: 'var(--color-theme-accent)',
+              filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
+              pointerEvents: 'none',
+              willChange: 'left',
+            }}
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -349,26 +346,7 @@ function NeoBtn({
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      className={`${dim} rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed`}
-      style={{
-        background: '#C4D6C3',
-        boxShadow: '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)',
-        border: '1px solid rgba(255,255,255,0.3)',
-      }}
-      onMouseDown={(e) => {
-        if (!disabled) {
-          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-            'inset 4px 4px 8px rgba(160,185,159,0.6), inset -4px -4px 8px rgba(255,255,255,0.8)';
-        }
-      }}
-      onMouseUp={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.boxShadow =
-          '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.boxShadow =
-          '4px 4px 8px rgba(160,185,159,0.6), -4px -4px 8px rgba(255,255,255,0.8)';
-      }}
+      className={`${dim} rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed bg-theme-surface-alt border border-theme-border/50 text-text-primary hover:bg-theme-surface-input shadow-[var(--nisa-shadow-sm)]`}
     >
       {children}
     </button>

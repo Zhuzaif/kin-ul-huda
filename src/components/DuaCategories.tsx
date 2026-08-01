@@ -2,7 +2,7 @@ import React from 'react';
 import { Sun, Moon, BookOpen, Clock } from 'lucide-react';
 
 const categories = [
-  { label: 'AM & PM Adhkar', icon: Clock, color: 'text-soft-pink-dark', bg: 'bg-soft-pink' },
+  { label: 'AM & PM Adhkar', icon: Clock, color: 'text-theme-rose', bg: 'bg-theme-surface-input' },
   { label: 'Quran', icon: BookOpen, color: 'text-theme-accent', bg: 'bg-theme-accent-soft' },
 ];
 
@@ -27,7 +27,7 @@ export default function DuaCategories({ activeCategory, onCategoryChange }: DuaC
               className={`flex items-center gap-3 pl-2 pr-5 py-2 rounded-full border shadow-sm whitespace-nowrap transition-all active:scale-95 ${
                 isActive 
                   ? 'bg-theme-surface-card border-theme-border' 
-                  : 'bg-theme-surface-card hover:bg-white border-theme-border'
+                  : 'bg-theme-surface-card hover:bg-theme-surface-elevated border-theme-border'
               }`}
             >
               <div className={`w-9 h-9 rounded-full ${cat.bg} flex items-center justify-center`}>
