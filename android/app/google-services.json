@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "341548834022",
+    "project_id": "women-app-72ede",
+    "storage_bucket": "women-app-72ede.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341548834022:android:31b1f7c6b56e4fba5cef27",
+        "android_client_info": {
+          "package_name": "com.nisaulhuda.hudalabs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAAh6B1Qbyp5OidjPsTluUDeZUXXrJEUM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
