@@ -615,7 +615,7 @@ textarea {
 /* ── Liquid Glass Navigation Bar ────────────────────────────── */
 #mobile-frame-root[data-theme='black-gold'] .liquid-glass-nav,
 #mobile-frame-root[data-theme='oled-vibrant'] .liquid-glass-nav {
-  background: rgba(31, 31, 31, 0.50) !important;
+  background: rgba(31, 31, 31, 0.90) !important;
   backdrop-filter: blur(24px) saturate(180%) brightness(1.2) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.2) !important;
   transform: translateZ(0);
