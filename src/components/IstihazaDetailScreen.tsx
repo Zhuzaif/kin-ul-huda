@@ -101,7 +101,7 @@ function IstihazaTopicView({
   `;
 
   return (
-    <div className="absolute inset-0 z-[60] flex flex-col animate-in fade-in duration-300 spiritual-bg" style={{ backgroundColor: 'var(--color-theme-surface)', color: 'var(--color-text-primary)' }}>
+    <div className="fixed inset-0 z-[60] flex flex-col animate-in fade-in duration-300 spiritual-bg" style={{ backgroundColor: 'var(--color-theme-surface)', color: 'var(--color-text-primary)' }}>
       <style>{spiritualStyles}</style>
 
       {/* ── Sticky Header ── */}
@@ -396,7 +396,7 @@ export default function IstihazaDetailScreen({
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden animate-in fade-in duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden animate-in fade-in duration-300"
       style={{
         backgroundColor: 'var(--color-theme-surface)',
         backgroundImage:

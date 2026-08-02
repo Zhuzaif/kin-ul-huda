@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { modalVariants, listVariants, listItemVariants, buttonTap } from '../lib/motion';
 import { ChevronLeft, Palette, Grid, Share2, Heart } from 'lucide-react';
 
 // --- Dhikr Data (Aapka Data) ---
@@ -38,7 +40,13 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
   };
 
   return (
-    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-theme-gold/30 animate-in fade-in duration-300">
+    <motion.div 
+      variants={modalVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="absolute inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-theme-gold/30"
+    >
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
         .font-arabic { font-family: 'Amiri', serif; }
@@ -73,9 +81,8 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
             onUpdateCount={updateCount} 
           />
         )}
-
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -84,7 +91,12 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
 // ==========================================
 function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof DHIKR_LIST, onSelect: (dhikr: any) => void, onAppBack: () => void }) {
   return (
-    <div className="flex-1 flex flex-col h-full bg-theme-surface animate-in fade-in duration-300">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex-1 flex flex-col h-full bg-theme-surface"
+    >
       {/* Header Section (Deep Forest) */}
       <div className="bg-theme-accent-strong pt-4 pb-16 px-6 rounded-b-[40px] relative overflow-hidden shrink-0">
         <div className="relative z-10">
@@ -111,9 +123,11 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
 
       {/* List Section */}
       <div className="flex-1 overflow-y-auto hide-scrollbar px-5 -mt-6 pb-6 relative z-20">
-        <div className="space-y-4">
+        <motion.div variants={listVariants} initial="initial" animate="animate" className="space-y-4">
           {dhikrData.map((item) => (
-            <div 
+            <motion.div 
+              variants={listItemVariants}
+              whileTap={buttonTap}
               key={item.id}
               onClick={() => onSelect(item)}
               className="bg-theme-surface-card p-5 rounded-[24px] shadow-[var(--nisa-shadow-card)] flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-all duration-300 border border-theme-border"
@@ -128,11 +142,11 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
                 <p className="font-arabic text-[24px] text-theme-accent-strong leading-relaxed">{item.arabic}</p>
                 <p className="text-sm font-medium text-text-tertiary mt-1">{item.roman}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -164,7 +178,12 @@ function CounterScreen({ dhikr, onBack, onUpdateCount }: { dhikr: any, onBack: (
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-theme-accent-strong to-theme-surface-dark relative overflow-hidden animate-in fade-in duration-300">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex-1 flex flex-col h-full bg-gradient-to-b from-theme-accent-strong to-theme-surface-dark relative overflow-hidden"
+    >
       
       {/* Ambient Glowing Effect (New Background) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
@@ -252,6 +271,6 @@ function CounterScreen({ dhikr, onBack, onUpdateCount }: { dhikr: any, onBack: (
         </div>
       </div>
 
-    </div>
+    </motion.div>
   );
 }

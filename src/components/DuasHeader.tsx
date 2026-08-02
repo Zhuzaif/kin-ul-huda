@@ -12,12 +12,12 @@ export default function DuasHeader({ activeTab, onTabChange }: DuasHeaderProps) 
         Duas & Dhikr
       </h1>
       
-      <div className="bg-theme-surface-card backdrop-blur-sm p-1.5 rounded-full flex items-center shadow-inner border border-theme-border">
+      <div className="bg-theme-surface-card p-1.5 rounded-full flex items-center shadow-inner border border-theme-border liquid-glass-nav relative z-10">
         <button
           onClick={() => onTabChange('All Duas')}
-          className={`flex-1 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+          className={`flex-1 py-3 rounded-[24px] text-sm font-bold transition-all duration-300 relative overflow-hidden ${
             activeTab === 'All Duas' 
-              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]'
+              ? 'text-theme-accent-strong nav-item-active-bg bg-theme-surface-dark/60'
               : 'text-text-muted hover:text-text-secondary'
           }`}
         >
@@ -25,9 +25,9 @@ export default function DuasHeader({ activeTab, onTabChange }: DuasHeaderProps) 
         </button>
         <button
           onClick={() => onTabChange('My Prayers')}
-          className={`flex-1 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+          className={`flex-1 py-3 rounded-[24px] text-sm font-bold transition-all duration-300 relative overflow-hidden ${
             activeTab === 'My Prayers' 
-              ? 'bg-theme-surface-card text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.04)]'
+              ? 'text-theme-accent-strong nav-item-active-bg bg-theme-surface-dark/60'
               : 'text-text-muted hover:text-text-secondary'
           }`}
         >

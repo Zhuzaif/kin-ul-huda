@@ -12,7 +12,7 @@ export default function FiqhSubTopicDetail({ subTopic, parentTopic, onBack }: Fi
   const Icon = parentTopic.icon;
 
   return (
-    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
+    <div className="fixed inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
       <div className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-theme-border">
         <button
           type="button"

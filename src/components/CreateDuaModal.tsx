@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { modalVariants, buttonTap } from '../lib/motion';
 import { X, Check } from 'lucide-react';
 import { Dua } from '../types';
 
@@ -12,8 +14,6 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
   const [title, setTitle] = useState('');
   const [arabic, setArabic] = useState('');
   const [translation, setTranslation] = useState('');
-
-  if (!isOpen) return null;
 
   const handleSave = () => {
     if (!title || !arabic) return;
@@ -35,13 +35,24 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
   };
 
   return (
-    <div className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6">
-      <div 
-        className="absolute inset-0 bg-theme-surface-alt backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-      
-      <div className="relative w-full max-w-[400px] bg-theme-surface rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-6 sm:p-8 animate-in slide-in-from-bottom-full duration-300">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-theme-surface-alt backdrop-blur-sm"
+            onClick={onClose}
+          />
+          
+          <motion.div 
+            variants={modalVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative w-full max-w-[400px] bg-theme-surface rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-6 sm:p-8"
+          >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-text-primary tracking-tight">Add Your Own Dua</h2>
           <button 
@@ -89,16 +100,19 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
         </div>
 
         <div className="mt-8">
-          <button 
+          <motion.button 
+            whileTap={buttonTap}
             onClick={handleSave}
             disabled={!title || !arabic}
-            className="w-full bg-theme-accent hover:bg-theme-accent-strong disabled:bg-theme-surface-input disabled:text-text-muted disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full bg-theme-accent hover:bg-theme-accent-strong disabled:bg-theme-surface-input disabled:text-text-muted disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-sm transition-colors flex items-center justify-center gap-2"
           >
             <Check className="w-5 h-5" />
             Save Dua
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
+      )}
+    </AnimatePresence>
   );
 }

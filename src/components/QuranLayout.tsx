@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion } from 'motion/react';
+import { listVariants, listItemVariants } from '../lib/motion';
 import { useBackHandler } from '../hooks/useBackHandler';
 import { downloadAudioToCache, markSurahDownloaded } from '../utils/audioCache';
 import QuranHeader from './QuranHeader';
@@ -533,8 +535,9 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
               )}
             </div>
           ) : (
-            savedVerseCards.map((item) => (
-              <div key={`${item.verse.chapter}-${item.verse.verse}`} className="flex flex-col gap-2">
+            <motion.div variants={listVariants} initial="initial" animate="animate" className="flex flex-col gap-5">
+              {savedVerseCards.map((item) => (
+                <motion.div variants={listItemVariants} key={`${item.verse.chapter}-${item.verse.verse}`} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between text-[11px] text-text-tertiary px-1">
                   <span>{item.chapter?.transliteration ?? 'Surah'}</span>
                   <span>Verse {item.verse.verse}</span>
@@ -556,8 +559,9 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                     setSelectedVerseNumber(item.verse.verse);
                   }}
                 />
-              </div>
-            ))
+              </motion.div>
+            ))}
+            </motion.div>
           )}
         </div>
       ) : activeFilter === 'juz' ? (
@@ -567,9 +571,11 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
               No juz match your search.
             </div>
           ) : (
-            filteredJuz.map((item) => (
-              <div
-                key={item.index}
+            <motion.div variants={listVariants} initial="initial" animate="animate" className="flex flex-col">
+              {filteredJuz.map((item) => (
+                <motion.div
+                  variants={listItemVariants}
+                  key={item.index}
                 role="button"
                 tabIndex={0}
                 onClick={() => handleOpenJuz(item)}
@@ -620,8 +626,9 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
                     {item.startName}
                   </p>
                 </div>
-              </div>
-            ))
+              </motion.div>
+            ))}
+            </motion.div>
           )}
         </div>
       ) : activeFilter === 'mushaf' ? (

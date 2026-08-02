@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { listVariants, listItemVariants, modalVariants } from '../lib/motion';
 import { DownloadCloud, CheckCircle, X } from 'lucide-react';
 import chapters from '../data/chapters-en.json';
 import {
@@ -138,13 +140,14 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
 
   return (
     <>
-      <div className="px-6 pb-28 flex flex-col">
+      <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-28 flex flex-col">
         {list.map((surah) => {
           const isDownloading = downloadingSurahs[surah.id];
           const isDownloaded = downloadedSurahs[surah.id];
 
           return (
-            <div
+            <motion.div
+              variants={listItemVariants}
               key={surah.id}
               role="button"
               tabIndex={0}
@@ -215,17 +218,31 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {portalTarget &&
-        downloadModalSurah &&
         createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-theme-surface-card rounded-[32px] w-full max-w-[320px] p-6 shadow-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
+          <AnimatePresence>
+            {downloadModalSurah && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  onClick={() => setDownloadModalSurah(null)}
+                />
+                <motion.div 
+                  variants={modalVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="bg-theme-surface-card rounded-[32px] w-full max-w-[320px] p-6 shadow-2xl relative overflow-hidden z-10"
+                >
+                  <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-text-primary">Select Reciter</h3>
                 <button
                   onClick={() => setDownloadModalSurah(null)}
@@ -246,9 +263,11 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                     <DownloadCloud className="w-5 h-5 opacity-50" />
                   </button>
                 ))}
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          </div>,
+            )}
+          </AnimatePresence>,
           portalTarget
         )}
     </>

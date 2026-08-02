@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useBackHandler } from '../hooks/useBackHandler';
 import { BACK_PRIORITY } from '../lib/backButton';
 import DuasHeader from './DuasHeader';
@@ -53,9 +54,10 @@ export default function DuasLayout() {
       const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
       const updated = [dua, ...existing];
       localStorage.setItem('customDuas', JSON.stringify(updated));
+      setIsCreateModalOpen(false);
       setRefreshTrigger(prev => prev + 1);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to save custom dua', e);
     }
   };
 
@@ -66,9 +68,11 @@ export default function DuasLayout() {
       localStorage.setItem('customDuas', JSON.stringify(updated));
       setRefreshTrigger(prev => prev + 1);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to delete custom dua', e);
     }
   };
+
+  const portalTarget = document.getElementById('mobile-frame-root');
 
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
@@ -87,13 +91,14 @@ export default function DuasLayout() {
         />
       </div>
 
-      {selectedDua && (
+      {selectedDua && portalTarget && createPortal(
         <DuaDetailScreen 
           dua={selectedDua} 
           onBack={() => setSelectedDua(null)} 
           onNext={handleNextDua}
           onPrev={handlePrevDua}
-        />
+        />,
+        portalTarget
       )}
 
       <CreateDuaModal 

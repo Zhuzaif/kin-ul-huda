@@ -9,7 +9,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   madhab: 'hanafi',
   calculationMethod: 'karachi',
   prayerReminders: true,
-  theme: 'serenity',
+  theme: 'black-gold',
   language: 'en',
   onboardingCompleted: false,
   locationCoords: null,

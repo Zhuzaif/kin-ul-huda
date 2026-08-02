@@ -139,26 +139,26 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
             />
             <div className="relative z-10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)' }}>
-                <Clock className="w-5 h-5 text-white" />
+                <Clock className="w-5 h-5" style={{ color: 'var(--color-theme-surface)' }} />
               </div>
               <div className="text-left">
                 <span
                   className="inline-block text-[10px] font-semibold tracking-[1px] px-2.5 py-0.5 rounded-full mb-1"
-                  style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff' }}
+                  style={{ background: 'rgba(255,255,255,0.15)', color: 'var(--color-theme-surface)' }}
                 >
                   CONTINUE
                 </span>
                 <h3
-                  className="text-[17px] font-bold text-white leading-tight"
-                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                  className="text-[17px] font-bold leading-tight"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif", color: 'var(--color-theme-surface)' }}
                 >
                   Mushaf Page {lastReadPage}
                 </h3>
               </div>
             </div>
             <span
-              className="relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold"
-              style={{ background: 'var(--color-theme-gold)', color: 'var(--color-theme-accent-strong)' }}
+              className="relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold shadow-sm"
+              style={{ background: 'var(--color-theme-surface)', color: 'var(--color-theme-accent-strong)' }}
             >
               Continue
             </span>

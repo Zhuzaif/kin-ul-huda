@@ -24,6 +24,8 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [fontLoaded, setFontLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const totalPages = 548;
 
@@ -93,8 +95,39 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
     [totalPages]
   );
 
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEndHandler = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && canNext) {
+      goToPage(currentPage + 1);
+    }
+    if (isRightSwipe && canPrev) {
+      goToPage(currentPage - 1);
+    }
+  };
+
   return (
-    <div ref={containerRef} className="flex w-full flex-col h-full bg-theme-surface animate-in fade-in duration-300">
+    <div 
+      ref={containerRef} 
+      className="flex w-full flex-col h-full bg-theme-surface animate-in fade-in duration-300"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEndHandler}
+    >
       <div className="px-4 pt-6 pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <button
@@ -142,9 +175,9 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
         <PeriodModeBanner />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-28 flex flex-col">
+      <div className="flex-1 overflow-y-auto pb-28 flex flex-col">
         <div
-          className="bg-theme-surface-card border border-theme-border rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.06)] px-2 py-4 flex-1 flex flex-col justify-between"
+          className="flex-1 flex flex-col justify-between px-2 py-2"
           dir="rtl"
         >
           {!fontLoaded ? (
@@ -174,10 +207,10 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
                       {/* Center Text */}
                       <div className="text-center z-10 flex-1 flex flex-col items-center">
                         <div className="flex items-center justify-center gap-3" dir="rtl">
-                          <span className="font-arabic text-[26px] sm:text-[30px] font-bold leading-none drop-shadow-md" style={{ color: 'var(--color-theme-gold)' }}>
+                          <span className="font-arabic text-[26px] sm:text-[30px] font-bold leading-none drop-shadow-sm" style={{ color: 'var(--color-theme-surface)' }}>
                             سورة
                           </span>
-                          <span className="font-arabic text-[36px] sm:text-[42px] font-bold text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.6)] leading-none" style={{ fontFamily: 'IndopakNastaleeq, serif' }}>
+                          <span className="font-arabic text-[36px] sm:text-[42px] font-bold drop-shadow-sm leading-none" style={{ fontFamily: 'IndopakNastaleeq, serif', color: 'var(--color-theme-surface)' }}>
                             {surahNameStr}
                           </span>
                         </div>
@@ -212,23 +245,30 @@ export default function MushafPageViewer({ initialPage = 1, onBack }: MushafPage
                     </div>
                   );
                 }
+                const charCount = line.text?.length || 1;
+                const shrinkFactor = charCount > 85 ? (85 / charCount) : 1;
+                const baseVW = (4.7 * shrinkFactor).toFixed(2);
+                const maxPX = (25 * shrinkFactor).toFixed(1);
+
                 return (
-                  <div
-                    key={`line-${index}`}
-                    className="w-full"
-                    style={{
-                      fontFamily: 'IndopakNastaleeq, serif',
-                      fontSize: 'clamp(14px, 4.8vw, 26px)',
-                      lineHeight: '1.8',
-                      color: 'var(--color-text-primary)',
-                      textAlign: line.centered ? 'center' : 'justify',
-                      textAlignLast: line.centered ? 'center' : 'justify',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      direction: 'rtl'
-                    }}
-                  >
-                    {line.text}
+                  <div key={`line-${index}`} className="w-full border-b border-theme-border last:border-b-0 py-1 flex flex-col items-center">
+                    <div
+                      className="w-full"
+                      style={{
+                        fontFamily: 'IndopakNastaleeq, serif',
+                        fontSize: `clamp(12px, ${baseVW}vw, ${maxPX}px)`,
+                        lineHeight: '1.8',
+                        color: 'var(--color-text-primary)',
+                        textAlign: line.centered ? 'center' : 'justify',
+                        textAlignLast: line.centered ? 'center' : 'justify',
+                        whiteSpace: 'nowrap',
+                        overflow: 'visible',
+                        padding: '0 2px',
+                        direction: 'rtl'
+                      }}
+                    >
+                      {line.text}
+                    </div>
                   </div>
                 );
               })}

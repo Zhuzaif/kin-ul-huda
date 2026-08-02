@@ -77,7 +77,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-6 pb-32">
+      <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-6">
         <div className="bg-theme-surface-card backdrop-blur-sm rounded-[32px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-theme-border flex flex-col">
           {/* Title and Tags */}
           <div className="mb-8">
@@ -127,7 +127,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       </div>
 
       {/* Swipe Navigation Bar */}
-      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between bg-theme-surface-card backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-theme-border">
+      <div className="flex-shrink-0 mx-6 mb-6 mt-2 flex items-center justify-between bg-theme-surface-card backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-theme-border">
         <button 
           onClick={onPrev}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-theme-surface-input hover:text-text-primary transition-colors active:scale-95"

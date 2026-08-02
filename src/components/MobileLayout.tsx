@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { App as CapacitorApp } from '@capacitor/app';
+import { pageVariants } from '../lib/motion';
 import { runBackHandlers, BACK_PRIORITY } from '../lib/backButton';
 import { useBackHandler } from '../hooks/useBackHandler';
 import Header from './Header';
@@ -27,6 +29,14 @@ export default function MobileLayout() {
   const [profileOverlay, setProfileOverlay] = useState(false);
   const { isPeriodMode } = usePeriodMode();
   const { profile } = useProfile();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Reset scroll position to top when switching tabs
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeTab]);
 
   const handleTabChange = (newTab: string) => {
     if (newTab === activeTab) return;
@@ -135,26 +145,39 @@ export default function MobileLayout() {
         data-period={isPeriodMode ? 'on' : 'off'}
         className="w-full h-full transition-colors duration-500 relative overflow-hidden flex flex-col bg-theme-surface"
       >
-        <div className="flex-1 overflow-y-auto w-full relative scroll-smooth flex flex-col">
-          {activeTab === 'home' && (
-            <div className="animate-in fade-in duration-300">
-              <Header />
-              <PrayerWidget onNavigate={handleTabChange} />
-              {/* <DailyGoalWidget /> */}
-              <DailyVerse />
-              <QuickActions onNavigate={handleTabChange} onOpenTasbeeh={() => setShowTasbeeh(true)} />
-            </div>
-          )}
-          {activeTab === 'quran' && (
-            <QuranLayout onReadingModeChange={setIsQuranReading} />
-          )}
-          {activeTab === 'duas' && <DuasLayout />}
-          {activeTab === 'nisa' && <NisaLayout />}
-          {activeTab === 'profile' && (
-            <ProfileLayout onOverlayChange={setProfileOverlay} />
-          )}
-          {activeTab === 'qibla' && <QiblaFinder onBack={goBackInHistory} />}
-          {/* Placeholders for other tabs to prevent crashing or empty states */}
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto w-full relative scroll-smooth flex flex-col"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 flex flex-col w-full"
+            >
+              {activeTab === 'home' && (
+                <div>
+                  <Header />
+                  <PrayerWidget onNavigate={handleTabChange} />
+                  {/* <DailyGoalWidget /> */}
+                  <DailyVerse />
+                  <QuickActions onNavigate={handleTabChange} onOpenTasbeeh={() => setShowTasbeeh(true)} />
+                </div>
+              )}
+              {activeTab === 'quran' && (
+                <QuranLayout onReadingModeChange={setIsQuranReading} />
+              )}
+              {activeTab === 'duas' && <DuasLayout />}
+              {activeTab === 'nisa' && <NisaLayout />}
+              {activeTab === 'profile' && (
+                <ProfileLayout onOverlayChange={setProfileOverlay} />
+              )}
+              {activeTab === 'qibla' && <QiblaFinder onBack={goBackInHistory} />}
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div
           id="floating-audio-root"
@@ -164,9 +187,11 @@ export default function MobileLayout() {
           <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
         )}
 
-        {showTasbeeh && (
-          <TasbeehCounterScreen onBack={() => setShowTasbeeh(false)} />
-        )}
+        <AnimatePresence>
+          {showTasbeeh && (
+            <TasbeehCounterScreen onBack={() => setShowTasbeeh(false)} />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

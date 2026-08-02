@@ -176,8 +176,8 @@
 
 /* ── Dark OLED + Vibrant Block UI ──────────────────────────────────── */
 #mobile-frame-root[data-theme='oled-vibrant'] {
-  --color-theme-surface: #000000;
-  --color-theme-surface-dark: #0A0A0A;
+  --color-theme-surface: #0a0a0a;
+  --color-theme-surface-dark: #111111;
   --color-theme-surface-alt: #0A0A0A;
   --color-theme-surface-card: #111111;
   --color-theme-surface-input: #141414;
@@ -206,8 +206,8 @@
 
 /* ── Black & Gold Elegance — luxury dark + gold accent ─────────────── */
 #mobile-frame-root[data-theme='black-gold'] {
-  --color-theme-surface: #000000;
-  --color-theme-surface-dark: #141414;
+  --color-theme-surface: #222227;
+  --color-theme-surface-dark: #161616;
   --color-theme-surface-alt: #14213D;
   --color-theme-surface-card: #1B1B1B;
   --color-theme-surface-input: #202020;

@@ -28,7 +28,7 @@ export default function ResumeReading({
       <div
         className="relative rounded-[20px] px-5 py-4 overflow-hidden shadow-[var(--nisa-shadow-accent)]"
         style={{
-          background: 'linear-gradient(135deg, #1A6B55 0%, #228B6C 100%)',
+          background: 'linear-gradient(135deg, var(--color-theme-accent-strong) 0%, var(--color-theme-accent) 100%)',
         }}
       >
         {/* Decorative radial glows */}
@@ -47,7 +47,7 @@ export default function ResumeReading({
             style={{
               fontFamily: "'Amiri', serif",
               fontSize: '85px',
-              color: '#F0A500',
+              color: 'var(--color-theme-gold)',
               lineHeight: 1,
               direction: 'rtl',
             }}
@@ -61,17 +61,17 @@ export default function ResumeReading({
           <div className="flex-1 min-w-0">
             <span
               className="inline-block text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-full mb-2"
-              style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff' }}
+              style={{ background: 'rgba(255,255,255,0.15)', color: 'var(--color-theme-surface)' }}
             >
               {tag}
             </span>
             <h3
-              className="text-[19px] font-bold text-white leading-tight truncate"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              className="text-[19px] font-bold leading-tight truncate"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif", color: 'var(--color-theme-surface)' }}
             >
               {chapterName}
             </h3>
-            <p className="text-[12px] text-white/70 mt-1">{verseLabel}</p>
+            <p className="text-[12px] mt-1 opacity-80" style={{ color: 'var(--color-theme-surface)' }}>{verseLabel}</p>
           </div>
 
           {/* Right */}
@@ -79,8 +79,8 @@ export default function ResumeReading({
             <button
               type="button"
               onClick={onContinue}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold transition-transform active:scale-95"
-              style={{ background: 'var(--color-theme-gold)', color: 'var(--color-theme-accent-strong)' }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold transition-transform active:scale-95 shadow-sm"
+              style={{ background: 'var(--color-theme-surface)', color: 'var(--color-theme-accent-strong)' }}
             >
               {btnLabel}
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -94,10 +94,10 @@ export default function ResumeReading({
               >
                 <div
                   className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${safePercent}%`, background: '#C9A24B' }}
+                  style={{ width: `${safePercent}%`, background: 'var(--color-theme-surface)' }}
                 />
               </div>
-              <span className="text-[9px] font-medium text-white/60">{safePercent}%</span>
+              <span className="text-[9px] font-medium opacity-60" style={{ color: 'var(--color-theme-surface)' }}>{safePercent}%</span>
             </div>
           </div>
         </div>

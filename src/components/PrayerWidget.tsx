@@ -6,6 +6,7 @@ import { useProfile } from '../contexts/ProfileContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { getMadhabLabel, getCalculationMethodLabel } from '../utils/prayerTimes';
+import { listVariants, listItemVariants, buttonTap } from '../lib/motion';
 
 function QiblaIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
@@ -101,137 +102,98 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
   return (
     <>
       <div className="px-6 mb-6">
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={() => !isPeriodMode && setIsModalOpen(true)}
-          className={`w-full text-left rounded-[32px] p-6 shadow-[var(--nisa-shadow-accent)] relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer border ${
-            isPeriodMode
-              ? 'bg-gradient-to-br from-theme-rose/20 to-theme-rose/10 cursor-default border-theme-rose/20'
-              : 'bg-gradient-to-br from-theme-accent-soft to-theme-accent-soft-dark border-theme-border/50 hover:border-theme-accent/30'
-          }`}
-        >
-          <div className="absolute -right-12 -top-12 w-48 h-48 bg-theme-surface-card/20 rounded-full blur-2xl pointer-events-none" />
+        {isPeriodMode ? (
+          <div className="p-4 rounded-[1.25rem] bg-theme-surface-card border border-theme-rose/30 relative overflow-hidden shadow-[var(--nisa-shadow-card)] cursor-default">
+            {/* Subtle background glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-theme-rose opacity-10 rounded-full blur-2xl pointer-events-none"></div>
 
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-5">
-              <div>
-                <p
-                  className={`text-sm font-medium uppercase tracking-wide ${isPeriodMode ? 'text-theme-orange/80' : 'text-theme-accent/70'}`}
-                >
-                  {dates.gregorian || '...'}
-                </p>
-                <p
-                  className={`text-xs font-semibold mt-0.5 ${isPeriodMode ? 'text-theme-orange/70' : 'text-theme-accent/60'}`}
-                >
-                  {dates.islamic || '...'}
-                </p>
-              </div>
-              {isPeriodMode ? (
-                <div
-                  className="w-10 h-10 bg-theme-surface-card/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs"
-                  title="Period Mode Active"
-                >
-                  <Heart className="w-5 h-5 text-theme-rose fill-current" />
+            {/* Top Row */}
+            <div className="flex justify-between items-end relative z-10">
+                <div>
+                    <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Current Focus</p>
+                    <h2 className="text-3xl font-bold text-theme-rose">Dhikr Time</h2>
                 </div>
-              ) : (
-                <button
+
+                {/* Period Mode Badge */}
+                <div className="bg-theme-surface-dark border border-theme-border rounded-lg py-2 px-3 flex flex-col items-center justify-center">
+                    <Heart className="w-5 h-5 text-theme-rose fill-current mb-1" />
+                    <span className="text-[10px] font-bold text-theme-rose uppercase tracking-widest">Period Mode</span>
+                </div>
+            </div>
+
+            {/* Bottom Row: Call to Action Buttons */}
+            <div className="mt-5 flex justify-between gap-3 relative z-10">
+                <button 
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onNavigate?.('qibla');
+                    onNavigate?.('duas');
                   }}
-                  title="Find Qibla Direction"
-                  className="w-10 h-10 bg-theme-surface-card/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xs hover:bg-theme-surface-card/70 active:scale-95 transition-all group"
+                  className="flex-1 bg-gradient-to-br from-theme-rose to-theme-orange text-white font-bold py-2.5 px-2 rounded-full text-xs flex items-center justify-center gap-2 hover:opacity-90 transition shadow-md"
                 >
-                  <QiblaIcon className="w-5 h-5 text-theme-accent-strong group-hover:scale-110 transition-transform" />
+                    <Heart className="w-3.5 h-3.5 text-white" /> Open Duas & Dhikr
                 </button>
-              )}
             </div>
-
-            <div className="flex items-end justify-between">
-              <div className="relative min-h-[50px]">
-                <AnimatePresence mode="popLayout">
-                  {isPeriodMode ? (
-                    <motion.div
-                      key="period-mode"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p className="text-sm font-medium text-theme-orange/80 mb-1">Current Focus</p>
-                      <h3 className="text-3xl font-bold text-text-primary tracking-tight">Dhikr Time</h3>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key={`prayer-${nextPrayerName}-${profile.madhab}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p className="text-sm font-medium text-theme-accent/80 mb-1">Next Prayer</p>
-                      <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl sm:text-4xl font-bold text-theme-accent-strong tracking-tight">
-                          {loading ? '...' : nextPrayerName}
-                        </h3>
-                        {activePrayerTime && !loading && (
-                          <span className="text-xs font-bold text-theme-accent-strong bg-theme-surface-card/50 px-2 py-0.5 rounded-lg shadow-2xs">
-                            {activePrayerTime}
-                          </span>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={isPeriodMode ? 'period-badge' : 'prayer-badge'}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className={`flex items-center gap-1.5 bg-theme-surface-card/60 backdrop-blur-sm px-3 pt-1.5 pb-1 rounded-xl shadow-sm ${isPeriodMode ? 'text-theme-orange' : 'text-theme-accent-strong'}`}
-                >
-                  {isPeriodMode ? (
-                    <span className="text-sm font-semibold tracking-tight pb-0.5 px-2">
-                      SubhanAllah
-                    </span>
-                  ) : (
-                    <>
-                      <Clock className="w-4 h-4 mb-0.5 opacity-80 text-theme-accent-strong" />
-                      <span className="text-base sm:text-lg font-bold tabular-nums tracking-tight font-mono text-theme-accent-strong">
-                        {formatCountdown(timeLeft)}
-                      </span>
-                    </>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {!isPeriodMode && (
-              <div className="mt-4 pt-3.5 border-t border-theme-accent/10 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate?.('qibla');
-                  }}
-                  className="flex items-center gap-2 bg-theme-surface-card/70 hover:bg-theme-surface-card text-theme-accent-strong px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs active:scale-95 border border-theme-border"
-                >
-                  <QiblaIcon className="w-4 h-4 text-theme-gold" />
-                  <span>Qibla Direction</span>
-                </button>
-
-                <span className="text-[11px] font-semibold text-theme-accent/70">
-                  Tap card for timetable
-                </span>
-              </div>
-            )}
           </div>
-        </div>
+        ) : (
+          <div 
+            onClick={() => setIsModalOpen(true)}
+            role="button"
+            className="p-4 rounded-[1.25rem] bg-theme-surface-card border border-theme-accent/30 relative overflow-hidden shadow-[var(--nisa-shadow-card)] cursor-pointer"
+          >
+            {/* Subtle background glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-theme-accent opacity-10 rounded-full blur-2xl pointer-events-none"></div>
+
+            {/* Top Row: Next Prayer & Countdown */}
+            <div className="flex justify-between items-end relative z-10">
+                <div>
+                    <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Next Prayer</p>
+                    <div className="flex items-baseline gap-3">
+                        <h2 className="text-3xl font-bold text-theme-accent-strong">{loading ? '...' : nextPrayerName.toUpperCase()}</h2>
+                        {activePrayerTime && !loading && (
+                          <span className="text-sm font-medium text-theme-accent-strong">{activePrayerTime}</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Timer block */}
+                <div className="bg-theme-surface-dark border border-theme-border rounded-lg py-1.5 px-2.5 flex flex-col items-center justify-center">
+                    <div className="text-theme-accent-strong font-mono text-base font-bold tracking-widest">
+                        {formatCountdown(timeLeft)}
+                    </div>
+                    <div className="flex justify-between w-full px-1 mt-0.5">
+                        <span className="text-[9px] text-text-muted">H</span>
+                        <span className="text-[9px] text-text-muted">M</span>
+                        <span className="text-[9px] text-text-muted">S</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Row: Call to Action Buttons */}
+            <div className="mt-5 flex justify-between gap-3 relative z-10">
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate?.('qibla');
+                  }}
+                  className="flex-1 bg-gradient-to-br from-theme-accent-strong to-theme-accent text-theme-surface-dark font-bold py-2.5 px-2 rounded-full text-xs flex items-center justify-center gap-2 hover:opacity-90 transition shadow-md"
+                >
+                    <QiblaIcon className="w-3.5 h-3.5 text-theme-surface-dark" /> Qibla Direction
+                </button>
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                  className="flex-1 bg-gradient-to-br from-theme-accent-strong to-theme-accent text-theme-surface-dark font-bold py-2.5 px-2 rounded-full text-xs flex items-center justify-center gap-2 hover:opacity-90 transition shadow-md"
+                >
+                    <Clock className="w-3.5 h-3.5 text-theme-surface-dark" /> Full Timetable
+                </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {portalTarget &&
@@ -275,9 +237,15 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
 
                   <p className="text-[11px] text-theme-gold font-semibold mb-4">{madhabNote}</p>
 
-                  <div className="flex flex-col mb-6 bg-theme-surface-dark/50 rounded-[24px] p-2 border border-theme-border">
+                  <motion.div 
+                    variants={listVariants}
+                    initial="initial"
+                    animate="animate"
+                    className="flex flex-col mb-6 bg-theme-surface-dark/50 rounded-[24px] p-2 border border-theme-border"
+                  >
                     {widgetPrayers.map((prayer, i) => (
-                      <div
+                      <motion.div
+                        variants={listItemVariants}
                         key={i}
                         className={`flex items-center justify-between p-3.5 rounded-[18px] transition-all duration-300 ${
                           prayer.active
@@ -302,32 +270,34 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                         >
                           {prayer.time}
                         </span>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
 
-                  <button
+                  <motion.button
+                    whileTap={buttonTap}
                     type="button"
                     onClick={() => {
                       setIsModalOpen(false);
                       onNavigate?.('profile');
                     }}
-                    className="w-full mb-3 py-3 rounded-[18px] bg-theme-gold/10 text-[13px] font-bold text-theme-gold active:scale-[0.98] transition-transform"
+                    className="w-full mb-3 py-3 rounded-[18px] bg-theme-gold/10 text-[13px] font-bold text-theme-gold transition-colors"
                   >
                     Adjust madhab & calculation in Profile
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileTap={buttonTap}
                     type="button"
                     onClick={() => {
                       setIsModalOpen(false);
                       onNavigate?.('qibla');
                     }}
-                    className="w-full bg-theme-accent-strong text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[var(--nisa-shadow-accent)] active:scale-[0.98] transition-transform"
+                    className="w-full bg-theme-accent-strong text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[var(--nisa-shadow-accent)] transition-colors"
                   >
                     <QiblaIcon className="w-5 h-5 text-theme-gold" />
                     Open Qibla Compass
-                  </button>
+                  </motion.button>
                 </motion.div>
               </React.Fragment>
             )}

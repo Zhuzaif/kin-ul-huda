@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Flower2, Sparkles } from 'lucide-react';
 import { useBackHandler } from '../hooks/useBackHandler';
 import { BACK_PRIORITY } from '../lib/backButton';
@@ -34,6 +35,8 @@ export default function NisaLayout() {
   useBackHandler(istihazaParent !== null, () => setIstihazaParent(null));
   useBackHandler(ghuslParent !== null, () => setGhuslParent(null));
   useBackHandler(wuduTayammumParent !== null, () => setWuduTayammumParent(null));
+
+  const portalTarget = document.getElementById('mobile-frame-root');
 
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
@@ -90,50 +93,55 @@ export default function NisaLayout() {
 
       {!showAskAalima && <AskAalimaFAB onOpen={() => setShowAskAalima(true)} />}
 
-      {showAskAalima && <AskAalimaScreen onBack={() => setShowAskAalima(false)} />}
+      {/* Overlay screens rendered via portal to prevent infinite scroll bugs */}
+      {portalTarget && createPortal(
+        <>
+          {showAskAalima && <AskAalimaScreen onBack={() => setShowAskAalima(false)} />}
+          
+          {selectedSubTopic && (
+            <FiqhSubTopicDetail
+              subTopic={selectedSubTopic.sub}
+              parentTopic={selectedSubTopic.parent}
+              onBack={() => setSelectedSubTopic(null)}
+            />
+          )}
 
-      {/* Overlay screens rendered OUTSIDE the scrollable container */}
-      {selectedSubTopic && (
-        <FiqhSubTopicDetail
-          subTopic={selectedSubTopic.sub}
-          parentTopic={selectedSubTopic.parent}
-          onBack={() => setSelectedSubTopic(null)}
-        />
-      )}
+          {haizParent && (
+            <HaizDetailScreen
+              parentTopic={haizParent}
+              onBack={() => setHaizParent(null)}
+            />
+          )}
 
-      {haizParent && (
-        <HaizDetailScreen
-          parentTopic={haizParent}
-          onBack={() => setHaizParent(null)}
-        />
-      )}
+          {nifasParent && (
+            <NifasDetailScreen
+              parentTopic={nifasParent}
+              onBack={() => setNifasParent(null)}
+            />
+          )}
 
-      {nifasParent && (
-        <NifasDetailScreen
-          parentTopic={nifasParent}
-          onBack={() => setNifasParent(null)}
-        />
-      )}
+          {istihazaParent && (
+            <IstihazaDetailScreen
+              parentTopic={istihazaParent}
+              onBack={() => setIstihazaParent(null)}
+            />
+          )}
 
-      {istihazaParent && (
-        <IstihazaDetailScreen
-          parentTopic={istihazaParent}
-          onBack={() => setIstihazaParent(null)}
-        />
-      )}
+          {ghuslParent && (
+            <GhuslDetailScreen
+              parentTopic={ghuslParent}
+              onBack={() => setGhuslParent(null)}
+            />
+          )}
 
-      {ghuslParent && (
-        <GhuslDetailScreen
-          parentTopic={ghuslParent}
-          onBack={() => setGhuslParent(null)}
-        />
-      )}
-
-      {wuduTayammumParent && (
-        <WuduTayammumDetailScreen
-          parentTopic={wuduTayammumParent}
-          onBack={() => setWuduTayammumParent(null)}
-        />
+          {wuduTayammumParent && (
+            <WuduTayammumDetailScreen
+              parentTopic={wuduTayammumParent}
+              onBack={() => setWuduTayammumParent(null)}
+            />
+          )}
+        </>,
+        portalTarget
       )}
     </div>
   );

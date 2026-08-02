@@ -7,7 +7,7 @@ interface AskAalimaFABProps {
 
 export default function AskAalimaFAB({ onOpen }: AskAalimaFABProps) {
   return (
-    <div className="absolute right-5 bottom-[100px] z-40">
+    <div className="fixed right-5 bottom-[100px] z-40">
       <button
         type="button"
         onClick={onOpen}
@@ -15,7 +15,7 @@ export default function AskAalimaFAB({ onOpen }: AskAalimaFABProps) {
         aria-label="Open Ask Aalima AI chat"
       >
         <div className="w-9 h-9 rounded-full bg-theme-surface-card backdrop-blur-sm flex items-center justify-center">
-          <Bot className="w-4 h-4 text-white" />
+          <Bot className="w-4 h-4 text-theme-accent" />
         </div>
         <span className="text-[12px] font-semibold text-white/95 pr-0.5">Ask Aalima</span>
       </button>

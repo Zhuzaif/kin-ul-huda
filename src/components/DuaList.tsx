@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { listVariants, listItemVariants, buttonTap } from '../lib/motion';
 import { Heart, ChevronRight, Trash2 } from 'lucide-react';
 import duasDataRaw from '../data/duas.json';
 import { Dua } from '../types';
@@ -65,14 +67,14 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
   };
 
   return (
-    <div className="px-6 pb-36 flex flex-col gap-4">
+    <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-36 flex flex-col gap-4">
       {filteredDuas.length === 0 && (
         <div className="text-center py-10 text-text-tertiary">
           <p>No duas found.</p>
         </div>
       )}
       {filteredDuas.map((dua, index) => (
-        <div key={dua.id} className="bg-theme-surface-card rounded-[32px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-theme-border flex flex-col relative group">
+        <motion.div variants={listItemVariants} key={dua.id} className="bg-theme-surface-card rounded-[32px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-theme-border flex flex-col relative group">
           <div className="flex items-center justify-between mb-5">
             <div>
               <div className="flex gap-2 flex-wrap">
@@ -96,7 +98,8 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
             </div>
               <div className="flex items-center gap-2">
                 {activeTab === 'My Prayers' && dua.isCustom && onDeleteDua && (
-                  <button
+                  <motion.button
+                    whileTap={buttonTap}
                     onClick={() => {
                       if (!window.confirm('Delete this dua from My Prayers?')) return;
                       onDeleteDua(dua.id);
@@ -106,11 +109,11 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
                   >
                     <Trash2 className="w-4 h-4 text-text-muted hover:text-red-500 transition-colors" />
                     <span className="text-xs font-bold text-text-muted hover:text-red-500 transition-colors">Delete</span>
-                  </button>
+                  </motion.button>
                 )}
-                <button className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-theme-surface-input transition-colors">
+                <motion.button whileTap={buttonTap} className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-theme-surface-input transition-colors">
                   <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
-                </button>
+                </motion.button>
               </div>
           </div>
           
@@ -129,8 +132,8 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

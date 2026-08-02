@@ -78,7 +78,7 @@ export default function Header() {
               )}
             </motion.div>
           </button>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted">
+          <span className="text-[9px] uppercase font-bold tracking-wider text-text-muted mt-0.5">
             Period Mode
           </span>
         </div>

@@ -177,10 +177,23 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
       </button>
       )}
 
-      {/* Footer Attribution */}
-      <div className="text-center pt-5 pb-4 text-[11px] text-text-muted space-y-0.5">
-        <p className="font-medium">Al-Nisa • Version 3.4.0</p>
-        <p className="text-[10px]">Crafted with love &amp; intention for the Ummah</p>
+      {/* Footer Attribution / Promo */}
+      <div className="pt-2 pb-6 px-4 flex justify-center">
+        <a 
+          href="https://play.google.com/store/apps/details?id=com.muslimkids.noorulhuda" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 bg-theme-surface-card border border-theme-accent/20 rounded-[16px] px-3.5 py-2.5 shadow-sm transition hover:bg-theme-surface-dark active:scale-[0.97] max-w-[280px]"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-theme-accent to-theme-accent-strong flex-shrink-0 flex items-center justify-center shadow-inner">
+            <HeartHandshake className="w-5 h-5 text-theme-surface" />
+          </div>
+          <div className="text-left">
+            <p className="text-[8px] font-bold text-theme-accent-strong uppercase tracking-widest mb-0.5">Huda Labs</p>
+            <h4 className="text-[12px] font-bold text-text-primary leading-tight">Noor ul Huda Kids</h4>
+            <p className="text-[9px] text-text-muted leading-tight mt-0.5">Fun &amp; interactive Islamic app</p>
+          </div>
+        </a>
       </div>
     </div>
   );

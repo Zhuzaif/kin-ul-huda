@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'motion/react';
+import { buttonTap } from '../lib/motion';
 import { BookOpen, CircleDashed, Sun, Library, Headphones, Heart } from 'lucide-react';
 import { ActionItem } from '../types';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
@@ -114,10 +116,11 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
         {actions.map((action) => {
           const IconInfo = action.icon;
           return (
-            <button
+            <motion.button
+              whileTap={buttonTap}
               key={action.id}
               onClick={() => handleActionClick(action.id)}
-              className="flex flex-col items-center gap-3 group active:scale-95 transition-transform"
+              className="flex flex-col items-center gap-3 group transition-colors"
             >
               <div
                 className={`w-16 h-16 rounded-full flex items-center justify-center shadow-sm ${action.bgClass} transition-transform group-hover:-translate-y-0.5 overflow-hidden p-3`}
@@ -136,7 +139,7 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
               <span className="text-[10px] font-semibold text-text-tertiary text-center leading-tight w-16">
                 {action.label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
