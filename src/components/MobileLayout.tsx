@@ -133,21 +133,21 @@ export default function MobileLayout() {
 
   return (
     <div
-      className="fixed inset-0 bg-theme-surface"
+      className="fixed top-0 left-0 w-full h-[100dvh] bg-theme-surface"
       style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
       <div
         id="mobile-frame-root"
         data-theme={profile.theme}
         data-period={isPeriodMode ? 'on' : 'off'}
-        className="w-full h-full transition-colors duration-500 relative overflow-hidden flex flex-col bg-theme-surface"
+        className="w-full h-full transition-colors duration-500 relative flex flex-col bg-theme-surface"
       >
         <div 
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto w-full relative scroll-smooth flex flex-col"
+          className="flex-1 overflow-y-auto w-full relative scroll-smooth flex flex-col pb-28"
         >
           <AnimatePresence mode="wait">
             <motion.div
