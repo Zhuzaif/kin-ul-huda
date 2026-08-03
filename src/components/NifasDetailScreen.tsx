@@ -397,21 +397,18 @@ export default function NifasDetailScreen({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden animate-in fade-in duration-300"
+      className="fixed inset-0 z-50 flex flex-col overflow-hidden animate-in fade-in duration-300 bg-theme-surface"
       style={{
-        backgroundColor: 'var(--color-theme-surface)',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23cbd5e1' fill-opacity='0.15'%3E%3Cpath d='M40 80c22.091 0 40-17.909 40-40S62.091 0 40 0 0 17.909 0 40s17.909 40 40 40zm0-2c20.987 0 38-17.013 38-38S60.987 2 40 2 2 19.013 2 40s17.013 38 38 38zm0-38c0-11.046 8.954-20 20-20s20 8.954 20 20-8.954 20-20 20-20-8.954-20-20zm0 0c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
-        backgroundSize: '100px 100px',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         touchAction: 'none',
       }}
     >
       <style>{trackStyles}</style>
 
-      {/* Frosted glass mobile container */}
-      <main className="w-full max-w-sm h-full max-h-[860px] flex flex-col bg-theme-surface-card backdrop-blur-md rounded-[32px] p-4 sm:p-5 border border-theme-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
+      <main className="w-full h-full flex flex-col bg-theme-surface-card relative overflow-hidden">
         {/* Floating Arabic Header Block */}
-        <header className="bg-theme-surface-card rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] px-4 py-3.5 mb-5 relative z-20 border border-theme-border flex flex-col items-center justify-center">
+        <header className="bg-theme-surface-card border-b border-theme-border px-4 py-4 mb-2 relative z-20 flex flex-col items-center justify-center">
           {/* Back button positioned absolutely on the left */}
           <button
             type="button"
