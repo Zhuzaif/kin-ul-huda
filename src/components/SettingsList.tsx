@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ArrowRight,
   HeartHandshake,
+  Heart,
 } from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
 import { usePurityTracker } from '../contexts/PurityTrackerContext';
@@ -25,7 +26,7 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
   const { store } = usePurityTracker();
 
   return (
-    <div className="px-6 pb-32">
+    <div className="px-6 pb-6">
       {/* ── Settings Group 1: Personal & Faith ── */}
       <div className="space-y-2 mb-5">
         <h3 className="text-[11px] font-bold uppercase tracking-wider px-1 text-text-muted">
@@ -52,6 +53,7 @@ export default function SettingsList({ onOpenScreen, onSupport }: SettingsListPr
             </div>
             <ChevronRight className="w-4 h-4 text-text-muted" />
           </button>
+
 
           {/* Period Tracker Row */}
           <button

@@ -47,7 +47,7 @@ export default function ResumeReading({
             style={{
               fontFamily: "'Amiri', serif",
               fontSize: '85px',
-              color: 'var(--color-theme-gold)',
+              color: 'var(--color-theme-surface)',
               lineHeight: 1,
               direction: 'rtl',
             }}
@@ -59,14 +59,8 @@ export default function ResumeReading({
         <div className="relative z-10 flex items-center justify-between gap-3">
           {/* Left */}
           <div className="flex-1 min-w-0">
-            <span
-              className="inline-block text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-full mb-2"
-              style={{ background: 'rgba(255,255,255,0.15)', color: 'var(--color-theme-surface)' }}
-            >
-              {tag}
-            </span>
             <h3
-              className="text-[19px] font-bold leading-tight truncate"
+              className="text-[28px] font-bold leading-tight truncate mt-1"
               style={{ fontFamily: "'Playfair Display', Georgia, serif", color: 'var(--color-theme-surface)' }}
             >
               {chapterName}

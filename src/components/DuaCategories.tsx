@@ -26,14 +26,14 @@ export default function DuaCategories({ activeCategory, onCategoryChange }: DuaC
               onClick={() => onCategoryChange(isActive ? null : cat.label)}
               className={`flex items-center gap-3 pl-2 pr-5 py-2 rounded-full border shadow-sm whitespace-nowrap transition-all active:scale-95 ${
                 isActive 
-                  ? 'bg-theme-surface-card border-theme-border' 
-                  : 'bg-theme-surface-card hover:bg-theme-surface-elevated border-theme-border'
+                  ? 'bg-theme-accent border-theme-accent ring-2 ring-theme-accent/20 text-white' 
+                  : 'bg-theme-surface-card hover:bg-theme-surface-elevated border-theme-border text-text-secondary'
               }`}
             >
-              <div className={`w-9 h-9 rounded-full ${cat.bg} flex items-center justify-center`}>
-                <Icon className={`w-4 h-4 ${cat.color} stroke-[2.5]`} />
+              <div className={`w-9 h-9 rounded-full ${isActive ? 'bg-white/20' : cat.bg} flex items-center justify-center`}>
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : cat.color} stroke-[2.5]`} />
               </div>
-              <span className={`text-[13px] font-bold tracking-tight ${isActive ? 'text-text-primary' : 'text-text-secondary'}`}>
+              <span className={`text-[13px] font-bold tracking-tight ${isActive ? 'text-white' : 'text-text-secondary'}`}>
                 {cat.label}
               </span>
             </button>

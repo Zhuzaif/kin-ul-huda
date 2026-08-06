@@ -14,6 +14,48 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  React.useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const saved = existing.find((d: Dua) => String(d.id) === String(dua.id) || String(d.id) === `custom-${dua.id}` || (d.arabic && d.arabic === dua.arabic));
+      setIsSaved(!!saved);
+    } catch (e) {}
+  }, [dua]);
+
+  const handleSaveToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const saved = existing.find((d: Dua) => String(d.id) === String(dua.id) || String(d.id) === `custom-${dua.id}` || (d.arabic && d.arabic === dua.arabic));
+      
+      if (saved) {
+        const updated = existing.filter((d: Dua) => d.id !== saved.id);
+        localStorage.setItem('customDuas', JSON.stringify(updated));
+        setIsSaved(false);
+      } else {
+        const newDua = { ...dua, isCustom: true, tags: [...(dua.tags || []), 'My Prayers'] };
+        const idStr = String(newDua.id);
+        if (!idStr.startsWith('custom-') && !idStr.startsWith('ayat-')) {
+           newDua.id = `custom-${dua.id}`;
+        }
+        const updated = [newDua, ...existing];
+        localStorage.setItem('customDuas', JSON.stringify(updated));
+        setIsSaved(true);
+      }
+    } catch (e) {}
+  };
+
+  const handleShare = async () => {
+    const text = `${dua.title}\n\n${dua.arabic}\n\n${dua.translation ? `"${dua.translation}"\n\n` : ''}- Shared via Nisa`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: dua.title, text });
+      } catch (e) {}
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Dua copied to clipboard!');
+    }
+  };
+
   const minSwipeDistance = 50;
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -53,13 +95,16 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
 
   return (
     <div 
-      className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+      className="fixed inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-theme-surface/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-theme-border">
+      <div 
+        className="sticky top-0 z-10 bg-theme-surface/80 backdrop-blur-md px-6 pb-4 flex items-center justify-between border-b border-theme-border"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
         <button 
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all"
@@ -67,11 +112,21 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
           <ChevronLeft className="w-5 h-5 text-text-secondary" />
         </button>
         <div className="flex gap-2">
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all">
+          <button 
+            onClick={handleShare}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all"
+          >
             <Share2 className="w-4 h-4 text-text-muted" />
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all">
-            <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
+          <button 
+            onClick={handleSaveToggle}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border hover:bg-theme-surface-input active:scale-95 transition-all"
+          >
+            {isSaved ? (
+              <Heart className="w-4 h-4 text-theme-rose fill-theme-rose" />
+            ) : (
+              <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
+            )}
           </button>
         </div>
       </div>
@@ -130,7 +185,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
       <div className="flex-shrink-0 mx-6 mb-6 mt-2 flex items-center justify-between bg-theme-surface-card backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-theme-border">
         <button 
           onClick={onPrev}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-theme-surface-input hover:text-text-primary transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card border border-theme-border text-theme-accent hover:bg-theme-surface-alt transition-colors active:scale-95 shadow-sm"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -141,7 +196,7 @@ export default function DuaDetailScreen({ dua, onBack, onNext, onPrev }: DuaDeta
         
         <button 
           onClick={onNext}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-alt text-text-tertiary hover:bg-theme-surface-input hover:text-text-primary transition-colors active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card border border-theme-border text-theme-accent hover:bg-theme-surface-alt transition-colors active:scale-95 shadow-sm"
         >
           <ChevronRight className="w-5 h-5" />
         </button>

@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Download, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { captureCardWithBanner, prewarmShareAssets } from '../utils/shareCardImage';
@@ -542,7 +543,7 @@ export default function AyatShareCards({ arabicText, englishText, reference, onC
     setIsCapturing(false);
   }, [activeIndex, isCapturing, englishText, reference]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         className="share-overlay"
@@ -611,6 +612,8 @@ export default function AyatShareCards({ arabicText, englishText, reference, onC
           </button>
         </div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
+

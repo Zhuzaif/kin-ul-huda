@@ -7,7 +7,7 @@ interface AskAalimaFABProps {
 
 export default function AskAalimaFAB({ onOpen }: AskAalimaFABProps) {
   return (
-    <div className="fixed right-5 bottom-[100px] z-40">
+    <div className="fixed right-5 bottom-[calc(120px+env(safe-area-inset-bottom,0px))] z-40">
       <button
         type="button"
         onClick={onOpen}

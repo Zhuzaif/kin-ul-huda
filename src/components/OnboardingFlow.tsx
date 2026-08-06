@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, MapPin, Check, Bell, BellRing } from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
@@ -217,7 +218,8 @@ function LocationStep({
   onAllow: (coords: { lat: number; lng: number } | null) => void;
   onSkip: () => void;
 }) {
-  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'skipping' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const fetchIPLocation = async () => {
     try {
@@ -244,24 +246,23 @@ function LocationStep({
   };
 
   const handleSkip = async () => {
-    setState('loading');
+    setState('skipping');
     const ipCoords = await fetchIPLocation();
-    setState('done');
     setTimeout(() => onAllow(ipCoords), 400); // use onAllow so it saves the coords instead of null
   };
 
   const handleAllow = async () => {
     setState('loading');
-    
+    setErrorMsg(null);
+
     if (navigator.geolocation) {
       let resolved = false;
-      
+
       const timeout = setTimeout(async () => {
         if (!resolved) {
           resolved = true;
-          const coords = await fetchIPLocation();
-          setState('done');
-          setTimeout(() => onAllow(coords), 400);
+          setState('error');
+          setErrorMsg('Location timeout. Please ensure your device location is turned on, or skip for now.');
         }
       }, 5000); // 5 sec timeout for GPS
 
@@ -275,13 +276,12 @@ function LocationStep({
             setTimeout(() => onAllow(coords), 600);
           }
         },
-        async () => {
+        async (error) => {
           if (!resolved) {
             resolved = true;
             clearTimeout(timeout);
-            const coords = await fetchIPLocation();
-            setState('done');
-            setTimeout(() => onAllow(coords), 600);
+            setState('error');
+            setErrorMsg('Please enable Location Services on your device to continue, or skip for now.');
           }
         },
         { enableHighAccuracy: true, timeout: 5000 }
@@ -330,7 +330,7 @@ function LocationStep({
           className="mt-4 text-sm leading-relaxed"
           style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, color: '#5A5A7A' }}
         >
-          Hey {name || 'there'} — accurate prayer times need your coordinates. We never store or share them.
+          Hey {name || 'there'} — accurate prayer times need your coordinates.
         </p>
       </div>
 
@@ -341,7 +341,7 @@ function LocationStep({
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleAllow}
-            disabled={state !== 'idle'}
+            disabled={state === 'loading' || state === 'skipping' || state === 'done'}
             className="flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-semibold text-base"
             style={{
               fontFamily: "'Outfit', sans-serif",
@@ -352,7 +352,7 @@ function LocationStep({
               letterSpacing: '0.02em',
             }}
           >
-            {state === 'idle' && <><MapPin size={18} strokeWidth={2} /> Allow Location</>}
+            {(state === 'idle' || state === 'error' || state === 'skipping') && <><MapPin size={18} strokeWidth={2} /> Allow Location</>}
             {state === 'loading' && (
               <motion.div
                 className="w-5 h-5 rounded-full border-2 border-current border-t-transparent"
@@ -362,12 +362,30 @@ function LocationStep({
             )}
             {state === 'done' && <><Check size={18} strokeWidth={2.5} /> Location Granted</>}
           </motion.button>
+
+          {state === 'error' && errorMsg && (
+            <p className="text-red-400 text-xs text-center px-2 -mt-1 leading-relaxed" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              {errorMsg}
+            </p>
+          )}
+
           <button
             onClick={handleSkip}
-            className="text-center py-3 text-sm transition-colors"
+            disabled={state !== 'idle' && state !== 'error'}
+            className="text-center py-3 text-sm transition-colors disabled:opacity-50"
             style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, color: '#5A5A7A' }}
           >
-            Skip for now
+            {state === 'skipping' ? (
+              <span className="flex items-center justify-center gap-2 text-[#F0A500]">
+                <motion.div
+                  className="w-4 h-4 rounded-full border-2 border-current border-t-transparent"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                /> Skipping...
+              </span>
+            ) : (
+              'Skip for now'
+            )}
           </button>
         </div>
       </div>
@@ -420,11 +438,12 @@ function NotificationStep({
     setRequesting(true);
     try {
       if (Capacitor.isNativePlatform()) {
-        await PushNotifications.requestPermissions();
+        await LocalNotifications.requestPermissions();
+        await PushNotifications.requestPermissions().catch(() => {});
       } else if ('Notification' in window) {
         await Notification.requestPermission();
       }
-    } catch (e) { 
+    } catch (e) {
       console.error('Error requesting notification permission:', e);
     }
     const prefs = { adhan: enabled.has('adhan'), reminders: enabled.has('reminders') };
@@ -964,7 +983,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
         ])
         .select()
         .single();
-        
+
       if (data && !error) {
         userId = data.id;
       }
@@ -1054,13 +1073,6 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
             </span>
           </div>
 
-          {/* Logo mark */}
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(240,165,0,0.12)', border: '1px solid rgba(240,165,0,0.25)' }}
-          >
-            <span style={{ fontFamily: "'Amiri', serif", fontSize: '1rem', color: '#F0A500' }}>☽</span>
-          </div>
         </div>
 
         {/* Card area */}
@@ -1102,6 +1114,10 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                   }}
                   onSkip={() => {
                     setNotificationsEnabled(false);
+                    updateProfile({
+                      prayerReminders: false,
+                      notificationPrefs: { adhan: false, reminders: false },
+                    });
                     next(3);
                   }}
                 />

@@ -33,4 +33,5 @@ export type SettingsScreenId =
   | 'theme'
   | 'language'
   | 'downloads'
+  | 'saved_ayat'
   | null;

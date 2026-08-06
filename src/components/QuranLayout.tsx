@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'motion/react';
-import { listVariants, listItemVariants } from '../lib/motion';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { listVariants, listItemVariants, modalVariants } from '../lib/motion';
 import { useBackHandler } from '../hooks/useBackHandler';
 import { downloadAudioToCache, markSurahDownloaded } from '../utils/audioCache';
 import QuranHeader from './QuranHeader';
@@ -17,6 +18,7 @@ import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
 import juzData from '../data/juz.json';
 import { Chapter, Verse, QuranMap } from '../data/quranConstants';
+import { useSavedVerses } from '../contexts/SavedVersesContext';
 
 type JuzEntry = {
   index: string;
@@ -37,11 +39,6 @@ type JuzMapped = {
   arabicTitle: string;
 };
 
-type SavedVerse = {
-  chapterId: number;
-  verse: number;
-};
-
 type LastRead = {
   chapterId: number;
   verse: number;
@@ -60,7 +57,14 @@ const translationByChapter = translationEn as QuranMap;
 const juzRaw = juzData as JuzEntry[];
 
 const LAST_READ_KEY = 'nisa.quran.lastRead';
-const SAVED_VERSES_KEY = 'nisa.quran.savedVerses';
+
+const MANUAL_BOOKMARKS_KEY = 'nisa.quran.manualBookmarks';
+
+type ManualBookmark = {
+  chapterId: number;
+  verse: number;
+  timestamp: number;
+};
 
 // Octagon clip-path for number badges
 const OCTAGON_CLIP =
@@ -163,6 +167,12 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isGlobalDownloading, setIsGlobalDownloading] = useState(false);
   const [globalDownloadProgress, setGlobalDownloadProgress] = useState(0);
+  const [showGlobalDownloadModal, setShowGlobalDownloadModal] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalTarget(document.getElementById('mobile-frame-root'));
+  }, []);
 
   const handleBackFromReading = () => {
     setSelectedChapterId(null);
@@ -196,26 +206,42 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     return null;
   });
 
-  const [savedVerses, setSavedVerses] = useState<SavedVerse[]>(() => {
+  const { savedVerses, handleSaveToggle } = useSavedVerses();
+
+  const [manualBookmarks, setManualBookmarks] = useState<ManualBookmark[]>(() => {
     if (typeof window === 'undefined') {
       return [];
     }
-
     try {
-      const savedRaw = window.localStorage.getItem(SAVED_VERSES_KEY);
-      if (savedRaw) {
-        const parsed = JSON.parse(savedRaw) as SavedVerse[];
+      const raw = window.localStorage.getItem(MANUAL_BOOKMARKS_KEY);
+      const seeded = window.localStorage.getItem('nisa.quran.bookmarks.seeded');
+      
+      let initialData: ManualBookmark[] = [];
+      if (raw) {
+        const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          return parsed.filter(
-            (item) =>
-              typeof item?.chapterId === 'number' && typeof item?.verse === 'number'
+          initialData = parsed.filter(
+            (item) => typeof item?.chapterId === 'number' && typeof item?.verse === 'number'
           );
         }
       }
-    } catch (error) {
-      console.error(error);
-    }
 
+      if (!seeded) {
+        // Default surahs: Kahf (18), Yaseen (36), Ar-Rahman (55), Al-Mulk (67)
+        const defaultSurahs = [18, 36, 55, 67];
+        defaultSurahs.forEach((chapterId, i) => {
+          if (!initialData.some(b => b.chapterId === chapterId)) {
+            initialData.push({ chapterId, verse: 1, timestamp: Date.now() - i * 1000 });
+          }
+        });
+        window.localStorage.setItem('nisa.quran.bookmarks.seeded', 'true');
+        window.localStorage.setItem(MANUAL_BOOKMARKS_KEY, JSON.stringify(initialData));
+      }
+
+      return initialData;
+    } catch (e) {
+      console.error(e);
+    }
     return [];
   });
 
@@ -231,11 +257,10 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
   }, [lastRead]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(MANUAL_BOOKMARKS_KEY, JSON.stringify(manualBookmarks));
     }
-    window.localStorage.setItem(SAVED_VERSES_KEY, JSON.stringify(savedVerses));
-  }, [savedVerses]);
+  }, [manualBookmarks]);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -376,6 +401,26 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     });
   }, [savedVerses, normalizedQuery]);
 
+  const manualBookmarkSurahs = useMemo(() => {
+    return manualBookmarks
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map((b) => chapterList.find((c) => c.id === b.chapterId))
+      .filter(Boolean) as Chapter[];
+  }, [manualBookmarks]);
+
+  const filteredBookmarkSurahs = useMemo(() => {
+    if (!normalizedQuery) return manualBookmarkSurahs;
+    return manualBookmarkSurahs.filter(item => {
+      const terms = [
+        item.transliteration,
+        item.translation,
+        item.name,
+        String(item.id),
+      ];
+      return terms.some(term => term.toLowerCase().includes(normalizedQuery));
+    });
+  }, [manualBookmarkSurahs, normalizedQuery]);
+
   const handleContinue = () => {
     setSelectedChapterId(resumeChapterId);
     setSelectedVerseNumber(resumeVerseNumber);
@@ -395,21 +440,21 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     setLastRead({ ...data, updatedAt: Date.now() });
   };
 
-  const handleSaveToggle = (data: { chapterId: number; verse: number; isSaved: boolean }) => {
-    setSavedVerses((prev) => {
-      const exists = prev.some(
-        (item) => item.chapterId === data.chapterId && item.verse === data.verse
-      );
-      if (data.isSaved && !exists) {
-        return [...prev, { chapterId: data.chapterId, verse: data.verse }];
+  const handleBookmarkToggle = () => {
+    if (selectedChapterId === null) return;
+    const currentVerse = selectedVerseNumber ?? 1;
+    
+    setManualBookmarks(prev => {
+      const exists = prev.some(b => b.chapterId === selectedChapterId);
+      if (exists) {
+        return prev.filter(b => b.chapterId !== selectedChapterId);
       }
-      if (!data.isSaved && exists) {
-        return prev.filter(
-          (item) => !(item.chapterId === data.chapterId && item.verse === data.verse)
-        );
-      }
-      return prev;
+      return [{ chapterId: selectedChapterId, verse: currentVerse, timestamp: Date.now() }, ...prev];
     });
+    
+    // Close the reading screen and navigate to bookmarks tab
+    setSelectedChapterId(null);
+    setActiveFilter('bookmarks');
   };
 
   const handleSearchSubmit = (value: string) => {
@@ -428,11 +473,13 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     setSearchQuery('');
   };
 
-  const handleDownload = async () => {
+  const handleDownloadClick = () => {
     if (isGlobalDownloading) return;
-    const confirmDownload = window.confirm("This will download ~600MB of audio for offline use. Proceed?");
-    if (!confirmDownload) return;
+    setShowGlobalDownloadModal(true);
+  };
 
+  const confirmGlobalDownload = async () => {
+    setShowGlobalDownloadModal(false);
     setIsGlobalDownloading(true);
     setGlobalDownloadProgress(0);
 
@@ -472,7 +519,23 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
     }
   };
 
+  const bookmarkedSurahIds = useMemo(() => {
+    return new Set(manualBookmarks.map((b) => b.chapterId));
+  }, [manualBookmarks]);
+
+  const handleLongPressChapter = (chapterId: number) => {
+    setManualBookmarks((prev) => {
+      const exists = prev.some((b) => b.chapterId === chapterId);
+      if (exists) {
+        return prev.filter((b) => b.chapterId !== chapterId);
+      }
+      return [{ chapterId, verse: 1, timestamp: Date.now() }, ...prev];
+    });
+  };
+
   if (selectedChapterId !== null) {
+    const isBookmarked = manualBookmarks.some(b => b.chapterId === selectedChapterId);
+
     return (
       <QuranReadingScreen
         chapterId={selectedChapterId}
@@ -481,6 +544,8 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         onLastReadChange={handleLastReadChange}
         savedVerses={savedVerses}
         onSaveToggle={handleSaveToggle}
+        isBookmarked={isBookmarked}
+        onBookmarkToggle={handleBookmarkToggle}
       />
     );
   }
@@ -500,10 +565,9 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearchSubmit={handleSearchSubmit}
-        onDownload={handleDownload}
+        onDownload={handleDownloadClick}
         isDownloading={isGlobalDownloading}
         downloadProgress={globalDownloadProgress}
-        onBookmarks={() => setActiveFilter('bookmarks')}
       />
       <ResumeReading
         chapterName={resumeChapter?.transliteration ?? 'Al-Fatihah'}
@@ -516,7 +580,19 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
       <QuranFilters activeFilter={activeFilter} onChange={setActiveFilter} />
 
       {activeFilter === 'bookmarks' ? (
-        <div className="px-6 pb-28 flex flex-col gap-5">
+        <SurahList
+          items={filteredBookmarkSurahs}
+          onSelect={(id) => {
+             const bookmarked = manualBookmarks.find(b => b.chapterId === id);
+             setSelectedChapterId(id);
+             setSelectedVerseNumber(bookmarked?.verse ?? 1);
+          }}
+          bookmarkedSurahIds={bookmarkedSurahIds}
+          onLongPress={handleLongPressChapter}
+          emptyLabel={manualBookmarks.length === 0 ? 'No bookmarked Surahs yet. Open a Surah and tap the Bookmark icon to save your place!' : 'No bookmarks match your search.'}
+        />
+      ) : activeFilter === 'fav_ayat' ? (
+        <div className="px-6 pb-6 flex flex-col gap-5">
           {savedVerseCards.length === 0 ? (
             <div className="bg-theme-surface-card border border-theme-border rounded-[22px] p-4 text-sm text-text-tertiary text-center">
               {savedVerses.length === 0 ? (
@@ -565,7 +641,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
           )}
         </div>
       ) : activeFilter === 'juz' ? (
-        <div className="px-6 pb-28 flex flex-col">
+        <div className="px-6 pb-6 flex flex-col">
           {filteredJuz.length === 0 ? (
             <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
               No juz match your search.
@@ -606,7 +682,7 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
 
                   <div className="min-w-0">
                     <h4 className="text-[15px] font-semibold text-text-primary truncate">
-                      Juz {item.index} • {item.title}
+                      {item.title}
                     </h4>
                     <p className="text-[12px] text-text-muted mt-0.5">
                       Starts at {item.startName}
@@ -637,9 +713,56 @@ export default function QuranLayout({ onReadingModeChange }: QuranLayoutProps) {
         <SurahList
           items={filteredSurahs}
           onSelect={handleOpenChapter}
+          bookmarkedSurahIds={bookmarkedSurahIds}
+          onLongPress={handleLongPressChapter}
           emptyLabel="No surahs match your search."
         />
       )}
+
+      {portalTarget &&
+        createPortal(
+          <AnimatePresence>
+            {showGlobalDownloadModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  onClick={() => setShowGlobalDownloadModal(false)}
+                />
+                <motion.div 
+                  variants={modalVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="bg-theme-surface-card rounded-[32px] w-full max-w-[320px] p-6 shadow-2xl relative overflow-hidden z-10 flex flex-col items-center text-center"
+                >
+                  <h3 className="text-xl font-bold text-text-primary mb-2">Download All Audio</h3>
+                  <p className="text-sm text-text-secondary mb-6">
+                    This will download ~600MB of audio for offline use. Proceed?
+                  </p>
+
+                  <div className="flex items-center gap-3 w-full">
+                    <button
+                      onClick={() => setShowGlobalDownloadModal(false)}
+                      className="flex-1 py-3.5 bg-theme-surface-dark text-text-secondary font-bold rounded-[20px] hover:bg-theme-surface-alt transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmGlobalDownload}
+                      className="flex-1 py-3.5 bg-theme-accent text-white font-bold rounded-[20px] hover:bg-theme-accent-strong transition-colors"
+                    >
+                      Proceed
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          portalTarget
+        )}
     </div>
   );
 }

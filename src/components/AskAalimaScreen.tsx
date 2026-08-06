@@ -179,8 +179,11 @@ export default function AskAalimaScreen({ onBack }: AskAalimaScreenProps) {
   };
 
   return (
-    <div className="absolute inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
-      <div className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-theme-border">
+    <div className="fixed inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
+      <div 
+        className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 pb-4 flex items-center gap-3 border-b border-theme-border"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
         <button
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card shadow-sm border border-theme-border active:scale-95 transition-all"

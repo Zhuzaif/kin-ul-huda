@@ -13,7 +13,17 @@ export default function FiqhSubTopicDetail({ subTopic, parentTopic, onBack }: Fi
 
   return (
     <div className="fixed inset-0 bg-theme-surface z-50 flex flex-col animate-in fade-in duration-300">
-      <div className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md px-6 py-4 flex items-center gap-3 border-b border-theme-border">
+      <div 
+        className="sticky top-0 z-10 bg-theme-surface/90 backdrop-blur-md pb-4 border-b border-theme-border relative overflow-hidden"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
+        {/* Ink Animation Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay">
+          <div className="liquid-ink"></div>
+          <div className="liquid-ink-2"></div>
+        </div>
+
+        <div className="relative z-10 flex items-center gap-3 px-6">
         <button
           type="button"
           onClick={onBack}
@@ -31,6 +41,7 @@ export default function FiqhSubTopicDetail({ subTopic, parentTopic, onBack }: Fi
         <div className={`w-10 h-10 rounded-full ${parentTopic.iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-5 h-5 ${parentTopic.iconColor}`} />
         </div>
+      </div>
       </div>
 
       <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-6 pb-28">

@@ -43,24 +43,10 @@ export default function NisaLayout() {
       <div className="flex-1 overflow-y-auto scroll-smooth hide-scrollbar relative">
         {/* ── Page Header ── */}
         <div className="px-5 pt-6 pb-4 nisa-slide-up">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <Sparkles className="w-3 h-3 text-theme-orange" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-theme-orange">
-                  Purity & Fiqh
-                </span>
-              </div>
-              <h1 className="text-[24px] font-bold text-text-primary tracking-tight leading-none">
-                Al-Nisa
-              </h1>
-              <p className="text-[12px] font-medium text-text-muted mt-1">
-                Women's fiqh, cycle tracking & guided learning
-              </p>
-            </div>
-            <div className="w-11 h-11 rounded-2xl bg-theme-orange/10 flex items-center justify-center">
-              <Flower2 className="w-5 h-5 text-theme-orange" />
-            </div>
+          <div className="mb-4">
+            <h1 className="text-[24px] font-bold text-text-primary tracking-tight leading-none">
+              Al-Nisa
+            </h1>
           </div>
 
           {/* Quranic verse */}
@@ -108,35 +94,30 @@ export default function NisaLayout() {
 
           {haizParent && (
             <HaizDetailScreen
-              parentTopic={haizParent}
               onBack={() => setHaizParent(null)}
             />
           )}
 
           {nifasParent && (
             <NifasDetailScreen
-              parentTopic={nifasParent}
               onBack={() => setNifasParent(null)}
             />
           )}
 
           {istihazaParent && (
             <IstihazaDetailScreen
-              parentTopic={istihazaParent}
               onBack={() => setIstihazaParent(null)}
             />
           )}
 
           {ghuslParent && (
             <GhuslDetailScreen
-              parentTopic={ghuslParent}
               onBack={() => setGhuslParent(null)}
             />
           )}
 
           {wuduTayammumParent && (
             <WuduTayammumDetailScreen
-              parentTopic={wuduTayammumParent}
               onBack={() => setWuduTayammumParent(null)}
             />
           )}

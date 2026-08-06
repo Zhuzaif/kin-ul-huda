@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { getMadhabLabel, getCalculationMethodLabel } from '../utils/prayerTimes';
 import { listVariants, listItemVariants, buttonTap } from '../lib/motion';
+import { setPendingProfileScreen } from './ProfileLayout';
 
 function QiblaIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
@@ -20,8 +21,8 @@ function QiblaIcon({ className = 'w-5 h-5' }: { className?: string }) {
         opacity="0.6"
       />
       <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="currentColor" />
-      <path d="M8.5 11H15.5" stroke="#D4AF37" strokeWidth="1.5" />
-      <path d="M12 3.5L13.5 6.5H10.5L12 3.5Z" fill="#D4AF37" />
+      <path d="M8.5 11H15.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M12 3.5L13.5 6.5H10.5L12 3.5Z" fill="currentColor" />
     </svg>
   );
 }
@@ -49,13 +50,20 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
       year: 'numeric',
     }).format(today);
 
-    const islamicParts = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+    const ISLAMIC_MONTHS = [
+      'Muharram', 'Safar', 'Rabiʻ I', 'Rabiʻ II', 'Jumada I', 'Jumada II',
+      'Rajab', 'Shaʻban', 'Ramadan', 'Shawwal', 'Dhuʻl-Qiʻdah', 'Dhuʻl-Hijjah'
+    ];
+
+    const islamicParts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
       day: 'numeric',
-      month: 'long',
+      month: 'numeric',
       year: 'numeric',
     }).formatToParts(today);
+    
     const iDay = islamicParts.find((p) => p.type === 'day')?.value;
-    const iMonth = islamicParts.find((p) => p.type === 'month')?.value;
+    const iMonthNum = parseInt(islamicParts.find((p) => p.type === 'month')?.value || '1', 10);
+    const iMonth = ISLAMIC_MONTHS[iMonthNum - 1] || '';
     const iYear = islamicParts.find((p) => p.type === 'year')?.value;
     const islamic = `${iDay} ${iMonth} ${iYear}`;
 
@@ -279,6 +287,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     type="button"
                     onClick={() => {
                       setIsModalOpen(false);
+                      setPendingProfileScreen('preferences');
                       onNavigate?.('profile');
                     }}
                     className="w-full mb-3 py-3 rounded-[18px] bg-theme-gold/10 text-[13px] font-bold text-theme-gold transition-colors"
@@ -295,7 +304,7 @@ export default function PrayerWidget({ onNavigate }: { onNavigate?: (tab: string
                     }}
                     className="w-full bg-theme-accent-strong text-white py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold shadow-[var(--nisa-shadow-accent)] transition-colors"
                   >
-                    <QiblaIcon className="w-5 h-5 text-theme-gold" />
+                    <QiblaIcon className="w-5 h-5" />
                     Open Qibla Compass
                   </motion.button>
                 </motion.div>

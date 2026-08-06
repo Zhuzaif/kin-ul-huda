@@ -110,7 +110,7 @@ export default function QuickActions({ onNavigate, onOpenTasbeeh }: QuickActions
   };
 
   return (
-    <div className="px-6 mb-28">
+    <div className="px-6 mb-6">
       <h3 className="text-lg font-bold text-text-primary tracking-tight mb-4 px-1">Daily Journey</h3>
       <div className="grid grid-cols-4 gap-4 animate-in fade-in duration-300">
         {actions.map((action) => {

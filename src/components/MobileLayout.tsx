@@ -7,6 +7,7 @@ import { useBackHandler } from '../hooks/useBackHandler';
 import Header from './Header';
 import PrayerWidget from './PrayerWidget';
 import DailyVerse from './DailyVerse';
+import QuranAudioWidget from './QuranAudioWidget';
 import DailyGoalWidget from './DailyGoalWidget';
 import QuickActions from './QuickActions';
 import BottomNav from './BottomNav';
@@ -17,6 +18,7 @@ import NisaLayout from './NisaLayout';
 import ProfileLayout from './ProfileLayout';
 import QiblaFinder from './QiblaFinder';
 import TasbeehCounterScreen from './TasbeehCounterScreen';
+import QuranAudioScreen from './QuranAudioScreen';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { useProfile } from '../contexts/ProfileContext';
 import { useActivityTracker } from '../hooks/useActivityTracker';
@@ -26,6 +28,7 @@ export default function MobileLayout() {
   const [tabHistory, setTabHistory] = useState<string[]>(['home']);
   const [isQuranReading, setIsQuranReading] = useState(false);
   const [showTasbeeh, setShowTasbeeh] = useState(false);
+  const [showQuranAudio, setShowQuranAudio] = useState(false);
   const [profileOverlay, setProfileOverlay] = useState(false);
   const { isPeriodMode } = usePeriodMode();
   const { profile } = useProfile();
@@ -58,7 +61,7 @@ export default function MobileLayout() {
   };
 
   // Track global activity across tabs and overlays
-  useActivityTracker(activeTab, isQuranReading, showTasbeeh, profileOverlay);
+  useActivityTracker(activeTab, isQuranReading, showTasbeeh || showQuranAudio, profileOverlay);
 
   // Android hardware back button: route it through the back-handler stack so it
   // closes the top-most open screen instead of exiting the app. Only when
@@ -91,13 +94,14 @@ export default function MobileLayout() {
 
   // Back returns to the previous tab in history before the app can exit.
   useBackHandler(
-    tabHistory.length > 1 && !isQuranReading && !showTasbeeh && !profileOverlay,
+    tabHistory.length > 1 && !isQuranReading && !showTasbeeh && !showQuranAudio && !profileOverlay,
     goBackInHistory,
     BACK_PRIORITY.tab
   );
 
-  // Tasbeeh full-screen overlay closes on back.
+  // Tasbeeh and Quran Audio full-screen overlays close on back.
   useBackHandler(showTasbeeh, () => setShowTasbeeh(false), BACK_PRIORITY.modal);
+  useBackHandler(showQuranAudio, () => setShowQuranAudio(false), BACK_PRIORITY.modal);
 
   useEffect(() => {
     if (activeTab !== 'quran') {
@@ -143,11 +147,19 @@ export default function MobileLayout() {
       }}
     >
       <div
-        className="w-full h-full relative flex flex-col bg-theme-surface"
+        className="w-full h-full relative flex flex-col"
       >
+        {/* Universal Top Radiant Gradient */}
+        <div 
+          className="fixed top-0 left-0 w-full h-[45vh] pointer-events-none z-0 transition-opacity duration-1000 opacity-[0.18]" 
+          style={{
+            background: 'radial-gradient(120% 100% at 50% 0%, var(--color-theme-accent) 0%, transparent 100%)'
+          }}
+        />
+        
         <div 
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto w-full relative scroll-smooth flex flex-col pb-28"
+          className="flex-1 overflow-y-auto w-full relative z-10 scroll-smooth flex flex-col pb-28"
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -164,6 +176,7 @@ export default function MobileLayout() {
                   <PrayerWidget onNavigate={handleTabChange} />
                   {/* <DailyGoalWidget /> */}
                   <DailyVerse />
+                  <QuranAudioWidget onClick={() => setShowQuranAudio(true)} />
                   <QuickActions onNavigate={handleTabChange} onOpenTasbeeh={() => setShowTasbeeh(true)} />
                 </div>
               )}
@@ -183,13 +196,16 @@ export default function MobileLayout() {
           id="floating-audio-root"
           className="absolute left-0 right-0 bottom-4 z-40 px-6 pb-4 pointer-events-none"
         />
-        {!isQuranReading && !showTasbeeh && !profileOverlay && (
+        {!isQuranReading && !showTasbeeh && !showQuranAudio && !profileOverlay && (
           <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
         )}
 
         <AnimatePresence>
           {showTasbeeh && (
             <TasbeehCounterScreen onBack={() => setShowTasbeeh(false)} />
+          )}
+          {showQuranAudio && (
+            <QuranAudioScreen onBack={() => setShowQuranAudio(false)} />
           )}
         </AnimatePresence>
       </div>

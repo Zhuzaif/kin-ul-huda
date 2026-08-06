@@ -13,6 +13,9 @@ interface VerseCardProps {
   onSelect?: () => void;
   id?: string;
   key?: string | number;
+  arabicFontSize?: number;
+  translationFontSize?: number;
+  showTranslation?: boolean;
 }
 
 export default function VerseCard({
@@ -26,6 +29,9 @@ export default function VerseCard({
   onShare,
   onSelect,
   id,
+  arabicFontSize = 26,
+  translationFontSize = 13.5,
+  showTranslation = true,
 }: VerseCardProps) {
   const [localSaved, setLocalSaved] = useState(isSaved ?? false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -79,12 +85,24 @@ export default function VerseCard({
           {verseNumber}
         </div>
         <div className="flex-1">
-          <p className="font-arabic text-[26px] leading-[2.1] text-text-primary text-right" dir="rtl">
+          <p 
+            className="font-arabic text-text-primary text-right" 
+            dir="rtl"
+            style={{ 
+              fontSize: `${arabicFontSize}px`,
+              lineHeight: arabicFontSize > 40 ? '1.8' : '2.1'
+            }}
+          >
             {arabicText}
           </p>
-          <p className="text-[13.5px] text-text-secondary leading-relaxed mt-3">
-            {translationText}
-          </p>
+          {showTranslation && (
+            <p 
+              className="text-text-secondary leading-relaxed mt-3"
+              style={{ fontSize: `${translationFontSize}px` }}
+            >
+              {translationText}
+            </p>
+          )}
         </div>
       </div>
 

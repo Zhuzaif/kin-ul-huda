@@ -4,6 +4,7 @@ import { listVariants, listItemVariants, buttonTap } from '../lib/motion';
 import { Heart, ChevronRight, Trash2 } from 'lucide-react';
 import duasDataRaw from '../data/duas.json';
 import { Dua } from '../types';
+import { heartFly } from '../lib/heartFly';
 
 const defaultDuas: Dua[] = duasDataRaw as Dua[];
 
@@ -67,7 +68,7 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
   };
 
   return (
-    <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-36 flex flex-col gap-4">
+    <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-6 flex flex-col gap-4">
       {filteredDuas.length === 0 && (
         <div className="text-center py-10 text-text-tertiary">
           <p>No duas found.</p>
@@ -111,8 +112,49 @@ export default function DuaList({ onSelectDua, onDeleteDua, activeTab, activeCat
                     <span className="text-xs font-bold text-text-muted hover:text-red-500 transition-colors">Delete</span>
                   </motion.button>
                 )}
-                <motion.button whileTap={buttonTap} className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-theme-surface-input transition-colors">
-                  <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
+                <motion.button 
+                  whileTap={buttonTap} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try {
+                      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+                      const savedDua = existing.find((d: Dua) => String(d.id) === String(dua.id) || String(d.id) === `custom-${dua.id}` || (d.arabic && d.arabic === dua.arabic));
+                      
+                      if (savedDua) {
+                        // Unsave
+                        if (onDeleteDua && activeTab === 'My Prayers') {
+                          onDeleteDua(dua.id);
+                        } else {
+                          const updated = existing.filter((d: Dua) => d.id !== savedDua.id);
+                          localStorage.setItem('customDuas', JSON.stringify(updated));
+                          setCustomDuas(updated);
+                        }
+                      } else {
+                        // Save
+                        const target = document.getElementById('my-prayers-tab');
+                        if (target) {
+                          heartFly(e.currentTarget as HTMLElement, target);
+                        }
+                        const newDua = { ...dua, isCustom: true, tags: [...(dua.tags || []), 'My Prayers'] };
+                        const idStr = String(newDua.id);
+                        if (!idStr.startsWith('custom-') && !idStr.startsWith('ayat-')) {
+                           newDua.id = `custom-${dua.id}`;
+                        }
+                        const updated = [newDua, ...existing];
+                        localStorage.setItem('customDuas', JSON.stringify(updated));
+                        setCustomDuas(updated);
+                      }
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }}
+                  className="w-10 h-10 rounded-full bg-theme-surface-card flex items-center justify-center shadow-sm border border-theme-border hover:bg-theme-surface-input transition-colors"
+                >
+                  {(activeTab === 'My Prayers' || customDuas.some(d => String(d.id) === String(dua.id) || String(d.id) === `custom-${dua.id}` || (d.arabic && d.arabic === dua.arabic))) ? (
+                    <Heart className="w-4 h-4 text-theme-rose fill-theme-rose" />
+                  ) : (
+                    <Heart className="w-4 h-4 text-text-muted hover:text-theme-rose transition-colors" />
+                  )}
                 </motion.button>
               </div>
           </div>

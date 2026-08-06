@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, DownloadCloud, Bookmark } from 'lucide-react';
+import { Search, DownloadCloud } from 'lucide-react';
 import { useProfile } from '../contexts/ProfileContext';
 
 interface QuranHeaderProps {
@@ -47,14 +47,6 @@ export default function QuranHeader({
         </div>
 
         <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={onBookmarks}
-            className="w-11 h-11 bg-theme-surface-card rounded-[14px] flex items-center justify-center shadow-sm text-theme-accent transition-colors hover:bg-theme-surface-alt"
-            aria-label="Bookmarks"
-          >
-            <Bookmark className="w-[18px] h-[18px]" strokeWidth={2} />
-          </button>
           <button
             type="button"
             onClick={onDownload}

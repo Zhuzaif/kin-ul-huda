@@ -14,6 +14,7 @@ export interface Dua {
   title: string;
   arabic: string;
   translation: string;
+  reference?: string;
   tags?: string[];
   repetition?: string;
   isCustom?: boolean;

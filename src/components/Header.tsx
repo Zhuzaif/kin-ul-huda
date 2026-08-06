@@ -61,8 +61,8 @@ export default function Header() {
         <div className="flex flex-col items-center gap-1">
           <button
             onClick={handleToggle}
-            className={`relative w-14 h-8 rounded-full transition-colors duration-300 ease-in-out flex items-center px-1 ${
-              isPeriodMode ? 'bg-theme-rose' : 'bg-theme-surface-dark'
+            className={`relative w-14 h-8 rounded-full transition-colors duration-300 ease-in-out flex items-center px-[3px] border ${
+              isPeriodMode ? 'bg-theme-rose border-theme-rose' : 'bg-theme-surface-input border-theme-border'
             }`}
             aria-label="Toggle Period Mode"
           >

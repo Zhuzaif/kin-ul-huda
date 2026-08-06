@@ -19,7 +19,22 @@ interface TasbeehCounterScreenProps {
 export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenProps) {
   const [currentScreen, setCurrentScreen] = useState<'list' | 'counter'>('list'); // 'list' ya 'counter'
   const [selectedDhikr, setSelectedDhikr] = useState<any>(null);
-  const [dhikrData, setDhikrData] = useState(DHIKR_LIST);
+  const [dhikrData, setDhikrData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nisa_dhikr_data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Map over DHIKR_LIST to ensure any new items are still included
+        return DHIKR_LIST.map(item => {
+          const savedItem = parsed.find((p: any) => p.id === item.id);
+          return savedItem ? { ...item, count: savedItem.count } : item;
+        });
+      }
+    } catch (e) {
+      console.error('Error loading dhikr data:', e);
+    }
+    return DHIKR_LIST;
+  });
 
   // Screen switch karne ka function
   const openCounter = (dhikr: any) => {
@@ -33,9 +48,13 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
 
   // Count update karne ka function
   const updateCount = (id: number, newCount: number) => {
-    setDhikrData(prevData => 
-      prevData.map(item => item.id === id ? { ...item, count: newCount } : item)
-    );
+    setDhikrData(prevData => {
+      const updated = prevData.map(item => item.id === id ? { ...item, count: newCount } : item);
+      try {
+        localStorage.setItem('nisa_dhikr_data', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
     setSelectedDhikr((prev: any) => ({ ...prev, count: newCount }));
   };
 
@@ -45,18 +64,16 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
       initial="initial"
       animate="animate"
       exit="exit"
-      className="absolute inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-theme-gold/30"
+      className="fixed inset-0 bg-theme-surface z-50 flex flex-col font-sans selection:bg-theme-gold/30"
     >
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
         .font-arabic { font-family: 'Amiri', serif; }
         .font-ui { font-family: 'Inter', sans-serif; }
         
-        /* Custom Scrollbar hide */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Floating Animations for Background Auras */
         @keyframes float-slow {
           0%, 100% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(15px, -25px) scale(1.05); }
@@ -64,6 +81,115 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         }
         .animate-float-1 { animation: float-slow 12s ease-in-out infinite; }
         .animate-float-2 { animation: float-slow 18s ease-in-out infinite reverse; }
+
+        .lcd-text {
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.15em;
+        }
+
+        .counter-device {
+            background: linear-gradient(145deg, #24242a, #111115);
+            border-radius: 60px 60px 80px 80px / 50px 50px 70px 70px;
+            box-shadow: 
+                0 30px 40px rgba(0,0,0,0.6),
+                inset 0 4px 10px rgba(255,255,255,0.1),
+                inset 0 -10px 20px rgba(0,0,0,0.8),
+                0 0 0 3px #111,
+                0 0 0 6px #fca311;
+            position: relative;
+            z-index: 10;
+        }
+
+        .counter-screen-bezel {
+            background: #111;
+            border-radius: 20px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8), 0 2px 5px rgba(255,255,255,0.1);
+        }
+
+        .counter-lcd {
+            background: #e5d38c;
+            border-radius: 12px;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(255,255,255,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .counter-lcd::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0) 20%, rgba(255,255,255,0) 80%, rgba(0,0,0,0.05) 100%);
+            pointer-events: none;
+            border-radius: 12px;
+        }
+
+        .btn-count {
+            background: radial-gradient(circle at 30% 30%, #ffc640, #fca311, #cc8400);
+            border-radius: 50%;
+            box-shadow: 
+                0 12px 0 #a36a00, 
+                0 15px 25px rgba(0,0,0,0.5),
+                inset 0 5px 10px rgba(255,255,255,0.4),
+                inset 0 -5px 15px rgba(0,0,0,0.3);
+            border: 4px solid #1a1a20;
+            transition: all 0.1s ease;
+            position: relative;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-count.pressed {
+            transform: translateY(12px);
+            box-shadow: 
+                0 0 0 #a36a00, 
+                0 5px 10px rgba(0,0,0,0.6),
+                inset 0 5px 10px rgba(255,255,255,0.4),
+                inset 0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-reset {
+            background: radial-gradient(circle at 30% 30%, #ffc640, #fca311);
+            border-radius: 50%;
+            box-shadow: 0 4px 0 #a36a00, 0 6px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+            transition: all 0.1s ease;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn-reset.pressed {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #a36a00, 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .counter-strap {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 140%;
+            max-width: 440px;
+            height: 60px;
+            background: linear-gradient(to bottom, #1e3a5f, #0b1a30, #040b16);
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-top: 2px solid rgba(255,255,255,0.1);
+            border-bottom: 2px solid rgba(0,0,0,0.6);
+        }
+        
+        .counter-strap::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.2) 5px, rgba(0,0,0,0.2) 10px);
+        }
+
+        .islamic-pattern {
+            background-color: #fca311;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M30 0l14.14 14.14L30 28.28 15.86 14.14zM0 30l14.14-14.14L28.28 30 14.14 44.14zM30 60l-14.14-14.14L30 31.72l14.14 14.14zM60 30L45.86 44.14 31.72 30 45.86 15.86zM30 42.42l8.48-8.48-8.48-8.48-8.48 8.48z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
       `}} />
 
       <div className="flex-1 flex flex-col w-full h-full overflow-hidden relative font-ui bg-theme-surface">
@@ -77,8 +203,10 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         ) : (
           <CounterScreen 
             dhikr={selectedDhikr} 
+            dhikrData={dhikrData}
             onBack={goBack} 
             onUpdateCount={updateCount} 
+            onChangeDhikr={setSelectedDhikr}
           />
         )}
       </div>
@@ -97,32 +225,47 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
       exit={{ opacity: 0 }}
       className="flex-1 flex flex-col h-full bg-theme-surface"
     >
-      {/* Header Section (Deep Forest) */}
-      <div className="bg-theme-accent-strong pt-4 pb-16 px-6 rounded-b-[40px] relative overflow-hidden shrink-0">
+      {/* Header Section */}
+      <div 
+        className="bg-theme-accent-strong pb-16 px-6 rounded-b-[40px] relative overflow-hidden shrink-0"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
+        
+        {/* Background Pattern */}
+        <div 
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M30 0l14.14 14.14L30 28.28 15.86 14.14zM0 30l14.14-14.14L28.28 30 14.14 44.14zM30 60l-14.14-14.14L30 31.72l14.14 14.14zM60 30L45.86 44.14 31.72 30 45.86 15.86zM30 42.42l8.48-8.48-8.48-8.48-8.48 8.48z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        ></div>
+
         <div className="relative z-10">
           <button 
             onClick={onAppBack}
-            className="w-10 h-10 mb-4 flex items-center justify-center rounded-full bg-theme-surface-card backdrop-blur-sm active:scale-95 transition-all text-white relative z-50 cursor-pointer"
+            className="w-10 h-10 mb-4 flex items-center justify-center rounded-full bg-theme-surface-card backdrop-blur-sm active:scale-95 transition-all text-theme-accent-strong relative z-50 cursor-pointer"
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-theme-gold text-[28px] font-bold tracking-tight">My Dhikr</h1>
-          <p className="text-white/80 text-sm mt-1">Have you done your dhikr today?</p>
+          <h1 className="text-theme-surface text-[28px] font-bold tracking-tight drop-shadow-sm">My Dhikr</h1>
+          <p className="text-theme-surface/90 text-sm mt-1 drop-shadow-sm">Have you done your dhikr today?</p>
         </div>
         
-        {/* Decorative elements - Hand/Counter Graphic Placeholder */}
-        <div className="absolute right-0 bottom-0 opacity-80 translate-y-4 translate-x-4">
-          <div className="w-32 h-32 bg-theme-gold/20 rounded-full blur-2xl absolute right-4 bottom-4"></div>
-          <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-theme-gold opacity-90 drop-shadow-lg">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M8 12H16M12 8V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.2"/>
-          </svg>
+        {/* Decorative elements - Custom User Graphic */}
+        <div className="absolute -right-2 -bottom-4 opacity-95">
+          <div className="w-32 h-32 bg-theme-surface/30 rounded-full blur-xl absolute right-6 bottom-6"></div>
+          <img 
+            src="/assets/tasbeeh-icon.svg" 
+            alt="Tasbeeh Icon"
+            className="w-48 h-48 object-contain drop-shadow-xl relative z-10"
+          />
         </div>
       </div>
 
       {/* List Section */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-5 -mt-6 pb-6 relative z-20">
+      <div 
+        className="flex-1 overflow-y-auto hide-scrollbar px-5 -mt-6 relative z-20"
+        style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}
+      >
         <motion.div variants={listVariants} initial="initial" animate="animate" className="space-y-4">
           {dhikrData.map((item) => (
             <motion.div 
@@ -133,7 +276,7 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
               className="bg-theme-surface-card p-5 rounded-[24px] shadow-[var(--nisa-shadow-card)] flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-all duration-300 border border-theme-border"
             >
               {/* Count Badge (Gold) */}
-              <div className="bg-theme-gold text-white font-semibold text-xs py-1.5 px-4 rounded-full whitespace-nowrap shadow-sm">
+              <div className="bg-[#fca311] text-gray-900 font-bold text-xs py-1.5 px-4 rounded-full whitespace-nowrap shadow-sm">
                 {item.count > 0 ? `${item.count} / ${item.target}` : `${item.target}x`}
               </div>
               
@@ -153,28 +296,32 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
 // ==========================================
 // SCREEN 2: TASBEEH COUNTER
 // ==========================================
-function CounterScreen({ dhikr, onBack, onUpdateCount }: { dhikr: any, onBack: () => void, onUpdateCount: (id: number, count: number) => void }) {
+function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr }: { dhikr: any, dhikrData: any[], onBack: () => void, onUpdateCount: (id: number, count: number) => void, onChangeDhikr: (dhikr: any) => void }) {
   const [isPressed, setIsPressed] = useState(false);
+  const [isResetPressed, setIsResetPressed] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  // Counter badhane ka function
-  const handleCount = () => {
-    // Haptic Feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-    
-    onUpdateCount(dhikr.id, dhikr.count + 1);
-    
-    // Push Animation effect
+  // Using onPointerDown handles BOTH touch and mouse uniformly to prevent double counts
+  const handleCount = (e?: React.PointerEvent) => {
+    if(e) e.preventDefault();
+    if (navigator.vibrate) navigator.vibrate(40);
     setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 100);
+    onUpdateCount(dhikr.id, dhikr.count + 1);
   };
 
-  // Reset function
-  const handleReset = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Main button click ko rokne ke liye
-    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+  const handleRelease = () => {
+    setIsPressed(false);
+  };
+
+  const handleReset = (e?: React.PointerEvent) => {
+    if(e) e.preventDefault();
+    if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+    setIsResetPressed(true);
     onUpdateCount(dhikr.id, 0);
+  };
+
+  const handleResetRelease = () => {
+    setIsResetPressed(false);
   };
 
   return (
@@ -182,95 +329,120 @@ function CounterScreen({ dhikr, onBack, onUpdateCount }: { dhikr: any, onBack: (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col h-full bg-gradient-to-b from-theme-accent-strong to-theme-surface-dark relative overflow-hidden"
+      className="flex-1 flex flex-col h-full bg-[#fca311] islamic-pattern relative overflow-hidden"
     >
-      
-      {/* Ambient Glowing Effect (New Background) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Top Right Gold Aura */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-theme-gold rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-float-1"></div>
-        {/* Bottom Left Deep Mint Aura */}
-        <div className="absolute top-1/2 -left-32 w-[28rem] h-[28rem] bg-theme-accent rounded-full mix-blend-screen filter blur-[130px] opacity-40 animate-float-2"></div>
-        {/* Center subtle highlight */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 bg-theme-surface-card rounded-full mix-blend-overlay filter blur-[100px] opacity-5"></div>
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none z-0"></div>
 
-      {/* Top Header */}
-      <div className="flex justify-between items-center p-6 text-white pt-4 relative z-10">
+      <div 
+        className="relative z-50 flex justify-between items-center p-6"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
         <button 
           onClick={onBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-surface-card backdrop-blur-sm active:scale-95 transition-all relative z-50 cursor-pointer"
+          className="w-10 h-10 rounded-full bg-gray-900/80 backdrop-blur-sm flex items-center justify-center text-white shadow-lg active:scale-95 transition"
         >
           <ChevronLeft size={24} />
         </button>
-      </div>
 
-      {/* Arabic Text Section */}
-      <div className="px-6 flex flex-col items-center text-center mt-4 relative z-10">
-        <h2 className="font-arabic text-[42px] text-white leading-tight drop-shadow-md">
-          {dhikr.arabic}
-        </h2>
-        <p className="text-theme-gold text-lg mt-2 font-medium tracking-wide">
-          {dhikr.roman}
-        </p>
-      </div>
-
-      {/* Counter Device Interface */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-12 mt-6 relative z-10">
-        
-        {/* Device Body */}
-        <div className="w-[300px] bg-[#0A1611] rounded-[60px] rounded-b-[80px] p-6 shadow-2xl relative border-b-8 border-[#152B21] flex flex-col items-center">
-          
-          {/* Gold Trim/Accent Strap behind the counter (Optional design detail) */}
-          <div className="absolute top-1/2 -left-10 -right-10 h-12 bg-[#C9A66B] -z-10 -translate-y-1/2 rotate-[-5deg] opacity-80 blur-[2px]"></div>
-
-          {/* LCD Screen Container */}
-          <div className="w-full bg-[#D4BA7B] rounded-2xl p-4 shadow-inner mb-8 border-[3px] border-[#8A7145] relative overflow-hidden flex items-center justify-end h-[80px]">
-            {/* Background faint digital 8s for LCD realism */}
-            <div className="absolute right-4 font-mono text-[52px] text-[#B89D5E] opacity-50 tracking-widest select-none pointer-events-none" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-              8888
-            </div>
-            
-            {/* Actual Count */}
-            <div className="relative z-10 font-mono text-[52px] text-[#2B2312] font-bold tracking-widest leading-none drop-shadow-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-              {dhikr.count.toString().padStart(4, '0')}
-            </div>
+        <div className="flex space-x-4 text-gray-900 relative">
+          <div 
+            onClick={() => setIsMoreOpen(!isMoreOpen)}
+            className="flex flex-col items-center cursor-pointer"
+          >
+              <Grid className="w-6 h-6 mb-1" />
+              <span className="text-[10px] font-bold uppercase">More</span>
           </div>
 
-          {/* Controls Area */}
-          <div className="w-full relative flex flex-col items-center">
-            
-            {/* Reset Button (Chota button) */}
-            <div className="absolute right-2 top-0 flex flex-col items-center gap-1">
-              <span className="text-theme-gold text-[8px] tracking-widest uppercase opacity-80">Reset</span>
-              <button 
-                onClick={handleReset}
-                className="w-4 h-4 bg-theme-gold rounded-full active:scale-75 transition-all shadow-[0_2px_0_var(--color-theme-border-strong)] active:translate-y-[2px] active:shadow-none"
-              ></button>
-            </div>
-
-            {/* Main Count Button (Bada button) */}
-            <div className="mt-8 mb-4">
-              <button 
-                onClick={handleCount}
-                className={`
-                  w-28 h-28 rounded-full bg-gradient-to-b from-theme-gold to-theme-orange 
-                  flex items-center justify-center border-4 border-[#1F1F1F]
-                  text-[#5A4518] font-bold text-sm tracking-widest uppercase
-                  transition-all duration-75
-                  ${isPressed 
-                    ? 'translate-y-[6px] shadow-[0_0px_0_#8A7145]' 
-                    : 'shadow-[0_8px_0_#8A7145,0_15px_20px_rgba(0,0,0,0.5)]'}
-                `}
+          <AnimatePresence>
+            {isMoreOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                className="absolute top-full right-0 mt-4 w-64 bg-gray-900 text-white rounded-2xl shadow-2xl border border-gray-700 overflow-hidden z-50 origin-top-right"
               >
-                COUNT
-              </button>
-            </div>
-          </div>
-
+                <div className="p-3 bg-black/40 border-b border-gray-700">
+                  <h3 className="font-bold text-sm text-[#fca311]">Select Tasbeeh</h3>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {dhikrData.map(item => (
+                    <div 
+                      key={item.id} 
+                      onClick={() => {
+                        onChangeDhikr(item);
+                        setIsMoreOpen(false);
+                      }}
+                      className={`p-3 border-b border-gray-800 flex items-center justify-between cursor-pointer hover:bg-gray-800 active:bg-gray-800 transition ${item.id === dhikr.id ? 'bg-gray-800/80' : ''}`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-arabic text-lg leading-tight">{item.arabic}</span>
+                        <span className="text-xs text-gray-400 mt-1">{item.roman}</span>
+                      </div>
+                      {item.count > 0 && (
+                        <div className="bg-[#fca311] text-gray-900 font-bold text-[10px] px-2 py-0.5 rounded-full">
+                          {item.count}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-start pt-4 px-6 text-center" onClick={() => isMoreOpen && setIsMoreOpen(false)}>
+        <h2 className="font-arabic text-4xl text-gray-900 font-bold mb-3 drop-shadow-md">{dhikr.arabic}</h2>
+        <p className="text-gray-800 text-lg font-semibold tracking-wide drop-shadow-sm">{dhikr.roman}</p>
+        
+        <div className="mt-4 bg-gray-900 text-[#fca311] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-gray-700">
+          Target: <span>{dhikr.target}</span>
+        </div>
+      </div>
+
+      <div 
+        className="relative z-10 w-full flex justify-center pt-8" 
+        style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))' }}
+        onClick={() => isMoreOpen && setIsMoreOpen(false)}
+      >
+        <div className="counter-strap"></div>
+
+        <div className="counter-device w-[280px] h-[340px] flex flex-col items-center pt-8 pb-10 px-6">
+          <div className="counter-screen-bezel w-full p-2 mb-6">
+            <div className="counter-lcd w-full h-[70px] flex items-center justify-end px-4">
+              <span className="lcd-text text-5xl font-bold text-gray-900 tracking-[0.2em] opacity-90">
+                {dhikr.count.toString().padStart(5, '0')}
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full flex justify-end pr-2 mb-2">
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-bold text-[#fca311] tracking-widest mb-2 opacity-80">RESET</span>
+              <div 
+                onPointerDown={handleReset}
+                onPointerUp={handleResetRelease}
+                onPointerCancel={handleResetRelease}
+                onPointerLeave={handleResetRelease}
+                className={`btn-reset w-5 h-5 ${isResetPressed ? 'pressed' : ''}`}
+              ></div>
+            </div>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center w-full">
+            <div 
+              onPointerDown={handleCount}
+              onPointerUp={handleRelease}
+              onPointerCancel={handleRelease}
+              onPointerLeave={handleRelease}
+              className={`btn-count w-[110px] h-[110px] ${isPressed ? 'pressed' : ''}`}
+            >
+              <span className="font-bold text-[#4a2e00] text-sm tracking-widest uppercase pointer-events-none drop-shadow-sm">Count</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }

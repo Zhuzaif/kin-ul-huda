@@ -47,7 +47,7 @@ export default function FiqhTopicsLibrary({
   };
 
   return (
-    <div className="px-5 pb-36 nisa-slide-up-delay-1">
+    <div className="px-5 pb-6 nisa-slide-up-delay-1">
       {/* Section header */}
       <div className="mb-4">
         <h3 className="text-[17px] font-bold text-text-primary tracking-tight">

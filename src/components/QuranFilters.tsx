@@ -1,12 +1,13 @@
 import React from 'react';
 
-export type QuranFilterId = 'surah' | 'juz' | 'mushaf' | 'bookmarks' | 'sajda';
+export type QuranFilterId = 'surah' | 'juz' | 'mushaf' | 'bookmarks' | 'fav_ayat' | 'sajda';
 
 const filters: { id: QuranFilterId; label: string }[] = [
   { id: 'surah', label: 'Surah' },
   { id: 'juz', label: 'Juz' },
   { id: 'mushaf', label: 'Mushaf' },
   { id: 'bookmarks', label: 'Bookmarks' },
+  { id: 'fav_ayat', label: 'Saved Ayat' },
   { id: 'sajda', label: 'Sajda' },
 ];
 

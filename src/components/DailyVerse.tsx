@@ -2,7 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Heart, Share2, BookOpen } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { buttonTap } from '../lib/motion';
+import { heartFly } from '../lib/heartFly';
 import AyatShareCards from './AyatShareCards';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 import { usePeriodMode } from '../contexts/PeriodModeContext';
 import { useProfile } from '../contexts/ProfileContext';
 import dailyAyat from '../data/daily-ayat.json';
@@ -103,22 +106,74 @@ export default function DailyVerse() {
     reference: ayatReference
   };
 
+  useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const isAlreadySaved = existing.some((d: Dua) => d.arabic === content.arabic);
+      setIsSaved(isAlreadySaved);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [content.arabic]);
+
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await Share.share({
+          title: content.title,
+          text: `${content.english} (${content.reference})`,
+        });
+      } else if (navigator.share) {
         await navigator.share({
           title: content.title,
           text: `${content.english} (${content.reference})`,
         });
-      } catch (err) {
-        console.error(err);
+      } else {
+        setShowShareCards(true);
       }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    
+    try {
+      const existing = JSON.parse(localStorage.getItem('customDuas') || '[]');
+      const isAlreadySaved = existing.some((d: Dua) => d.arabic === content.arabic);
+
+      if (!isAlreadySaved) {
+        const customDua: Dua = {
+          id: `ayat-${Date.now()}`,
+          title: content.title,
+          arabic: content.arabic,
+          translation: content.english,
+          reference: content.reference,
+          tags: ['My Prayers'],
+          isCustom: true
+        };
+        localStorage.setItem('customDuas', JSON.stringify([customDua, ...existing]));
+        setIsSaved(true);
+
+        const sourceEl = e.currentTarget;
+        const targetEl = document.getElementById('nav-item-duas');
+        if (sourceEl && targetEl) {
+          heartFly(sourceEl, targetEl);
+        }
+      } else {
+        const updated = existing.filter((d: Dua) => d.arabic !== content.arabic);
+        localStorage.setItem('customDuas', JSON.stringify(updated));
+        setIsSaved(false);
+      }
+    } catch (err) {
+      console.error('Failed to save ayat', err);
     }
   };
 
   return (
     <>
-    <div className="px-5 mb-8" ref={containerRef}>
+    <div className="px-6 mb-8" ref={containerRef}>
       {isDarkTheme ? (
         <div
           className="relative overflow-hidden rounded-[32px] p-7 cursor-pointer group shadow-2xl transition-all duration-500 hover:shadow-[0_20px_40px_-10px_rgba(201,166,107,0.25)]"
@@ -167,7 +222,7 @@ export default function DailyVerse() {
                 </motion.button>
                 <motion.button
                   whileTap={buttonTap}
-                  onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
+                  onClick={handleSave}
                   className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-theme-gold/10 flex items-center justify-center text-theme-gold/80 hover:text-theme-gold hover:bg-black/60 transition-all shadow-sm relative"
                 >
                   <AnimatePresence>
@@ -260,7 +315,7 @@ export default function DailyVerse() {
                 </motion.button>
                 <motion.button
                   whileTap={buttonTap}
-                  onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
+                  onClick={handleSave}
                   className="w-9 h-9 rounded-full bg-theme-surface-card/60 flex items-center justify-center text-theme-gold hover:bg-theme-surface-card/80 transition-colors shadow-sm relative"
                 >
                   <AnimatePresence>

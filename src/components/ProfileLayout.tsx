@@ -10,18 +10,34 @@ import PeriodSettingsScreen from './profile/PeriodSettingsScreen';
 import ThemeScreen from './profile/ThemeScreen';
 import LanguageScreen from './profile/LanguageScreen';
 import DownloadsScreen from './profile/DownloadsScreen';
+import SavedAyatScreen from './profile/SavedAyatScreen';
 
 interface ProfileLayoutProps {
   onOverlayChange?: (open: boolean) => void;
 }
 
+export let pendingProfileScreen: SettingsScreenId | null = null;
+export const setPendingProfileScreen = (screen: SettingsScreenId | null) => {
+  pendingProfileScreen = screen;
+};
+
 export default function ProfileLayout({ onOverlayChange }: ProfileLayoutProps) {
-  const [activeScreen, setActiveScreen] = useState<SettingsScreenId>(null);
+  const [activeScreen, setActiveScreen] = useState<SettingsScreenId>(() => {
+    const screen = pendingProfileScreen;
+    pendingProfileScreen = null;
+    return screen;
+  });
   const [showSupport, setShowSupport] = useState(false);
 
   useEffect(() => {
     onOverlayChange?.(activeScreen !== null || showSupport);
   }, [activeScreen, showSupport, onOverlayChange]);
+
+  useEffect(() => {
+    const handleOpenPreferences = () => setActiveScreen('preferences');
+    window.addEventListener('nisa:open-preferences', handleOpenPreferences);
+    return () => window.removeEventListener('nisa:open-preferences', handleOpenPreferences);
+  }, []);
 
   // Android back closes the open settings sub-screen / support modal first.
   useBackHandler(activeScreen !== null, () => setActiveScreen(null));
@@ -39,6 +55,8 @@ export default function ProfileLayout({ onOverlayChange }: ProfileLayoutProps) {
         return <LanguageScreen onBack={() => setActiveScreen(null)} />;
       case 'downloads':
         return <DownloadsScreen onBack={() => setActiveScreen(null)} />;
+      case 'saved_ayat':
+        return <SavedAyatScreen onBack={() => setActiveScreen(null)} />;
       default:
         return null;
     }

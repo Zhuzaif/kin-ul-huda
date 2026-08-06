@@ -142,14 +142,8 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
                 <Clock className="w-5 h-5" style={{ color: 'var(--color-theme-surface)' }} />
               </div>
               <div className="text-left">
-                <span
-                  className="inline-block text-[10px] font-semibold tracking-[1px] px-2.5 py-0.5 rounded-full mb-1"
-                  style={{ background: 'rgba(255,255,255,0.15)', color: 'var(--color-theme-surface)' }}
-                >
-                  CONTINUE
-                </span>
                 <h3
-                  className="text-[17px] font-bold leading-tight"
+                  className="text-[24px] font-bold leading-tight mt-1"
                   style={{ fontFamily: "'Playfair Display', Georgia, serif", color: 'var(--color-theme-surface)' }}
                 >
                   Mushaf Page {lastReadPage}
@@ -298,7 +292,7 @@ export default function MushafLayout({ searchQuery, onOpenPage }: MushafLayoutPr
 
                     <div className="min-w-0">
                       <h4 className="text-[15px] font-semibold text-text-primary truncate">
-                        Juz {item.index} • {item.title}
+                        {item.title}
                       </h4>
                       <p className="text-[12px] text-text-muted mt-0.5">
                         Starts: {item.startSurah}

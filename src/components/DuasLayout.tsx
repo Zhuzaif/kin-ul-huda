@@ -101,11 +101,14 @@ export default function DuasLayout() {
         portalTarget
       )}
 
-      <CreateDuaModal 
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSave={handleSaveCustomDua}
-      />
+      {portalTarget && createPortal(
+        <CreateDuaModal 
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={handleSaveCustomDua}
+        />,
+        portalTarget
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Type } from 'lucide-react';
+import { ArrowLeft, Type, Bookmark } from 'lucide-react';
 import chapters from '../data/chapters-en.json';
 import quran from '../data/quran.json';
 import translationEn from '../data/editions-en.json';
@@ -9,6 +9,8 @@ import PeriodModeBanner from './PeriodModeBanner';
 import VerseCard from './VerseCard';
 import { getCachedAudioUrl, findCachedReciterForSurah } from '../utils/audioCache';
 import { RECITER_OPTIONS, Chapter, Verse, QuranMap } from '../data/quranConstants';
+import TextSettingsOverlay, { TextSettings, DEFAULT_TEXT_SETTINGS } from './TextSettingsOverlay';
+import { useQuranAudio } from '../contexts/QuranAudioContext';
 
 interface QuranReadingScreenProps {
   chapterId: number;
@@ -17,6 +19,8 @@ interface QuranReadingScreenProps {
   savedVerses?: { chapterId: number; verse: number }[];
   onLastReadChange?: (data: { chapterId: number; verse: number }) => void;
   onSaveToggle?: (data: { chapterId: number; verse: number; isSaved: boolean }) => void;
+  isBookmarked?: boolean;
+  onBookmarkToggle?: () => void;
 }
 
 const chapterList = chapters as Chapter[];
@@ -31,6 +35,8 @@ export default function QuranReadingScreen({
   savedVerses = [],
   onLastReadChange,
   onSaveToggle,
+  isBookmarked = false,
+  onBookmarkToggle,
 }: QuranReadingScreenProps) {
   const chapter = chapterList.find((item) => item.id === chapterId);
   const verses = quranByChapter[String(chapterId)] ?? [];
@@ -42,6 +48,21 @@ export default function QuranReadingScreen({
 
   const [activeVerseIndex, setActiveVerseIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { isPlaying: globalIsPlaying, setIsPlaying: setGlobalIsPlaying } = useQuranAudio();
+
+  // Mutual exclusion: pause global audio if local audio starts playing
+  useEffect(() => {
+    if (isPlaying && globalIsPlaying) {
+      setGlobalIsPlaying(false);
+    }
+  }, [isPlaying, globalIsPlaying, setGlobalIsPlaying]);
+
+  // Mutual exclusion: pause local audio if global audio starts playing
+  useEffect(() => {
+    if (globalIsPlaying && isPlaying) {
+      setIsPlaying(false);
+    }
+  }, [globalIsPlaying, isPlaying]);
   const [progress, setProgress] = useState(0);
   const [selectedReciterId, setSelectedReciterId] = useState(() => {
     if (typeof window === 'undefined') {
@@ -70,6 +91,28 @@ export default function QuranReadingScreen({
     () => new Set(savedVerses.map((item) => `${item.chapterId}:${item.verse}`)),
     [savedVerses]
   );
+
+  const [isTextSettingsOpen, setIsTextSettingsOpen] = useState(false);
+  const [textSettings, setTextSettings] = useState<TextSettings>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem('nisa.quran.textSettings');
+      if (stored) {
+        try {
+          return { ...DEFAULT_TEXT_SETTINGS, ...JSON.parse(stored) };
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return DEFAULT_TEXT_SETTINGS;
+  });
+
+  const handleTextSettingsChange = (newSettings: TextSettings) => {
+    setTextSettings(newSettings);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('nisa.quran.textSettings', JSON.stringify(newSettings));
+    }
+  };
 
   useEffect(() => {
     activeVerseIndexRef.current = activeVerseIndex;
@@ -578,7 +621,7 @@ export default function QuranReadingScreen({
 
   return (
     <div className="flex w-full flex-col h-full animate-in fade-in duration-300 relative">
-      <div className="px-6 pt-7 pb-4">
+      <div className="px-6 pt-6 pb-4 sticky top-0 z-40 bg-theme-surface/30 backdrop-blur-2xl border-b border-white/5">
         <div className="grid grid-cols-[40px_1fr_40px] items-center">
           <button
             type="button"
@@ -602,13 +645,31 @@ export default function QuranReadingScreen({
             )}
           </div>
 
-          <button
-            type="button"
-            aria-label="Typography settings"
-            className="w-10 h-10 rounded-full bg-theme-surface-card border border-theme-border shadow-sm flex items-center justify-center text-text-secondary hover:bg-theme-surface-elevated transition-colors"
-          >
-            <Type className="w-5 h-5" />
-          </button>
+          <div className="flex items-center justify-end">
+            <div className="flex items-center bg-theme-surface-card border border-theme-border rounded-[14px] p-1 shadow-sm">
+              <button
+                type="button"
+                onClick={onBookmarkToggle}
+                aria-label={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+                className={`w-[38px] h-[38px] flex items-center justify-center rounded-[10px] transition-colors ${
+                  isBookmarked 
+                    ? 'text-theme-gold bg-theme-gold/15' 
+                    : 'text-text-secondary hover:text-text-primary hover:bg-theme-surface-alt'
+                }`}
+              >
+                <Bookmark className={`w-[20px] h-[20px] ${isBookmarked ? 'fill-current' : ''}`} strokeWidth={2} />
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setIsTextSettingsOpen(true)}
+                aria-label="Typography settings"
+                className="w-[38px] h-[38px] flex items-center justify-center rounded-[10px] text-text-secondary hover:text-text-primary hover:bg-theme-surface-alt transition-colors"
+              >
+                <Type className="w-[20px] h-[20px]" strokeWidth={2} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -637,11 +698,22 @@ export default function QuranReadingScreen({
             onSaveToggle={(isSaved) => handleSaveToggle(verse.verse, isSaved)}
             onPlay={() => handlePlayVerse(index)}
             onShare={() => { handleShareVerse(verse).catch(console.error); }}
+            arabicFontSize={textSettings.arabicFontSize}
+            translationFontSize={textSettings.translationFontSize}
+            showTranslation={textSettings.showTranslation}
           />
         ))}
       </div>
 
       {audioBarElement}
+
+      {isTextSettingsOpen && (
+        <TextSettingsOverlay
+          settings={textSettings}
+          onSettingsChange={handleTextSettingsChange}
+          onClose={() => setIsTextSettingsOpen(false)}
+        />
+      )}
     </div>
   );
 }

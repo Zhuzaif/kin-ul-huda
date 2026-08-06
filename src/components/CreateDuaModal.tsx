@@ -40,9 +40,9 @@ export default function CreateDuaModal({ isOpen, onClose, onSave }: CreateDuaMod
         <div className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6">
           <motion.div 
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.75 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-theme-surface-alt backdrop-blur-sm"
+            className="absolute inset-0 bg-theme-surface-dark backdrop-blur-md"
             onClick={onClose}
           />
           

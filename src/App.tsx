@@ -8,8 +8,11 @@ import OnboardingFlow from './components/OnboardingFlow';
 import { PeriodModeProvider } from './contexts/PeriodModeContext';
 import { PurityTrackerProvider } from './contexts/PurityTrackerContext';
 import { ProfileProvider, useProfile } from './contexts/ProfileContext';
+import { QuranAudioProvider } from './contexts/QuranAudioContext';
+import { SavedVersesProvider } from './contexts/SavedVersesContext';
 import { requestForToken, onMessageListener } from './lib/firebase';
 import { supabase } from './lib/supabase';
+import { schedulePrayerNotifications } from './utils/notifications';
 
 function AppContent() {
   const { profile, updateProfile } = useProfile();
@@ -65,6 +68,7 @@ function AppContent() {
           await StatusBar.setStyle({ style: Style.Light });
           if (Capacitor.getPlatform() === 'android') {
             await StatusBar.setOverlaysWebView({ overlay: true });
+            await StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
           }
         } catch (e) {
           console.error('StatusBar error:', e);
@@ -102,6 +106,21 @@ function AppContent() {
       }
     };
   }, [profile.onboardingCompleted, profile.userId]);
+
+  // Schedule local background notifications whenever relevant settings change
+  useEffect(() => {
+    if (profile.onboardingCompleted) {
+      schedulePrayerNotifications(profile).catch((e) => {
+        console.error('Failed to schedule local notifications:', e);
+      });
+    }
+  }, [
+    profile.onboardingCompleted,
+    profile.notificationPrefs?.adhan,
+    profile.notificationPrefs?.reminders,
+    profile.madhab,
+    profile.calculationMethod
+  ]);
 
   // Keep the status bar and the backdrop behind the safe-area insets in sync
   // with the active theme so dark themes don't flash a light strip.
@@ -147,7 +166,11 @@ function AppContent() {
   return (
     <PeriodModeProvider>
       <PurityTrackerProvider>
-        <MobileLayout />
+        <QuranAudioProvider>
+          <SavedVersesProvider>
+            <MobileLayout />
+          </SavedVersesProvider>
+        </QuranAudioProvider>
       </PurityTrackerProvider>
     </PeriodModeProvider>
   );

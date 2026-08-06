@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Check, User, Bell, Globe, Scale, ChevronDown } from 'lucide-react';
+import { MapPin, Check, User, Bell, BellRing, Globe, Scale, ChevronDown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import ProfileSubScreen from './ProfileSubScreen';
 import { useProfile } from '../../contexts/ProfileContext';
 import {
@@ -16,6 +18,7 @@ interface PreferencesScreenProps {
 export default function PreferencesScreen({ onBack }: PreferencesScreenProps) {
   const { profile, updateProfile } = useProfile();
   const [locationStatus, setLocationStatus] = useState<PermissionState | 'unknown'>('unknown');
+  const [isCalcOpen, setIsCalcOpen] = useState(false);
 
   useEffect(() => {
     if (navigator.permissions) {
@@ -133,28 +136,85 @@ export default function PreferencesScreen({ onBack }: PreferencesScreenProps) {
 
             <div className="h-[1px] bg-theme-divider mx-4" />
 
-            {/* Prayer Reminders Row */}
+            {/* Adhan Alerts Row */}
+            <div className="p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-theme-surface-dark flex items-center justify-center shrink-0">
+                  <BellRing className="w-5 h-5 text-[#F0A500]" />
+                </div>
+                <div>
+                  <p className="text-[15px] font-semibold text-text-primary">Adhan Alerts</p>
+                  <p className="text-[12px] text-text-tertiary">Audio call to prayer</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const prefs = profile.notificationPrefs || { adhan: false, reminders: false };
+                  const nextAdhan = !prefs.adhan;
+                  if (nextAdhan && Capacitor.isNativePlatform()) {
+                    try {
+                      await LocalNotifications.requestPermissions();
+                    } catch (e) {
+                      console.error('Permission request failed', e);
+                    }
+                  }
+                  updateProfile({
+                    notificationPrefs: { ...prefs, adhan: nextAdhan },
+                    prayerReminders: nextAdhan || prefs.reminders,
+                  });
+                }}
+                className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 border ${
+                  profile.notificationPrefs?.adhan ? 'bg-theme-accent border-theme-accent' : 'bg-theme-surface-input border-theme-border'
+                }`}
+                aria-label="Toggle Adhan alerts"
+              >
+                <span
+                  className={`absolute top-[2.5px] left-[3px] w-6 h-6 bg-white rounded-full shadow-sm transition-transform ${
+                    profile.notificationPrefs?.adhan ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="h-[1px] bg-theme-divider mx-4" />
+
+            {/* Daily Reminders Row */}
             <div className="p-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-theme-surface-dark flex items-center justify-center shrink-0">
                   <Bell className="w-5 h-5 text-theme-accent" />
                 </div>
                 <div>
-                  <p className="text-[15px] font-semibold text-text-primary">Prayer Reminders</p>
-                  <p className="text-[12px] text-text-tertiary">Alerts before the next salah</p>
+                  <p className="text-[15px] font-semibold text-text-primary">Daily Reminders</p>
+                  <p className="text-[12px] text-text-tertiary">Alert 15 mins before salah</p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => updateProfile({ prayerReminders: !profile.prayerReminders })}
-                className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 ${
-                  profile.prayerReminders ? 'bg-theme-accent' : 'bg-theme-surface-dark'
+                onClick={async () => {
+                  const prefs = profile.notificationPrefs || { adhan: false, reminders: false };
+                  const nextReminders = !prefs.reminders;
+                  if (nextReminders && Capacitor.isNativePlatform()) {
+                    try {
+                      await LocalNotifications.requestPermissions();
+                    } catch (e) {
+                      console.error('Permission request failed', e);
+                    }
+                  }
+                  updateProfile({
+                    notificationPrefs: { ...prefs, reminders: nextReminders },
+                    prayerReminders: prefs.adhan || nextReminders,
+                  });
+                }}
+                className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 border ${
+                  profile.notificationPrefs?.reminders ? 'bg-theme-accent border-theme-accent' : 'bg-theme-surface-input border-theme-border'
                 }`}
-                aria-label="Toggle prayer reminders"
+                aria-label="Toggle Daily Reminders"
               >
                 <span
-                  className={`absolute top-1 left-1 w-6 h-6 bg-theme-surface-card rounded-full shadow transition-transform ${
-                    profile.prayerReminders ? 'translate-x-6' : 'translate-x-0'
+                  className={`absolute top-[2.5px] left-[3px] w-6 h-6 bg-white rounded-full shadow-sm transition-transform ${
+                    profile.notificationPrefs?.reminders ? 'translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -237,21 +297,40 @@ export default function PreferencesScreen({ onBack }: PreferencesScreenProps) {
                 </div>
               </div>
               
-              <div className="ml-14 mt-1 relative">
-                <select
-                  value={profile.calculationMethod}
-                  onChange={(e) => updateProfile({ calculationMethod: e.target.value as CalculationMethodId })}
-                  className="w-full appearance-none bg-theme-surface-input border border-theme-border rounded-xl px-4 py-3 pr-10 text-[14px] font-semibold text-text-primary focus:outline-none focus:ring-2 focus:ring-theme-accent/20 transition-all"
+              <div className="ml-14 mt-1 flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => setIsCalcOpen(!isCalcOpen)}
+                  className={`w-full flex items-center justify-between bg-theme-surface-input border border-theme-border px-4 py-3 text-[14px] font-semibold text-text-primary transition-all ${
+                    isCalcOpen ? 'rounded-t-xl border-b-0' : 'rounded-xl'
+                  }`}
                 >
-                  {CALCULATION_METHOD_OPTIONS.map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.label} ({opt.region})
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronDown className="w-5 h-5 text-text-muted" />
-                </div>
+                  <span className="truncate pr-4 text-left">
+                    {CALCULATION_METHOD_OPTIONS.find((o) => o.id === profile.calculationMethod)?.label || 'Select Method'}
+                  </span>
+                  <ChevronDown className={`w-5 h-5 text-text-muted shrink-0 transition-transform ${isCalcOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isCalcOpen && (
+                  <div className="flex flex-col bg-theme-surface-card border border-theme-border rounded-b-xl overflow-hidden divide-y divide-theme-divider">
+                    {CALCULATION_METHOD_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          updateProfile({ calculationMethod: opt.id as CalculationMethodId });
+                          setIsCalcOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-[13px] font-semibold transition-colors hover:bg-theme-surface-alt ${
+                          profile.calculationMethod === opt.id ? 'bg-theme-accent/5 text-theme-accent' : 'text-text-primary'
+                        }`}
+                      >
+                        {opt.label} 
+                        <span className="block text-[11px] text-text-tertiary font-normal mt-0.5">{opt.region}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

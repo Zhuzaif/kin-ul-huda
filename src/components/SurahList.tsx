@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { listVariants, listItemVariants, modalVariants } from '../lib/motion';
-import { DownloadCloud, CheckCircle, X } from 'lucide-react';
+import { DownloadCloud, CheckCircle, X, Bookmark } from 'lucide-react';
 import chapters from '../data/chapters-en.json';
 import {
   downloadAudioToCache,
@@ -20,13 +20,15 @@ interface SurahListProps {
   onSelect?: (id: number) => void;
   items?: Chapter[];
   emptyLabel?: string;
+  bookmarkedSurahIds?: Set<number>;
+  onLongPress?: (id: number) => void;
 }
 
 // Octagon clip-path for the surah number badge
 const OCTAGON_CLIP =
   'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
 
-export default function SurahList({ onSelect, items, emptyLabel }: SurahListProps) {
+export default function SurahList({ onSelect, items, emptyLabel, bookmarkedSurahIds, onLongPress }: SurahListProps) {
   const list = items ?? surahs;
 
   const [downloadModalSurah, setDownloadModalSurah] = useState<number | null>(null);
@@ -34,6 +36,40 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
   const [downloadProgress, setDownloadProgress] = useState<Record<number, number>>({});
   const [downloadedSurahs, setDownloadedSurahs] = useState<Record<number, boolean>>({});
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  const pressTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const isLongPress = React.useRef<boolean>(false);
+
+  const handlePressStart = (surahId: number) => {
+    if (!onLongPress) return;
+    isLongPress.current = false;
+    if (pressTimer.current) clearTimeout(pressTimer.current);
+    
+    pressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      onLongPress(surahId);
+    }, 500);
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent, surahId: number) => {
+    if (isLongPress.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      isLongPress.current = false;
+      return;
+    }
+    onSelect?.(surahId);
+  };
 
   useEffect(() => {
     setPortalTarget(document.getElementById('mobile-frame-root'));
@@ -130,7 +166,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
 
   if (list.length === 0) {
     return (
-      <div className="px-6 pb-28">
+      <div className="px-6 pb-6">
         <div className="bg-theme-surface-card border border-theme-border rounded-[16px] p-4 text-sm text-text-tertiary text-center">
           {emptyLabel ?? 'No results found.'}
         </div>
@@ -140,7 +176,7 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
 
   return (
     <>
-      <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-28 flex flex-col">
+      <motion.div variants={listVariants} initial="initial" animate="animate" className="px-6 pb-6 flex flex-col">
         {list.map((surah) => {
           const isDownloading = downloadingSurahs[surah.id];
           const isDownloaded = downloadedSurahs[surah.id];
@@ -151,9 +187,20 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
               key={surah.id}
               role="button"
               tabIndex={0}
-              onClick={() => onSelect?.(surah.id)}
+              onClick={(e) => handleClick(e, surah.id)}
+              onTouchStart={() => handlePressStart(surah.id)}
+              onTouchEnd={handlePressEnd}
+              onTouchMove={handlePressEnd}
+              onMouseDown={() => handlePressStart(surah.id)}
+              onMouseUp={handlePressEnd}
+              onMouseLeave={handlePressEnd}
+              onContextMenu={(e) => {
+                if (onLongPress) {
+                  e.preventDefault();
+                }
+              }}
               aria-label={`Open ${surah.transliteration}`}
-              className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-black/[0.015] text-left"
+              className="flex items-center justify-between py-3.5 border-b border-theme-border cursor-pointer transition-colors hover:bg-black/[0.015] text-left select-none"
             >
               {/* Left: octagon number + info */}
               <div className="flex items-center gap-4 min-w-0">
@@ -181,8 +228,11 @@ export default function SurahList({ onSelect, items, emptyLabel }: SurahListProp
                 </div>
 
                 <div className="min-w-0">
-                  <h4 className="text-[15px] font-semibold text-text-primary truncate">
+                  <h4 className="text-[15px] font-semibold text-text-primary truncate flex items-center gap-1.5">
                     {surah.transliteration}
+                    {bookmarkedSurahIds?.has(surah.id) && (
+                      <Bookmark className="w-3.5 h-3.5 text-theme-gold fill-current shrink-0" />
+                    )}
                   </h4>
                   <p className="text-[12px] text-text-muted mt-0.5">
                     {surah.total_verses} Verses • {surah.type === 'meccan' ? 'Meccan' : 'Medinan'}

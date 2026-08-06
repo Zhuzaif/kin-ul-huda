@@ -24,6 +24,7 @@ export default function DuasHeader({ activeTab, onTabChange }: DuasHeaderProps) 
           All Duas
         </button>
         <button
+          id="my-prayers-tab"
           onClick={() => onTabChange('My Prayers')}
           className={`flex-1 py-3 rounded-[24px] text-sm font-bold transition-all duration-300 relative overflow-hidden ${
             activeTab === 'My Prayers' 

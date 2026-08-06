@@ -30,6 +30,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
 
           return (
               <motion.button
+                id={`nav-item-${item.id}`}
                 whileTap={buttonTap}
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
