@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { getCachedAudioUrl } from '../utils/audioCache';
+import { getCachedAudioUrl, findCachedReciterForSurah, getNativeAudioUri } from '../utils/audioCache';
 import { RECITER_OPTIONS } from '../data/quranConstants';
 import chapters from '../data/chapters-en.json';
 import { Capacitor } from '@capacitor/core';
@@ -26,6 +26,7 @@ interface QuranAudioContextType {
   sleepTimerEnd: number | null;
   setSleepTimer: (minutes: number) => void;
   clearSleepTimer: () => void;
+  forceReloadAudio: () => void;
 }
 
 const QuranAudioContext = createContext<QuranAudioContextType | undefined>(undefined);
@@ -63,6 +64,7 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [segments, setSegments] = useState<Record<string, any>>({});
   
   const [sleepTimerEnd, setSleepTimerEnd] = useState<number | null>(null);
+  const [audioVersion, setAudioVersion] = useState(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isInitialLoad = useRef(true);
@@ -227,28 +229,62 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     let isActive = true;
     const fetchAudioData = async () => {
-      try {
-        const [surahRes, segmentsRes] = await Promise.all([
-          fetch(`/recitations/${selectedReciterId}/surah.json`),
-          fetch(`/recitations/${selectedReciterId}/segments.json`),
-        ]);
-        
-        if (!surahRes.ok || !segmentsRes.ok) return;
+        let surahData = null;
+        let segmentsData = {};
 
-        const surahData = await surahRes.json();
-        const segmentsData = await segmentsRes.json();
+        try {
+          const [surahRes, segmentsRes] = await Promise.all([
+            fetch(`/recitations/${selectedReciterId}/surah.json`),
+            fetch(`/recitations/${selectedReciterId}/segments.json`),
+          ]);
+          if (surahRes.ok) surahData = await surahRes.json();
+          if (segmentsRes.ok) segmentsData = await segmentsRes.json();
+        } catch (err) {
+          console.warn("Offline or failed to fetch metadata, trying cache fallback");
+        }
 
         if (!isActive) return;
 
-        const surahInfo = surahData[String(currentSurahId)];
-        if (surahInfo?.audio_url) {
-           const cached = await getCachedAudioUrl(surahInfo.audio_url);
-           setSurahAudioUrl(cached || surahInfo.audio_url);
-           setSegments(segmentsData);
+        // Check if we have a downloaded version
+        const cached = await findCachedReciterForSurah(currentSurahId, selectedReciterId);
+        
+        if (cached) {
+            if (isNative) {
+                const nativeUri = await getNativeAudioUri(cached.cachedUrl);
+                if (nativeUri) {
+                    setSurahAudioUrl(nativeUri);
+                    if (cached.reciterId !== selectedReciterId) setSelectedReciterId(cached.reciterId);
+                    setSegments(segmentsData || {});
+                    return;
+                }
+            } else {
+                const blobUrl = await getCachedAudioUrl(cached.cachedUrl);
+                if (blobUrl) {
+                    setSurahAudioUrl(blobUrl);
+                    if (cached.reciterId !== selectedReciterId) setSelectedReciterId(cached.reciterId);
+                    setSegments(segmentsData || {});
+                    return;
+                }
+            }
         }
-      } catch (err) {
-        console.error("Failed to fetch audio data", err);
-      }
+
+        // If not cached, fall back to streaming
+        if (surahData) {
+            const surahInfo = surahData[String(currentSurahId)];
+            if (surahInfo?.audio_url) {
+               setSurahAudioUrl(surahInfo.audio_url);
+               setSegments(segmentsData || {});
+            }
+        } else {
+            setSurahAudioUrl('');
+            setSegments({});
+            setIsPlaying(false);
+            if (typeof window !== 'undefined') {
+                setTimeout(() => {
+                    alert('No internet connection. Please download this Surah first to listen offline.');
+                }, 100);
+            }
+        }
     };
 
     fetchAudioData();
@@ -262,11 +298,20 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     return () => { isActive = false; };
-  }, [currentSurahId, selectedReciterId]);
+  }, [currentSurahId, selectedReciterId, audioVersion]);
 
   // Handle URL change
   useEffect(() => {
-    if (!surahAudioUrl) return;
+    if (!surahAudioUrl) {
+      if (isNative) {
+        NativeAudio.stop({ assetId: ASSET_ID }).catch(() => {});
+        NativeAudio.unload({ assetId: ASSET_ID }).catch(() => {});
+      } else if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      return;
+    }
 
     if (isNative) {
       const loadNativeAudio = async () => {
@@ -366,9 +411,18 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [currentSurahId, selectedReciterId, surahAudioUrl, isNative]);
 
   const togglePlay = () => {
-    if (!surahAudioUrl) return;
+    if (!surahAudioUrl) {
+      setAudioVersion(v => v + 1);
+      setIsPlaying(true);
+      return;
+    }
+    if (!isPlaying && surahAudioUrl.startsWith('http') && typeof navigator !== 'undefined' && !navigator.onLine) {
+       setAudioVersion(v => v + 1);
+    }
     setIsPlaying(!isPlaying);
   };
+
+  const forceReloadAudio = () => setAudioVersion(v => v + 1);
 
   const playNext = () => {
     if (isShuffle) {
@@ -409,7 +463,8 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       isShuffle, setIsShuffle,
       playNext, playPrev,
       handleSeek, segments,
-      sleepTimerEnd, setSleepTimer, clearSleepTimer
+      sleepTimerEnd, setSleepTimer, clearSleepTimer,
+      forceReloadAudio
     }}>
       {children}
     </QuranAudioContext.Provider>

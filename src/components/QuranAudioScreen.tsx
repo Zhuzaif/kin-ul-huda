@@ -213,7 +213,14 @@ export default function QuranAudioScreen({ onBack }: Props) {
                    {chapterList.map(c => (
                      <button 
                        key={c.id} 
-                       onClick={() => { setCurrentSurahId(c.id); setShowSurahModal(false); }}
+                       onClick={() => { 
+                           if (c.id === currentSurahId) {
+                               forceReloadAudio();
+                           } else {
+                               setCurrentSurahId(c.id); 
+                           }
+                           setShowSurahModal(false); 
+                       }}
                        className={`w-full flex items-center justify-between px-4 py-3 rounded-[20px] transition-all duration-200 ${c.id === currentSurahId ? 'bg-theme-accent/20 border border-theme-accent/30' : 'hover:bg-white/5 border border-transparent'}`}
                      >
                         <div className="flex items-center gap-3.5">
@@ -250,7 +257,14 @@ export default function QuranAudioScreen({ onBack }: Props) {
                    {RECITER_OPTIONS.map(r => (
                      <button 
                        key={r.id} 
-                       onClick={() => { setSelectedReciterId(r.id); setShowReciterModal(false); }}
+                       onClick={() => { 
+                           if (r.id === selectedReciterId) {
+                               forceReloadAudio();
+                           } else {
+                               setSelectedReciterId(r.id); 
+                           }
+                           setShowReciterModal(false); 
+                       }}
                        className={`w-full flex items-center justify-between px-5 py-4 rounded-[20px] font-medium transition-all duration-200 ${r.id === selectedReciterId ? 'bg-theme-accent/20 border border-theme-accent/30 text-theme-accent' : 'hover:bg-white/5 border border-transparent text-gray-200'}`}
                      >
                        <span className="text-[15px]">{r.label}</span>
