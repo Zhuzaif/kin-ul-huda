@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { getCachedAudioUrl } from '../utils/audioCache';
 import { RECITER_OPTIONS } from '../data/quranConstants';
 import chapters from '../data/chapters-en.json';
+import { Capacitor } from '@capacitor/core';
+import { NativeAudio } from '@capgo/capacitor-native-audio';
 
 interface QuranAudioContextType {
   currentSurahId: number;
@@ -31,6 +33,8 @@ const QuranAudioContext = createContext<QuranAudioContextType | undefined>(undef
 const RECITER_STORAGE_KEY = 'nisa.quran.reciter';
 const SURAH_STORAGE_KEY = 'nisa.quran.lastSurah';
 const TIME_STORAGE_KEY = 'nisa.quran.lastTime';
+
+const ASSET_ID = 'quran_audio';
 
 export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentSurahId, setCurrentSurahId] = useState(() => {
@@ -65,6 +69,8 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const timeUpdateThrottle = useRef(0);
   const sleepTimerIntervalRef = useRef<number | null>(null);
 
+  const isNative = Capacitor.isNativePlatform();
+
   const setSleepTimer = (minutes: number) => {
     setSleepTimerEnd(Date.now() + minutes * 60 * 1000);
   };
@@ -93,11 +99,67 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     };
   }, [sleepTimerEnd]);
 
-  // Initialize audio element only once
+  // Native Audio Setup
   useEffect(() => {
+    if (!isNative) return;
+
+    NativeAudio.configure({
+      focus: true,
+      background: true
+    }).catch(console.error);
+
+    let timeListener: any;
+    let completeListener: any;
+    let stateListener: any;
+
+    const setupListeners = async () => {
+      timeListener = await NativeAudio.addListener('currentTime', (state) => {
+        if (state.assetId === ASSET_ID) {
+          setProgress(state.currentTime);
+          const now = Date.now();
+          if (now - timeUpdateThrottle.current > 5000) {
+            window.localStorage.setItem(TIME_STORAGE_KEY, String(state.currentTime));
+            timeUpdateThrottle.current = now;
+          }
+        }
+      });
+
+      completeListener = await NativeAudio.addListener('complete', (state) => {
+        if (state.assetId === ASSET_ID) {
+          if (isLooping) {
+            NativeAudio.play({ assetId: ASSET_ID }).catch(console.error);
+          } else {
+            playNext();
+          }
+        }
+      });
+
+      stateListener = await NativeAudio.addListener('playbackState', (state) => {
+        if (state.assetId === ASSET_ID) {
+          if (state.duration) setDuration(state.duration);
+          if (state.reason === 'remotePlay' || state.reason === 'play') setIsPlaying(true);
+          else if (state.reason === 'remotePause' || state.reason === 'pause') setIsPlaying(false);
+          else if (state.reason === 'remoteNext') playNext();
+          else if (state.reason === 'remotePrevious') playPrev();
+        }
+      });
+    };
+
+    setupListeners();
+
+    return () => {
+      if (timeListener) timeListener.remove();
+      if (completeListener) completeListener.remove();
+      if (stateListener) stateListener.remove();
+    };
+  }, [isNative, isLooping]);
+
+  // Web Audio Setup
+  useEffect(() => {
+    if (isNative) return;
+
     if (!audioRef.current && typeof window !== 'undefined') {
       audioRef.current = new Audio();
-      
       const storedTime = window.localStorage.getItem(TIME_STORAGE_KEY);
       if (storedTime) {
         setProgress(Number(storedTime));
@@ -112,8 +174,6 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (!duration || duration === 0 || isNaN(duration)) {
          setDuration(audio.duration || 0);
       }
-      
-      // Throttle saving to localStorage to every 5 seconds
       const now = Date.now();
       if (now - timeUpdateThrottle.current > 5000) {
         window.localStorage.setItem(TIME_STORAGE_KEY, String(audio.currentTime));
@@ -123,7 +183,6 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const onLoadedMetadata = () => {
       setDuration(audio.duration);
-      // Restore time if this is the first load
       if (isInitialLoad.current) {
         const storedTime = window.localStorage.getItem(TIME_STORAGE_KEY);
         if (storedTime && audio.duration > Number(storedTime)) {
@@ -162,7 +221,7 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('play', onPlay);
     };
-  }, [isLooping, duration]);
+  }, [isNative, isLooping, duration]);
 
   // Fetch audio data
   useEffect(() => {
@@ -197,7 +256,7 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(RECITER_STORAGE_KEY, selectedReciterId);
       window.localStorage.setItem(SURAH_STORAGE_KEY, String(currentSurahId));
-      if (!isInitialLoad.current) {
+      if (!isInitialLoad.current && !isNative) {
         window.localStorage.removeItem(TIME_STORAGE_KEY);
       }
     }
@@ -207,20 +266,69 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Handle URL change
   useEffect(() => {
-    if (audioRef.current && surahAudioUrl) {
-       audioRef.current.src = surahAudioUrl;
-       audioRef.current.load();
-       if (isPlaying) {
-         audioRef.current.play().catch(e => {
-             if (e.name !== 'AbortError') setIsPlaying(false);
-         });
-       }
+    if (!surahAudioUrl) return;
+
+    if (isNative) {
+      const loadNativeAudio = async () => {
+        const chapter = chapters.find(c => c.id === currentSurahId);
+        const reciter = RECITER_OPTIONS.find(r => r.id === selectedReciterId);
+        
+        try {
+          await NativeAudio.unload({ assetId: ASSET_ID }).catch(() => {});
+          await NativeAudio.preload({
+            assetId: ASSET_ID,
+            assetPath: surahAudioUrl,
+            audioChannelNum: 1,
+            isUrl: true,
+            title: `Surah ${chapter?.transliteration || ''}`,
+            artist: reciter?.label || '',
+            album: 'Quran',
+            cover: 'public/icons/icon-512x512.png' // remote/local URLs
+          });
+          
+          if (isInitialLoad.current) {
+            const storedTime = window.localStorage.getItem(TIME_STORAGE_KEY);
+            if (storedTime) {
+               await NativeAudio.setCurrentTime({ assetId: ASSET_ID, time: Number(storedTime) }).catch(console.error);
+            }
+            isInitialLoad.current = false;
+          } else {
+             window.localStorage.removeItem(TIME_STORAGE_KEY);
+          }
+
+          if (isPlaying) {
+            await NativeAudio.play({ assetId: ASSET_ID });
+          }
+        } catch (e) {
+          console.error('Failed to load native audio:', e);
+        }
+      };
+      loadNativeAudio();
+    } else {
+      if (audioRef.current) {
+         audioRef.current.src = surahAudioUrl;
+         audioRef.current.load();
+         if (isPlaying) {
+           audioRef.current.play().catch(e => {
+               if (e.name !== 'AbortError') setIsPlaying(false);
+           });
+         }
+      }
     }
   }, [surahAudioUrl]);
 
   // Sync play state
   useEffect(() => {
-      if (audioRef.current && surahAudioUrl) {
+    if (!surahAudioUrl) return;
+    
+    if (isNative) {
+      if (isPlaying) {
+         NativeAudio.play({ assetId: ASSET_ID }).catch(e => setIsPlaying(false));
+      } else {
+         NativeAudio.pause({ assetId: ASSET_ID }).catch(() => {});
+      }
+    } else {
+      if (audioRef.current) {
           if (isPlaying) {
               const p = audioRef.current.play();
               if (p !== undefined) {
@@ -232,11 +340,12 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               audioRef.current.pause();
           }
       }
+    }
   }, [isPlaying]);
 
-  // Update Media Session API for lock screen controls
+  // Update Media Session API for web lock screen controls
   useEffect(() => {
-    if ('mediaSession' in navigator && surahAudioUrl) {
+    if (!isNative && 'mediaSession' in navigator && surahAudioUrl) {
       const chapter = chapters.find(c => c.id === currentSurahId);
       const reciter = RECITER_OPTIONS.find(r => r.id === selectedReciterId);
       
@@ -254,7 +363,7 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       navigator.mediaSession.setActionHandler('previoustrack', playPrev);
       navigator.mediaSession.setActionHandler('nexttrack', playNext);
     }
-  }, [currentSurahId, selectedReciterId, surahAudioUrl]);
+  }, [currentSurahId, selectedReciterId, surahAudioUrl, isNative]);
 
   const togglePlay = () => {
     if (!surahAudioUrl) return;
@@ -276,10 +385,17 @@ export const QuranAudioProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const handleSeek = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setProgress(time);
-      window.localStorage.setItem(TIME_STORAGE_KEY, String(time));
+    if (isNative) {
+      NativeAudio.setCurrentTime({ assetId: ASSET_ID, time }).then(() => {
+        setProgress(time);
+        window.localStorage.setItem(TIME_STORAGE_KEY, String(time));
+      }).catch(console.error);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.currentTime = time;
+        setProgress(time);
+        window.localStorage.setItem(TIME_STORAGE_KEY, String(time));
+      }
     }
   };
 
