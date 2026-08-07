@@ -94,13 +94,13 @@ export default function DailyVerse() {
 
   const content = isPeriodMode ? {
     title: "Dua of the Day",
-    icon: <Sparkles className="w-4 h-4 text-theme-gold" />,
+    icon: <Sparkles className={`w-4 h-4 ${isDarkTheme ? 'text-theme-accent' : 'text-theme-gold'}`} />,
     arabic: currentDua.arabic,
     english: currentDua.translation || "",
     reference: currentDua.tags && currentDua.tags.length > 0 ? currentDua.tags[0].toUpperCase() : "DUA"
   } : {
     title: "Ayat of the Day",
-    icon: <BookOpen className="w-4 h-4 text-theme-gold" />,
+    icon: <BookOpen className={`w-4 h-4 ${isDarkTheme ? 'text-theme-accent' : 'text-theme-gold'}`} />,
     arabic: arabicText,
     english: engText,
     reference: ayatReference
@@ -176,17 +176,14 @@ export default function DailyVerse() {
     <div className="px-6 mb-8" ref={containerRef}>
       {isDarkTheme ? (
         <div
-          className="relative overflow-hidden rounded-[32px] p-7 cursor-pointer group shadow-2xl transition-all duration-500 hover:shadow-[0_20px_40px_-10px_rgba(201,166,107,0.25)]"
-          style={{
-            background: 'linear-gradient(160deg, #1c1c1e 0%, #292205 100%)',
-          }}
+          className="relative overflow-hidden rounded-[32px] p-7 cursor-pointer group shadow-2xl transition-all duration-500 hover:shadow-[var(--nisa-shadow-accent)] bg-gradient-to-br from-theme-surface-card to-theme-accent/20"
           onClick={() => setShowShareCards(true)}
         >
           {/* Inner glow border */}
-          <div className="absolute inset-0 rounded-[32px] border border-theme-gold/20 group-hover:border-theme-gold/40 transition-colors duration-500" />
+          <div className="absolute inset-0 rounded-[32px] border border-theme-accent/20 group-hover:border-theme-accent/40 transition-colors duration-500" />
           
           {/* Top-right gold glow */}
-          <div className="absolute -top-24 -right-24 w-56 h-56 bg-theme-gold/15 rounded-full blur-[70px] pointer-events-none group-hover:bg-theme-gold/25 transition-colors duration-700" />
+          <div className="absolute -top-24 -right-24 w-56 h-56 bg-theme-accent/15 rounded-full blur-[70px] pointer-events-none group-hover:bg-theme-accent/25 transition-colors duration-700" />
           
           {/* Bottom-left white glow */}
           <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-white/5 rounded-full blur-[60px] pointer-events-none" />
@@ -207,23 +204,23 @@ export default function DailyVerse() {
           <div className="relative z-10 flex flex-col h-full">
             {/* Header Row */}
             <div className="flex items-start justify-between mb-5">
-              <div className="flex items-center gap-2.5 mt-1 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-theme-gold/10">
+              <div className="flex items-center gap-2.5 mt-1 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-theme-accent/10">
                 {content.icon}
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-theme-gold/90">{content.title}</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-theme-accent/90">{content.title}</span>
               </div>
 
               <div className="flex items-center gap-2">
                 <motion.button
                   whileTap={buttonTap}
                   onClick={(e) => { e.stopPropagation(); handleShare(); }}
-                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-theme-gold/10 flex items-center justify-center text-theme-gold/80 hover:text-theme-gold hover:bg-black/60 transition-all shadow-sm"
+                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-theme-accent/10 flex items-center justify-center text-theme-accent/80 hover:text-theme-accent hover:bg-black/60 transition-all shadow-sm"
                 >
                   <Share2 className="w-4 h-4" />
                 </motion.button>
                 <motion.button
                   whileTap={buttonTap}
                   onClick={handleSave}
-                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-theme-gold/10 flex items-center justify-center text-theme-gold/80 hover:text-theme-gold hover:bg-black/60 transition-all shadow-sm relative"
+                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-theme-accent/10 flex items-center justify-center text-theme-accent/80 hover:text-theme-accent hover:bg-black/60 transition-all shadow-sm relative"
                 >
                   <AnimatePresence>
                     {isSaved && (
@@ -233,7 +230,7 @@ export default function DailyVerse() {
                         exit={{ scale: 0 }}
                         className="absolute inset-0 flex items-center justify-center"
                       >
-                        <Heart className="w-4 h-4 text-theme-gold fill-theme-gold" />
+                        <Heart className="w-4 h-4 text-theme-accent fill-theme-accent" />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -247,13 +244,12 @@ export default function DailyVerse() {
               </div>
             </div>
 
-            {/* Arabic Text with Yellow to White Gradient */}
             <div className="text-center mb-8 mt-2 relative px-2">
               <p
-                className="text-[30px] leading-[2.1] py-2 font-normal bg-clip-text text-transparent bg-gradient-to-b from-[#ffffff] via-[#fff5d6] to-[#d4af37]"
+                className="text-[30px] leading-[2.1] py-2 font-normal bg-clip-text text-transparent bg-gradient-to-b from-white to-theme-accent"
                 style={{ 
                   fontFamily: '"Al Majeed Quranic", serif',
-                  filter: 'drop-shadow(0px 4px 12px rgba(212, 175, 55, 0.15))'
+                  filter: 'drop-shadow(0px 4px 12px color-mix(in srgb, var(--color-theme-accent) 40%, transparent))'
                 }}
                 dir="rtl"
               >
@@ -261,10 +257,9 @@ export default function DailyVerse() {
               </p>
             </div>
 
-            {/* English Translation */}
             <div className="flex-1 flex flex-col justify-end">
               <div className="relative px-4">
-                <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-gradient-to-b from-theme-gold/60 via-theme-gold/20 to-transparent rounded-full" />
+                <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-gradient-to-b from-theme-accent/60 via-theme-accent/20 to-transparent rounded-full" />
                 <p className="text-[13.5px] text-white/80 text-left leading-[1.8] font-medium drop-shadow-sm">
                   {content.english}
                 </p>
@@ -272,8 +267,8 @@ export default function DailyVerse() {
               
               {/* Reference */}
               <div className="flex items-center justify-start mt-6 pl-4">
-                <span className="w-6 h-[1px] bg-theme-gold/50" />
-                <p className="text-[9.5px] text-theme-gold px-2.5 uppercase tracking-[0.15em] font-bold">
+                <span className="w-6 h-[1px] bg-theme-accent/50" />
+                <p className="text-[9.5px] text-theme-accent px-2.5 uppercase tracking-[0.15em] font-bold">
                   {content.reference}
                 </p>
               </div>

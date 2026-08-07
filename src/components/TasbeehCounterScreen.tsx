@@ -95,7 +95,7 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
                 inset 0 4px 10px rgba(255,255,255,0.1),
                 inset 0 -10px 20px rgba(0,0,0,0.8),
                 0 0 0 3px #111,
-                0 0 0 6px #fca311;
+                0 0 0 6px var(--color-theme-accent, #fca311);
             position: relative;
             z-index: 10;
         }
@@ -124,10 +124,11 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         }
 
         .btn-count {
-            background: radial-gradient(circle at 30% 30%, #ffc640, #fca311, #cc8400);
+            background-color: var(--color-theme-accent, #fca311);
+            background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 60%, rgba(0,0,0,0.2) 100%);
             border-radius: 50%;
             box-shadow: 
-                0 12px 0 #a36a00, 
+                0 12px 0 rgba(0,0,0,0.3), 
                 0 15px 25px rgba(0,0,0,0.5),
                 inset 0 5px 10px rgba(255,255,255,0.4),
                 inset 0 -5px 15px rgba(0,0,0,0.3);
@@ -144,16 +145,17 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         .btn-count.pressed {
             transform: translateY(12px);
             box-shadow: 
-                0 0 0 #a36a00, 
+                0 0 0 rgba(0,0,0,0.3), 
                 0 5px 10px rgba(0,0,0,0.6),
                 inset 0 5px 10px rgba(255,255,255,0.4),
                 inset 0 -5px 15px rgba(0,0,0,0.3);
         }
 
         .btn-reset {
-            background: radial-gradient(circle at 30% 30%, #ffc640, #fca311);
+            background-color: var(--color-theme-accent, #fca311);
+            background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%);
             border-radius: 50%;
-            box-shadow: 0 4px 0 #a36a00, 0 6px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 6px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
             transition: all 0.1s ease;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
@@ -161,7 +163,7 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         
         .btn-reset.pressed {
             transform: translateY(4px);
-            box-shadow: 0 0 0 #a36a00, 0 2px 4px rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .counter-strap {
@@ -187,7 +189,7 @@ export default function TasbeehCounterScreen({ onBack }: TasbeehCounterScreenPro
         }
 
         .islamic-pattern {
-            background-color: #fca311;
+            background-color: var(--color-theme-accent, #fca311);
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M30 0l14.14 14.14L30 28.28 15.86 14.14zM0 30l14.14-14.14L28.28 30 14.14 44.14zM30 60l-14.14-14.14L30 31.72l14.14 14.14zM60 30L45.86 44.14 31.72 30 45.86 15.86zM30 42.42l8.48-8.48-8.48-8.48-8.48 8.48z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
       `}} />
@@ -275,8 +277,8 @@ function DhikrListScreen({ dhikrData, onSelect, onAppBack }: { dhikrData: typeof
               onClick={() => onSelect(item)}
               className="bg-theme-surface-card p-5 rounded-[24px] shadow-[var(--nisa-shadow-card)] flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-all duration-300 border border-theme-border"
             >
-              {/* Count Badge (Gold) */}
-              <div className="bg-[#fca311] text-gray-900 font-bold text-xs py-1.5 px-4 rounded-full whitespace-nowrap shadow-sm">
+              {/* Count Badge (Gold/Accent) */}
+              <div className="bg-theme-accent text-theme-surface font-bold text-xs py-1.5 px-4 rounded-full whitespace-nowrap shadow-sm">
                 {item.count > 0 ? `${item.count} / ${item.target}` : `${item.target}x`}
               </div>
               
@@ -329,7 +331,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col h-full bg-[#fca311] islamic-pattern relative overflow-hidden"
+      className="flex-1 flex flex-col h-full bg-theme-accent islamic-pattern relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none z-0"></div>
 
@@ -362,7 +364,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
                 className="absolute top-full right-0 mt-4 w-64 bg-gray-900 text-white rounded-2xl shadow-2xl border border-gray-700 overflow-hidden z-50 origin-top-right"
               >
                 <div className="p-3 bg-black/40 border-b border-gray-700">
-                  <h3 className="font-bold text-sm text-[#fca311]">Select Tasbeeh</h3>
+                  <h3 className="font-bold text-sm text-theme-accent">Select Tasbeeh</h3>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {dhikrData.map(item => (
@@ -379,7 +381,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
                         <span className="text-xs text-gray-400 mt-1">{item.roman}</span>
                       </div>
                       {item.count > 0 && (
-                        <div className="bg-[#fca311] text-gray-900 font-bold text-[10px] px-2 py-0.5 rounded-full">
+                        <div className="bg-theme-accent text-gray-900 font-bold text-[10px] px-2 py-0.5 rounded-full">
                           {item.count}
                         </div>
                       )}
@@ -396,7 +398,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
         <h2 className="font-arabic text-4xl text-gray-900 font-bold mb-3 drop-shadow-md">{dhikr.arabic}</h2>
         <p className="text-gray-800 text-lg font-semibold tracking-wide drop-shadow-sm">{dhikr.roman}</p>
         
-        <div className="mt-4 bg-gray-900 text-[#fca311] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-gray-700">
+        <div className="mt-4 bg-gray-900 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-gray-700">
           Target: <span>{dhikr.target}</span>
         </div>
       </div>
@@ -419,7 +421,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
 
           <div className="w-full flex justify-end pr-2 mb-2">
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-bold text-[#fca311] tracking-widest mb-2 opacity-80">RESET</span>
+              <span className="text-[9px] font-bold text-theme-accent tracking-widest mb-2 opacity-80">RESET</span>
               <div 
                 onPointerDown={handleReset}
                 onPointerUp={handleResetRelease}
@@ -438,7 +440,7 @@ function CounterScreen({ dhikr, dhikrData, onBack, onUpdateCount, onChangeDhikr 
               onPointerLeave={handleRelease}
               className={`btn-count w-[110px] h-[110px] ${isPressed ? 'pressed' : ''}`}
             >
-              <span className="font-bold text-[#4a2e00] text-sm tracking-widest uppercase pointer-events-none drop-shadow-sm">Count</span>
+              <span className="font-bold text-gray-900 text-sm tracking-widest uppercase pointer-events-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">Count</span>
             </div>
           </div>
         </div>

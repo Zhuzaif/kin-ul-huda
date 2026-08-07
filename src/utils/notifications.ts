@@ -16,6 +16,21 @@ export async function schedulePrayerNotifications(profile: UserProfile) {
     console.error('Error clearing pending notifications:', e);
   }
 
+  // Ensure notification channel is created for Android
+  try {
+    await LocalNotifications.createChannel({
+      id: 'adhan_channel',
+      name: 'Adhan Notifications',
+      description: 'Notifications for prayer times with Adhan sound',
+      importance: 5, // High importance
+      visibility: 1, // Public
+      sound: 'adhan.mp3', 
+      vibration: true,
+    });
+  } catch (e) {
+    console.error('Error creating notification channel:', e);
+  }
+
   // 2. If master switch is off or both sub-settings are disabled, we are done
   const prefs = profile.notificationPrefs || { adhan: false, reminders: false };
   if (!profile.prayerReminders || (!prefs.adhan && !prefs.reminders)) {
@@ -57,7 +72,8 @@ export async function schedulePrayerNotifications(profile: UserProfile) {
           title: `Time for ${prayer.name}`,
           body: `It is time to pray ${prayer.name}.`,
           schedule: { at: prayer.dateObj },
-          sound: 'default', // Ideally we'd use an adhan sound if a channel is configured
+          sound: 'adhan.mp3', // For iOS and as fallback
+          channelId: 'adhan_channel', // Crucial for Android custom sound
           smallIcon: 'ic_stat_name', // Default capacitor icon
         });
       }
